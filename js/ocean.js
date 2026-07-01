@@ -71,7 +71,7 @@ const Ocean = (() => {
       // vertical depth gradient — descend pushes everything toward the abyss
       float vert = smoothstep(-0.15, 1.15, uv.y);
       vec3 col = mix(uDeep, uSurface, vert);
-      col = mix(col, uDeep, depth * 0.92);
+      col = mix(col, uDeep, depth * 0.5);
 
       // volumetric god rays from an off-screen top light (10-tap raymarch)
       vec2 lightPos = vec2(0.30 + uPointer.x * 0.40, 1.25);

@@ -27,10 +27,10 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const wait = (ms) => new Promise(r => setTimeout(r, ms));
 
-  // decode a modest width in the preloader gate (the page upgrades via srcset)
-  const HERO_SRC = 'https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1280&auto=format&fit=crop';
+  // the preloader gate decodes the hero poster (the video streams in afterwards)
+  const HERO_SRC = 'assets/video/hero-turtle.jpg';
 
-  const PALETTE = { surface: '#1f7d90', deep: '#03101e', light: '#7fe3dd' };
+  const PALETTE = { surface: '#2ba6b0', deep: '#0a3a4a', light: '#a9f0e6' };
 
   /* If GSAP failed to load, degrade gracefully: reveal everything, keep basics. */
   if (!hasGSAP) root.classList.remove('js');
@@ -47,6 +47,7 @@
       initCursor();
       initNav();
       initForm();
+      initVideos();
 
       if (!reduced && !lowEnd) initOcean();
 
@@ -226,14 +227,14 @@
       once: true,
     });
 
-    // image clip reveals
+    // image / video clip reveals
     $$('[data-clip]').forEach((fig) => {
-      const img = fig.querySelector('img');
-      if (!img) return;
-      gsap.set(img, { scale: 1.24, clipPath: 'inset(0 0 100% 0)' });
+      const media = fig.querySelector('img, video');
+      if (!media) return;
+      gsap.set(media, { scale: 1.24, clipPath: 'inset(0 0 100% 0)' });
       ST.create({
         trigger: fig, start: 'top 84%', once: true,
-        onEnter: () => gsap.to(img, { scale: 1, clipPath: 'inset(0 0 0% 0)', duration: 1.5, ease: 'power3.out' }),
+        onEnter: () => gsap.to(media, { scale: 1, clipPath: 'inset(0 0 0% 0)', duration: 1.5, ease: 'power3.out' }),
       });
     });
   }
@@ -244,7 +245,7 @@
   function initParallax() {
     $$('[data-parallax]').forEach((el) => {
       const speed = parseFloat(el.getAttribute('data-parallax')) || 0.1;
-      const mover = el.matches('.hero__media, .descent__media') ? el.querySelector('img') : el;
+      const mover = el.matches('.hero__media, .descent__media') ? el.querySelector('img, video') : el;
       if (!mover) return;
       gsap.to(mover, {
         yPercent: speed * 100,
@@ -298,7 +299,7 @@
   let lastDepthQ = -1, lastRead = '';
   const depthReadEl = () => document.getElementById('depthRead');
   function setDepthVars(d) {
-    const graded = clamp(d * 1.35);
+    const graded = clamp(d * 0.78);
     const q = Math.round(graded * 100) / 100;               // quantise → skip redundant repaints
     if (q !== lastDepthQ) {
       root.style.setProperty('--depth', q.toFixed(2));
@@ -394,6 +395,38 @@
         el.style.transform = `translate(${mx * strength}px, ${my * strength}px)`;
       });
       el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+    });
+  }
+
+  /* =====================================================================
+     BACKGROUND VIDEO — lazy, viewport-gated, honours reduced-motion / save-data.
+     Markup: <video data-bg data-src="…" poster="…" muted loop playsinline>.
+     Only fetches + plays while near the viewport; poster is the fallback frame.
+     ===================================================================== */
+  function initVideos() {
+    const vids = $$('video[data-bg]');
+    if (!vids.length) return;
+    const saveData = navigator.connection && navigator.connection.saveData;
+    // reduced-motion or data-saver → never load the clip; the poster stays
+    if (reduced || saveData) return;
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        const v = e.target;
+        if (e.isIntersecting) {
+          if (!v.getAttribute('src') && v.dataset.src) v.setAttribute('src', v.dataset.src);
+          const p = v.play();
+          if (p && p.catch) p.catch(() => {});
+        } else {
+          v.pause();
+        }
+      });
+    }, { rootMargin: '250px 0px', threshold: 0.01 });
+
+    vids.forEach((v) => {
+      v.muted = true; v.loop = true; v.playsInline = true;
+      v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+      io.observe(v);
     });
   }
 

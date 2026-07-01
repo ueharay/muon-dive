@@ -9,16 +9,14 @@
 <meta property="og:type" content="website" />
 <meta property="og:title" content="無音 MUON — 別世界は、水面の下にある。" />
 <meta property="og:description" content="10時間のフライトが着くのは、同じ世界の別の街。数時間の海が着くのは、別の世界。マニラ発、脳を別次元へ運ぶダイビング。" />
-<meta property="og:image" content="https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1200&auto=format&fit=crop" />
+<meta property="og:image" content="https://ueharay.github.io/muon-dive/assets/video/hero-turtle.jpg" />
 <meta name="twitter:card" content="summary_large_image" />
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23030F1E'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='none' stroke='%2345C7C4' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%23E5B667'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://images.unsplash.com" />
-<link rel="preload" as="image" imagesizes="100vw"
-  imagesrcset="https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=768&auto=format&fit=crop 768w, https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1280&auto=format&fit=crop 1280w, https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=2000&auto=format&fit=crop 2000w"
-  href="https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1280&auto=format&fit=crop" />
+<link rel="preload" as="image" href="assets/video/hero-turtle.jpg" />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=Marcellus&family=Shippori+Mincho:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
 
@@ -100,11 +98,10 @@
 
   <!-- ============ HERO ============ -->
   <section class="hero section" id="hero" data-depth="0.02">
-    <figure class="hero__media" data-parallax="0.18">
-      <img src="https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1280&auto=format&fit=crop"
-           srcset="https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=768&auto=format&fit=crop 768w, https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1280&auto=format&fit=crop 1280w, https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=2000&auto=format&fit=crop 2000w"
-           sizes="100vw"
-           alt="果てのない深い青の中に、たった一人で吊り下がるダイバーのシルエット" fetchpriority="high" />
+    <figure class="hero__media">
+      <video class="bgvid" data-bg data-src="assets/video/hero-turtle.mp4"
+             poster="assets/video/hero-turtle.jpg" muted loop playsinline preload="none"
+             aria-hidden="true"></video>
     </figure>
     <div class="hero__inner">
       <p class="kicker" data-reveal="fade">TELEPORT, NOT TRAVEL</p>
@@ -144,9 +141,9 @@
           <figcaption><span>THE SURFACE</span>あなたが後にする、地上の世界</figcaption>
         </figure>
         <figure class="contrast__fig contrast__fig--void" data-clip data-parallax="0.14">
-          <img loading="lazy" decoding="async"
-               src="https://images.unsplash.com/photo-1743656619958-68d85790bdb4?q=80&w=1600&auto=format&fit=crop"
-               alt="水面の光へ向かって、二つの世界の狭間に浮かぶダイバー" />
+          <video class="bgvid" data-bg data-src="assets/video/reef-orange.mp4"
+                 poster="assets/video/reef-orange.jpg" muted loop playsinline preload="none"
+                 aria-hidden="true"></video>
           <figcaption><span>THE OTHER SIDE</span>あなたが辿り着く、別の惑星</figcaption>
         </figure>
         <div class="contrast__text" data-reveal="fade">
@@ -159,12 +156,10 @@
 
   <!-- ============ DESCENT ============ -->
   <section class="descent section" id="descent" data-depth="0.42">
-    <figure class="descent__media" data-parallax="0.22">
-      <img loading="lazy" decoding="async"
-           src="https://images.unsplash.com/photo-1760039894970-eb66a3633c5a?q=80&w=1600&auto=format&fit=crop"
-           srcset="https://images.unsplash.com/photo-1760039894970-eb66a3633c5a?q=80&w=1280&auto=format&fit=crop 1280w, https://images.unsplash.com/photo-1760039894970-eb66a3633c5a?q=80&w=2000&auto=format&fit=crop 2000w"
-           sizes="100vw"
-           alt="暗い青の水中に、幾筋も差し込む光の柱" />
+    <figure class="descent__media">
+      <video class="bgvid" data-bg data-src="assets/video/whaleshark.mp4"
+             poster="assets/video/whaleshark.jpg" muted loop playsinline preload="none"
+             aria-hidden="true"></video>
     </figure>
     <div class="descent__inner">
       <p class="kicker" data-reveal="fade">THE MOMENT OF CROSSING</p>
@@ -190,9 +185,9 @@
   <section class="experience section" id="experience" data-depth="0.5">
     <div class="wrap experience__wrap">
       <figure class="experience__media" data-clip data-parallax="0.12">
-        <img loading="lazy" decoding="async"
-             src="https://images.unsplash.com/photo-1530053190459-2b3a69cad5cd?q=80&w=1400&auto=format&fit=crop"
-             alt="陽光に照らされ、水面へ両手を伸ばして上昇する人物" />
+        <video class="bgvid" data-bg data-src="assets/video/reef-portrait.mp4"
+               poster="assets/video/reef-portrait.jpg" muted loop playsinline preload="none"
+               aria-hidden="true"></video>
       </figure>
       <div class="experience__body">
         <p class="kicker" data-reveal="fade">NO EXPERIENCE NEEDED</p>
@@ -238,10 +233,10 @@
     </div>
     <div class="gallery__grid">
       <figure class="gallery__item gallery__item--tall" data-clip data-parallax="0.1">
-        <img loading="lazy" decoding="async"
-             src="https://images.unsplash.com/photo-1712672122149-038926f84bb1?q=80&w=1400&auto=format&fit=crop"
-             alt="珊瑚礁の上を静かに滑空するウミガメ" />
-        <figcaption>Sea Turtle · 静寂の住人</figcaption>
+        <video class="bgvid" data-bg data-src="assets/video/table-coral.mp4"
+               poster="assets/video/table-coral.jpg" muted loop playsinline preload="none"
+               aria-hidden="true"></video>
+        <figcaption>Coral Garden · 珊瑚の庭</figcaption>
       </figure>
       <figure class="gallery__item" data-clip data-parallax="0.16">
         <img loading="lazy" decoding="async"
@@ -250,16 +245,16 @@
         <figcaption>Coral Reef · 極彩色の別世界</figcaption>
       </figure>
       <figure class="gallery__item" data-clip data-parallax="0.12">
-        <img loading="lazy" decoding="async"
-             src="https://images.unsplash.com/photo-1463468217891-c11f48e6310a?q=80&w=1400&auto=format&fit=crop"
-             alt="青い海中を隊列を組んで泳ぐ魚の大群" />
+        <video class="bgvid" data-bg data-src="assets/video/shoal.mp4"
+               poster="assets/video/shoal.jpg" muted loop playsinline preload="none"
+               aria-hidden="true"></video>
         <figcaption>The Shoal · 群れという名の風景</figcaption>
       </figure>
       <figure class="gallery__item gallery__item--wide" data-clip data-parallax="0.08">
         <img loading="lazy" decoding="async"
-             src="https://images.unsplash.com/photo-1743656619909-cf3584e22367?q=80&w=2000&auto=format&fit=crop"
-             alt="一筋の光の柱の中に吊り下がる、ダイバーのシルエット" />
-        <figcaption>Light Column · 一条の光に吊られて</figcaption>
+             src="https://images.unsplash.com/photo-1708649290066-5f617003b93f?q=80&w=2000&auto=format&fit=crop"
+             alt="極彩色に群れる魚とサンゴ礁" />
+        <figcaption>Reef Life · 極彩色の楽園</figcaption>
       </figure>
     </div>
   </section>
@@ -385,6 +380,11 @@
 
   <!-- ============ CTA (return to light) ============ -->
   <section class="cta section" id="cta" data-depth="0.08">
+    <div class="cta__media">
+      <video class="bgvid" data-bg data-src="assets/video/reef-teal.mp4"
+             poster="assets/video/reef-teal.jpg" muted loop playsinline preload="none"
+             aria-hidden="true"></video>
+    </div>
     <div class="cta__inner">
       <p class="kicker" data-reveal="fade">YOUR NEXT WORLD IS ONE BREATH AWAY</p>
       <h2 class="cta__title lines">次の週末、<br>別の惑星で<span class="glow">会いましょう</span>。</h2>
