@@ -28,9 +28,9 @@
   const wait = (ms) => new Promise(r => setTimeout(r, ms));
 
   // the preloader gate decodes the hero poster (the video streams in afterwards)
-  const HERO_SRC = 'assets/video/hero-turtle.jpg';
+  const HERO_SRC = 'assets/video/hero-montage.jpg';
 
-  const PALETTE = { surface: '#2ba6b0', deep: '#0a3a4a', light: '#a9f0e6' };
+  const PALETTE = { surface: '#37bcc2', deep: '#0f4d61', light: '#b6f3ea' };
 
   /* If GSAP failed to load, degrade gracefully: reveal everything, keep basics. */
   if (!hasGSAP) root.classList.remove('js');
@@ -40,6 +40,12 @@
     if (booted) return; booted = true;
     try {
       const yearEl = $('#year'); if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      // apply saved language BEFORE splitting, so reveals/animation run on the active copy
+      collectI18n();
+      curLang = storedLang();
+      applyLang(curLang);
+      setLangAttrs(curLang);
 
       splitLines();
       // GSAP owns the hidden state of every masked line (avoids the CSS-%→px matrix trap)
@@ -182,13 +188,71 @@
   /* =====================================================================
      LINE SPLIT — JP-safe: split on authored <br>, wrap for masked reveal
      ===================================================================== */
-  function splitLines() {
+  function splitOne(el) {
+    const segs = el.innerHTML.split(/<br\s*\/?>/i);
+    el.innerHTML = segs
+      .map((s) => `<span class="line"><span class="line-inner">${s.trim()}</span></span>`)
+      .join('');
+  }
+  function splitLines() { $$('.lines').forEach(splitOne); }
+
+  /* =====================================================================
+     i18n — JP ⇄ EN. Translations keyed by JP source (window.MUON_I18N).
+     Body copy swaps at the text-node level (mixed markup like "01…" or "→"
+     is preserved); display headings swap innerHTML and re-split.
+     ===================================================================== */
+  const I18N = { map: {}, headings: [], nodes: [] };
+  const normI = (s) => (s || '').replace(/\s+/g, '');
+  let curLang = 'ja';
+
+  function collectI18n() {
+    (window.MUON_I18N || []).forEach((t) => { I18N.map[normI(t.jp)] = t; });
     $$('.lines').forEach((el) => {
-      const segs = el.innerHTML.split(/<br\s*\/?>/i);
-      el.innerHTML = segs
-        .map((s) => `<span class="line"><span class="line-inner">${s.trim()}</span></span>`)
-        .join('');
+      const t = I18N.map[normI(el.textContent)];
+      if (t) I18N.headings.push({ el, jpHtml: el.innerHTML, t });
     });
+    const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(n) {
+        if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const p = n.parentElement;
+        if (!p || p.closest('.lines, script, style, noscript, .preloader')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    });
+    let n;
+    while ((n = tw.nextNode())) {
+      const t = I18N.map[normI(n.nodeValue)];
+      if (t) I18N.nodes.push({ node: n, jp: n.nodeValue, en: t.en });
+    }
+  }
+  function headingHtml(t) {
+    let h = t.en;
+    if (t.glowEn) h = h.replace(t.glowEn, `<span class="glow">${t.glowEn}</span>`);
+    return h;
+  }
+  function applyLang(lang) {
+    const en = lang === 'en';
+    I18N.nodes.forEach((o) => { o.node.nodeValue = en ? o.en : o.jp; });
+    I18N.headings.forEach((o) => { o.el.innerHTML = en ? headingHtml(o.t) : o.jpHtml; });
+  }
+  function setLangAttrs(lang) {
+    root.lang = lang === 'en' ? 'en' : 'ja';
+    root.setAttribute('data-lang', lang);
+  }
+  function storedLang() {
+    try { return localStorage.getItem('muon-lang') === 'en' ? 'en' : 'ja'; } catch (e) { return 'ja'; }
+  }
+  function switchLang(lang) {
+    if (lang === curLang) return;
+    curLang = lang;
+    applyLang(lang);
+    setLangAttrs(lang);
+    I18N.headings.forEach((o) => {
+      splitOne(o.el);
+      if (hasGSAP && !reduced) gsap.set(o.el.querySelectorAll('.line-inner'), { yPercent: 0, opacity: 1, clearProps: 'transform' });
+    });
+    try { localStorage.setItem('muon-lang', lang); } catch (e) {}
+    if (window.ScrollTrigger) window.ScrollTrigger.refresh();
   }
 
   /* =====================================================================
@@ -299,7 +363,7 @@
   let lastDepthQ = -1, lastRead = '';
   const depthReadEl = () => document.getElementById('depthRead');
   function setDepthVars(d) {
-    const graded = clamp(d * 0.78);
+    const graded = clamp(d * 0.6);
     const q = Math.round(graded * 100) / 100;               // quantise → skip redundant repaints
     if (q !== lastDepthQ) {
       root.style.setProperty('--depth', q.toFixed(2));
@@ -462,6 +526,10 @@
 
     // never hide the nav while a link inside it has keyboard focus
     nav.addEventListener('focusin', () => nav.classList.remove('is-hidden'));
+
+    $$('.nav__lang').forEach((btn) => {
+      btn.addEventListener('click', () => switchLang(curLang === 'en' ? 'ja' : 'en'));
+    });
 
     burger?.addEventListener('click', () => {
       menuOpen = !menuOpen;

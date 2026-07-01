@@ -9,14 +9,14 @@
 <meta property="og:type" content="website" />
 <meta property="og:title" content="無音 MUON — 別世界は、水面の下にある。" />
 <meta property="og:description" content="10時間のフライトが着くのは、同じ世界の別の街。数時間の海が着くのは、別の世界。マニラ発、脳を別次元へ運ぶダイビング。" />
-<meta property="og:image" content="https://ueharay.github.io/muon-dive/assets/video/hero-turtle.jpg" />
+<meta property="og:image" content="https://ueharay.github.io/muon-dive/assets/video/hero-montage.jpg" />
 <meta name="twitter:card" content="summary_large_image" />
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23030F1E'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='none' stroke='%2345C7C4' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%23E5B667'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://images.unsplash.com" />
-<link rel="preload" as="image" href="assets/video/hero-turtle.jpg" />
+<link rel="preload" as="image" href="assets/video/hero-montage.jpg" />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=Marcellus&family=Shippori+Mincho:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
 
@@ -90,8 +90,13 @@
     <a href="#access">アクセス</a>
     <a href="#trust">安全</a>
   </nav>
-  <a href="#cta" class="nav__cta" data-magnetic>予約する<em>Book</em></a>
-  <button class="nav__burger" id="burger" aria-label="メニュー" aria-controls="navLinks" aria-expanded="false"><span></span><span></span></button>
+  <div class="nav__actions">
+    <button class="nav__lang" type="button" aria-label="Language / 言語を切り替える">
+      <span data-l="ja">JP</span><i aria-hidden="true">/</i><span data-l="en">EN</span>
+    </button>
+    <a href="#cta" class="nav__cta" data-magnetic>予約する</a>
+    <button class="nav__burger" id="burger" aria-label="メニュー" aria-controls="navLinks" aria-expanded="false"><span></span><span></span></button>
+  </div>
 </header>
 
 <main id="top">
@@ -99,14 +104,14 @@
   <!-- ============ HERO ============ -->
   <section class="hero section" id="hero" data-depth="0.02">
     <figure class="hero__media">
-      <video class="bgvid" data-bg data-src="assets/video/hero-turtle.mp4"
-             poster="assets/video/hero-turtle.jpg" muted loop playsinline preload="none"
+      <video class="bgvid" data-bg data-src="assets/video/hero-montage.mp4"
+             poster="assets/video/hero-montage.jpg" muted loop playsinline preload="none"
              aria-hidden="true"></video>
     </figure>
     <div class="hero__inner">
       <p class="kicker" data-reveal="fade">TELEPORT, NOT TRAVEL</p>
       <h1 class="hero__title lines">別世界は、飛行機の先ではなく、<br>水面の<span class="glow">下</span>にある。</h1>
-      <p class="hero__lead" data-reveal="fade">マニラで戦うあなたへ。擦り減った脳を、最も速く、最も深くリセットする方法。<br>それは10時間のフライトではない。マスクをつけ、頭まで沈むことだ。</p>
+      <p class="hero__lead" data-reveal="fade">マニラで戦うあなたへ。擦り減った脳を、最も速く、最も深くリセットする方法。それは10時間のフライトではない。マスクをつけ、頭まで沈むことだ。</p>
       <div class="hero__actions" data-reveal="fade">
         <a href="#cta" class="btn btn--gold" data-magnetic>別世界へ、潜る</a>
         <a href="#contrast" class="btn btn--ghost" data-cursor="explore">なぜ海なのか<em aria-hidden="true">→</em></a>
@@ -157,8 +162,8 @@
   <!-- ============ DESCENT ============ -->
   <section class="descent section" id="descent" data-depth="0.42">
     <figure class="descent__media">
-      <video class="bgvid" data-bg data-src="assets/video/whaleshark.mp4"
-             poster="assets/video/whaleshark.jpg" muted loop playsinline preload="none"
+      <video class="bgvid" data-bg data-src="assets/video/reef-teal.mp4"
+             poster="assets/video/reef-teal.jpg" muted loop playsinline preload="none"
              aria-hidden="true"></video>
     </figure>
     <div class="descent__inner">
@@ -245,10 +250,10 @@
         <figcaption>Coral Reef · 極彩色の別世界</figcaption>
       </figure>
       <figure class="gallery__item" data-clip data-parallax="0.12">
-        <video class="bgvid" data-bg data-src="assets/video/shoal.mp4"
-               poster="assets/video/shoal.jpg" muted loop playsinline preload="none"
-               aria-hidden="true"></video>
-        <figcaption>The Shoal · 群れという名の風景</figcaption>
+        <img loading="lazy" decoding="async"
+             src="https://images.unsplash.com/photo-1712672122149-038926f84bb1?q=80&w=1400&auto=format&fit=crop"
+             alt="珊瑚礁の上を静かに滑空するウミガメ" />
+        <figcaption>Sea Turtle · 静寂の住人</figcaption>
       </figure>
       <figure class="gallery__item gallery__item--wide" data-clip data-parallax="0.08">
         <img loading="lazy" decoding="async"
@@ -452,6 +457,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
 <script src="js/ocean.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

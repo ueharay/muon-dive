@@ -9,10 +9,10 @@
   --glare:#D2F0EB;     /* bright sunlit surface              */
   --cyan:#53D4CD;      /* luminous accent                    */
   --teal:#22A2A6;      /* transitional light                 */
-  --pelagic:#168297;   /* mid water                          */
-  --deepcur:#12657E;   /* deeper water                       */
-  --twilight:#0E4A60;  /* deep, still alive                  */
-  --abyss:#0A3648;     /* deepest — a living deep TEAL, never black */
+  --pelagic:#1A94A8;   /* mid water                          */
+  --deepcur:#157087;   /* deeper water                       */
+  --twilight:#115A72;  /* deep, still alive                  */
+  --abyss:#0E4A5E;     /* deepest — a bright living teal, never black */
   --gold:#EABF74;      /* warm accent — CTA                  */
 
   --ink:var(--sand);
@@ -84,11 +84,11 @@ ul,ol{list-style:none}
 .grade{
   position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(130% 100% at 50% -12%, rgba(210,240,235,calc(.18 - var(--depth)*.08)) 0%, transparent 48%),
-    radial-gradient(150% 125% at 50% 45%, transparent 44%, rgba(6,32,44,calc(.12 + var(--depth)*.32)) 100%),
+    radial-gradient(130% 100% at 50% -12%, rgba(214,244,238,calc(.2 - var(--depth)*.08)) 0%, transparent 50%),
+    radial-gradient(155% 130% at 50% 46%, transparent 50%, rgba(9,46,60,calc(.08 + var(--depth)*.26)) 100%),
     linear-gradient(180deg,
-      rgba(8,44,58,calc(var(--depth)*.2)) 0%,
-      rgba(8,40,54,calc(.05 + var(--depth)*.36)) 100%);
+      rgba(14,74,94,calc(var(--depth)*.16)) 0%,
+      rgba(12,66,84,calc(.03 + var(--depth)*.28)) 100%);
 }
 .grain{
   position:fixed;inset:-12%;z-index:40;pointer-events:none;opacity:.05;
@@ -216,6 +216,22 @@ html.has-cursor,html.has-cursor *{cursor:none!important}
 .nav__cta em{font-family:var(--marc);font-style:normal;font-size:.7rem;letter-spacing:.14em;color:var(--cyan)}
 .nav__cta:hover{border-color:var(--gold);background:rgba(229,182,103,.1);color:var(--gold)}
 .nav__cta:hover em{color:var(--gold)}
+.nav__actions{display:flex;align-items:center;gap:clamp(.7rem,1.4vw,1.1rem)}
+.nav__lang{background:none;border:1px solid var(--line);border-radius:100px;padding:.42rem .7rem;
+  display:flex;align-items:center;gap:.35rem;cursor:pointer;
+  font:600 .66rem/1 var(--label);letter-spacing:.14em;text-shadow:0 1px 16px rgba(5,26,36,.55);
+  transition:border-color .4s}
+.nav__lang:hover{border-color:var(--cyan)}
+.nav__lang i{font-style:normal;color:var(--ink-faint)}
+.nav__lang span{color:var(--ink-faint);transition:color .3s}
+html[data-lang="ja"] .nav__lang [data-l="ja"],
+html[data-lang="en"] .nav__lang [data-l="en"]{color:var(--cyan)}
+
+/* English headings look best in the refined Latin display serif */
+html[data-lang="en"] .h-lg,html[data-lang="en"] .h-md,html[data-lang="en"] .hero__title,
+html[data-lang="en"] .cta__title,html[data-lang="en"] .interlude__line{
+  font-family:var(--display);font-weight:500;letter-spacing:.005em;line-height:1.12}
+html[data-lang="en"] .glow{font-style:italic}
 .nav__burger{display:none;flex-direction:column;gap:5px;width:34px;height:34px;background:none;border:0;cursor:pointer;align-items:center;justify-content:center}
 .nav__burger span{width:22px;height:1.5px;background:var(--sand);transition:transform .4s var(--e-drift),opacity .3s}
 .nav.is-open .nav__burger span:nth-child(1){transform:translateY(3.5px) rotate(45deg)}
@@ -243,6 +259,12 @@ html.has-cursor,html.has-cursor *{cursor:none!important}
    only when they must (narrow mobile); on desktop the authored <br> controls
    the lines and the relaxed max-widths keep them on one line each. */
 .h-lg,.h-md,.hero__title,.cta__title,.interlude__line,.silence__sub{line-break:strict}
+/* Japanese body: break lines at natural phrase (文節) boundaries so no line ends
+   mid-word. word-break:auto-phrase = Chrome/Edge 119+; older browsers fall back
+   to normal CJK wrapping + kinsoku, which is still fine. */
+p,li,dd,figcaption,.hero__lead,.contrast__text,.offer__hook,.offers__lead,
+.access__steps em,.trust__cell p,.cta__lead,.foot__tag{
+  word-break:auto-phrase;line-break:strict;text-wrap:pretty}
 
 .glow{color:var(--cyan);position:relative;text-shadow:0 0 34px rgba(83,212,205,.5)}
 
@@ -294,15 +316,18 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
   opacity:.94;filter:saturate(1.08)}
 .hero__media::after{content:"";position:absolute;inset:0;
   background:
-    linear-gradient(90deg,rgba(6,34,46,.66) 0%,rgba(6,34,46,.26) 36%,transparent 62%),
-    linear-gradient(180deg,rgba(6,34,46,.36) 0%,transparent 24%,rgba(7,42,56,.74) 100%)}
+    linear-gradient(90deg,rgba(6,34,46,.66) 0%,rgba(6,34,46,.28) 38%,transparent 64%),
+    linear-gradient(180deg,rgba(6,34,46,.52) 0%,transparent 28%,rgba(7,42,56,.72) 100%)}
+/* hero kicker sits on bright, busy video — make it high-contrast */
+#hero .kicker{color:var(--sand);text-shadow:0 2px 20px rgba(4,18,28,.95),0 0 3px rgba(4,18,28,.6)}
+#hero .kicker::before{background:var(--cyan);opacity:1}
 .hero__inner{max-width:960px;margin-top:6vh}
 .hero__title{font-family:var(--mincho);font-weight:600;color:var(--sand);
   font-size:clamp(2.2rem,6.6vw,6rem);line-height:1.28;letter-spacing:.015em;
   margin:1.4rem 0 2rem;text-shadow:0 6px 40px rgba(3,15,30,.6)}
 .hero__lead{max-width:44ch;color:var(--ink-dim);font-size:clamp(.95rem,1.4vw,1.12rem);line-height:2}
 .hero__actions{display:flex;flex-wrap:wrap;gap:1rem;margin-top:2.6rem}
-.hero__scroll{position:absolute;left:var(--pad);bottom:2.2rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;color:var(--ink-faint);font:500 9px/1 var(--label);letter-spacing:.3em}
+.hero__scroll{position:absolute;left:50%;transform:translateX(-50%);bottom:2.2rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;color:var(--ink-dim);font:500 9px/1 var(--label);letter-spacing:.3em;text-shadow:0 1px 12px rgba(4,18,28,.7)}
 .hero__scroll-jp{font-family:var(--sans);letter-spacing:.3em;font-size:9px}
 .hero__scroll i{width:1px;height:46px;background:linear-gradient(var(--cyan),transparent);position:relative;overflow:hidden}
 .hero__scroll i::after{content:"";position:absolute;top:0;left:0;width:100%;height:40%;background:var(--cyan);animation:scrolldrop 2.4s var(--e-sink) infinite}
