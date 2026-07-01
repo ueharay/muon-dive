@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>無音 MUON — 別世界は、水面の下にある。｜マニラ発 スキューバダイビング</title>
+<meta name="description" content="マニラで戦うあなたへ。擦り減った脳を、最も速く、最も深くリセットする。音も、電波も、重力も届かない別次元へ——無音（MUON）は、あなたを潜降させる最短の航路です。手ぶら3時間から、週末で取るライセンスまで。" />
+<meta name="theme-color" content="#030F1E" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="無音 MUON — 別世界は、水面の下にある。" />
+<meta property="og:description" content="10時間のフライトが着くのは、同じ世界の別の街。数時間の海が着くのは、別の世界。マニラ発、脳を別次元へ運ぶダイビング。" />
+<meta property="og:image" content="https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1200&auto=format&fit=crop" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23030F1E'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='none' stroke='%2345C7C4' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%23E5B667'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://images.unsplash.com" />
+<link rel="preload" as="image" imagesizes="100vw"
+  imagesrcset="https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=768&auto=format&fit=crop 768w, https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1280&auto=format&fit=crop 1280w, https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=2000&auto=format&fit=crop 2000w"
+  href="https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1280&auto=format&fit=crop" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=Marcellus&family=Shippori+Mincho:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SportsActivityLocation",
+  "name": "無音 MUON",
+  "alternateName": "MUON — Silent Dive",
+  "description": "マニラ在住の日本人向けのスキューバダイビング。音も電波も重力も届かない別次元へ、最短でリセットする体験を提供します。",
+  "areaServed": { "@type": "City", "name": "Metro Manila" },
+  "sport": "Scuba Diving",
+  "knowsLanguage": ["ja", "en"],
+  "email": "hello@muon.dive",
+  "makesOffer": [
+    { "@type": "Offer", "name": "手ぶらの三時間 — はじめての別世界", "priceCurrency": "PHP", "price": "8800" },
+    { "@type": "Offer", "name": "週末で、ダイバーになる — PADIオープンウォーター", "priceCurrency": "PHP", "price": "28000" },
+    { "@type": "Offer", "name": "平日の別次元 — 1DAYファンダイブ", "priceCurrency": "PHP", "price": "6500" },
+    { "@type": "Offer", "name": "二日間の、深いリセット — 泊まりのリトリート", "priceCurrency": "PHP", "price": "48000" }
+  ]
+}
+</script>
+</head>
+
+<body>
+<a class="skip" href="#top">本文へスキップ</a>
+<noscript><style>.preloader{display:none!important}[data-reveal],.line-inner{opacity:1!important;transform:none!important}</style></noscript>
+
+<!-- ======================= PRELOADER (dive-computer boot) ======================= -->
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__inner">
+    <div class="preloader__mark">無音</div>
+    <div class="preloader__gauge">
+      <span class="preloader__label">DEPTH</span>
+      <span class="preloader__depth" id="preDepth">0.0</span><span class="preloader__unit">m</span>
+    </div>
+    <div class="preloader__bar"><i id="preBar"></i></div>
+    <div class="preloader__hint">水面の、すぐ下へ</div>
+  </div>
+</div>
+
+<!-- ======================= FIXED WATER LAYERS ======================= -->
+<canvas class="ocean" id="ocean" aria-hidden="true"></canvas>
+<div class="grade" id="grade" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"><span></span></div>
+
+<!-- ======================= DEPTH METER ======================= -->
+<aside class="depthmeter" id="depthmeter" aria-hidden="true">
+  <div class="depthmeter__track">
+    <span class="depthmeter__tick" style="--p:0">0m</span>
+    <span class="depthmeter__tick" style="--p:.25">-10</span>
+    <span class="depthmeter__tick" style="--p:.5">-20</span>
+    <span class="depthmeter__tick" style="--p:.75">-30</span>
+    <span class="depthmeter__tick" style="--p:1">-40</span>
+    <i class="depthmeter__cursor" id="depthCursor"></i>
+  </div>
+  <div class="depthmeter__read"><span id="depthRead">0.0</span>m</div>
+</aside>
+
+<!-- ======================= NAV ======================= -->
+<header class="nav" id="nav">
+  <a class="nav__brand" href="#top" aria-label="無音 MUON トップへ">
+    <span class="nav__kanji">無音</span><span class="nav__romaji">MUON</span>
+  </a>
+  <nav class="nav__links" id="navLinks" aria-label="セクション">
+    <a href="#contrast">物理法則</a>
+    <a href="#descent">潜降</a>
+    <a href="#experience">体験</a>
+    <a href="#offers">プラン</a>
+    <a href="#access">アクセス</a>
+    <a href="#trust">安全</a>
+  </nav>
+  <a href="#cta" class="nav__cta" data-magnetic>予約する<em>Book</em></a>
+  <button class="nav__burger" id="burger" aria-label="メニュー" aria-controls="navLinks" aria-expanded="false"><span></span><span></span></button>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero section" id="hero" data-depth="0.02">
+    <figure class="hero__media" data-parallax="0.18">
+      <img src="https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1280&auto=format&fit=crop"
+           srcset="https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=768&auto=format&fit=crop 768w, https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=1280&auto=format&fit=crop 1280w, https://images.unsplash.com/photo-1742325989789-b42912a531dd?q=80&w=2000&auto=format&fit=crop 2000w"
+           sizes="100vw"
+           alt="果てのない深い青の中に、たった一人で吊り下がるダイバーのシルエット" fetchpriority="high" />
+    </figure>
+    <div class="hero__inner">
+      <p class="kicker" data-reveal="fade">TELEPORT, NOT TRAVEL</p>
+      <h1 class="hero__title lines">別世界は、飛行機の先ではなく、<br>水面の<span class="glow">下</span>にある。</h1>
+      <p class="hero__lead" data-reveal="fade">マニラで戦うあなたへ。擦り減った脳を、最も速く、最も深くリセットする方法。<br>それは10時間のフライトではない。マスクをつけ、頭まで沈むことだ。</p>
+      <div class="hero__actions" data-reveal="fade">
+        <a href="#cta" class="btn btn--gold" data-magnetic>別世界へ、潜る</a>
+        <a href="#contrast" class="btn btn--ghost" data-cursor="explore">なぜ海なのか<em aria-hidden="true">→</em></a>
+      </div>
+    </div>
+    <a href="#contrast" class="hero__scroll" aria-label="下へスクロール">
+      <span>SCROLL</span><span class="hero__scroll-jp">潜降</span><i aria-hidden="true"></i>
+    </a>
+    <div class="hero__meta">
+      <span>MANILA ↝ THE OTHER SIDE</span>
+      <span>N 09°30′ · SILENT ZONE</span>
+    </div>
+  </section>
+
+  <!-- ============ INTERLUDE 1 ============ -->
+  <section class="interlude section" data-depth="0.14">
+    <p class="interlude__en" data-reveal="fade">DIGITAL DETOX</p>
+    <h2 class="interlude__line lines">通知は、<span class="glow">水面</span>で止まる。</h2>
+  </section>
+
+  <!-- ============ CONTRAST ============ -->
+  <section class="contrast section" id="contrast" data-depth="0.24">
+    <div class="wrap">
+      <p class="kicker" data-reveal="fade">SURFACE WORLD vs. THE OTHER SIDE</p>
+      <h2 class="h-lg lines">旅は、文化を変える。<br>潜水は、<span class="glow">物理法則</span>を変える。</h2>
+
+      <div class="contrast__grid">
+        <figure class="contrast__fig contrast__fig--surface" data-clip data-parallax="0.08">
+          <img loading="lazy" decoding="async"
+               src="https://images.unsplash.com/photo-1675223894754-7b0af6c38a90?q=80&w=1600&auto=format&fit=crop"
+               alt="雲間から陽が差す、静かな外洋の海面" />
+          <figcaption><span>THE SURFACE</span>あなたが後にする、地上の世界</figcaption>
+        </figure>
+        <figure class="contrast__fig contrast__fig--void" data-clip data-parallax="0.14">
+          <img loading="lazy" decoding="async"
+               src="https://images.unsplash.com/photo-1743656619958-68d85790bdb4?q=80&w=1600&auto=format&fit=crop"
+               alt="水面の光へ向かって、二つの世界の狭間に浮かぶダイバー" />
+          <figcaption><span>THE OTHER SIDE</span>あなたが辿り着く、別の惑星</figcaption>
+        </figure>
+        <div class="contrast__text" data-reveal="fade">
+          <p>疲れたら旅に出る——けれど飛行機を降りて気づく。変わったのは、人と、建物と、言葉だけ。空港でもホテルでも、スマホは鳴り、重力はあなたを地面に縛りつける。それは「同じ世界の、別の街」にすぎない。</p>
+          <p class="contrast__text-strong">本当のリセットは、水平線の向こうにはない。世界のルールそのものが書き換わる場所——それは、水面のすぐ下にある。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DESCENT ============ -->
+  <section class="descent section" id="descent" data-depth="0.42">
+    <figure class="descent__media" data-parallax="0.22">
+      <img loading="lazy" decoding="async"
+           src="https://images.unsplash.com/photo-1760039894970-eb66a3633c5a?q=80&w=1600&auto=format&fit=crop"
+           srcset="https://images.unsplash.com/photo-1760039894970-eb66a3633c5a?q=80&w=1280&auto=format&fit=crop 1280w, https://images.unsplash.com/photo-1760039894970-eb66a3633c5a?q=80&w=2000&auto=format&fit=crop 2000w"
+           sizes="100vw"
+           alt="暗い青の水中に、幾筋も差し込む光の柱" />
+    </figure>
+    <div class="descent__inner">
+      <p class="kicker" data-reveal="fade">THE MOMENT OF CROSSING</p>
+      <h2 class="h-lg lines">頭まで沈んだ瞬間、<br>世界のルールが<span class="glow">書き換わる</span>。</h2>
+      <div class="descent__cols">
+        <p data-reveal="fade">音が消える。通知が消える。そして——重力が、消える。宙に浮いたまま、あなたは前へ進んでいく。</p>
+        <p data-reveal="fade">聞こえるのは、自分の呼吸だけ。ゴボ、ゴボ、という、生まれて初めてまともに耳を傾ける「生きている音」。</p>
+        <p data-reveal="fade">視界の果てまで、青。魚の群れが、差し込む光の柱が、あなたのためだけに流れていく。ここには、あなたを呼ぶ声が、ひとつもない。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SILENCE (pinned low point) ============ -->
+  <section class="silence section" id="silence" data-depth="0.62">
+    <div class="silence__stage" id="silenceStage">
+      <p class="silence__en">S · I · L · E · N · C · E</p>
+      <h2 class="silence__kanji">無音</h2>
+      <p class="silence__sub">あるのは、あなたの呼吸と、どこまでも続く青だけ。</p>
+    </div>
+  </section>
+
+  <!-- ============ EXPERIENCE ============ -->
+  <section class="experience section" id="experience" data-depth="0.5">
+    <div class="wrap experience__wrap">
+      <figure class="experience__media" data-clip data-parallax="0.12">
+        <img loading="lazy" decoding="async"
+             src="https://images.unsplash.com/photo-1530053190459-2b3a69cad5cd?q=80&w=1400&auto=format&fit=crop"
+             alt="陽光に照らされ、水面へ両手を伸ばして上昇する人物" />
+      </figure>
+      <div class="experience__body">
+        <p class="kicker" data-reveal="fade">NO EXPERIENCE NEEDED</p>
+        <h2 class="h-md lines">泳げなくていい。<br>ただ、<span class="glow">沈む</span>だけ。</h2>
+        <p data-reveal="fade">「怖い」「泳げない」「時間がない」——その全部を、私たちが引き受けます。器材はすべて用意。マンツーマンで、日本語のガイドが隣を一度も離れません。あなたがすることは、ただ呼吸して、青に身を委ねるだけ。</p>
+        <ul class="experience__list">
+          <li data-reveal="fade"><span>01</span>器材はすべてこちらで。本当に、手ぶらでいい。</li>
+          <li data-reveal="fade"><span>02</span>日本語のインストラクターが、マンツーマンで。</li>
+          <li data-reveal="fade"><span>03</span>ライセンスは不要。マスクをつけて沈むだけ。</li>
+        </ul>
+        <a href="#offers" class="btn btn--ghost" data-cursor="explore">はじめての一本を選ぶ<em aria-hidden="true">→</em></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MARQUEE (catchphrases) ============ -->
+  <section class="marquee section" aria-hidden="true" data-depth="0.44">
+    <div class="marquee__row" data-marquee="1">
+      <span>別次元まで、最短ルート</span><i>◦</i>
+      <span>パスポート、不要</span><i>◦</i>
+      <span>脳のリセットに、滑走路はいらない</span><i>◦</i>
+      <span>圏外を探しに行くのではない。潜れば、そこが圏外だ</span><i>◦</i>
+      <span>別次元まで、最短ルート</span><i>◦</i>
+      <span>パスポート、不要</span><i>◦</i>
+      <span>脳のリセットに、滑走路はいらない</span><i>◦</i>
+      <span>圏外を探しに行くのではない。潜れば、そこが圏外だ</span><i>◦</i>
+    </div>
+    <div class="marquee__row marquee__row--alt" data-marquee="-1">
+      <span>ELSEWHERE IS ONE BREATH AWAY</span><i>—</i>
+      <span>NO SIGNAL · NO GRAVITY · NO SOUND</span><i>—</i>
+      <span>電波の届かない場所で、ようやく、自分に電波が届く</span><i>—</i>
+      <span>ELSEWHERE IS ONE BREATH AWAY</span><i>—</i>
+      <span>NO SIGNAL · NO GRAVITY · NO SOUND</span><i>—</i>
+      <span>電波の届かない場所で、ようやく、自分に電波が届く</span><i>—</i>
+    </div>
+  </section>
+
+  <!-- ============ GALLERY ============ -->
+  <section class="gallery section" id="gallery" data-depth="0.4">
+    <div class="wrap">
+      <p class="kicker" data-reveal="fade">THE WORLD THAT WAITS</p>
+      <h2 class="h-md lines">この青の果てに、<br><span class="glow">帰る場所</span>がある。</h2>
+    </div>
+    <div class="gallery__grid">
+      <figure class="gallery__item gallery__item--tall" data-clip data-parallax="0.1">
+        <img loading="lazy" decoding="async"
+             src="https://images.unsplash.com/photo-1712672122149-038926f84bb1?q=80&w=1400&auto=format&fit=crop"
+             alt="珊瑚礁の上を静かに滑空するウミガメ" />
+        <figcaption>Sea Turtle · 静寂の住人</figcaption>
+      </figure>
+      <figure class="gallery__item" data-clip data-parallax="0.16">
+        <img loading="lazy" decoding="async"
+             src="https://images.unsplash.com/photo-1682687981907-170c006e3744?q=80&w=1400&auto=format&fit=crop"
+             alt="色とりどりの珊瑚礁の上を泳ぐダイバー" />
+        <figcaption>Coral Reef · 極彩色の別世界</figcaption>
+      </figure>
+      <figure class="gallery__item" data-clip data-parallax="0.12">
+        <img loading="lazy" decoding="async"
+             src="https://images.unsplash.com/photo-1463468217891-c11f48e6310a?q=80&w=1400&auto=format&fit=crop"
+             alt="青い海中を隊列を組んで泳ぐ魚の大群" />
+        <figcaption>The Shoal · 群れという名の風景</figcaption>
+      </figure>
+      <figure class="gallery__item gallery__item--wide" data-clip data-parallax="0.08">
+        <img loading="lazy" decoding="async"
+             src="https://images.unsplash.com/photo-1743656619909-cf3584e22367?q=80&w=2000&auto=format&fit=crop"
+             alt="一筋の光の柱の中に吊り下がる、ダイバーのシルエット" />
+        <figcaption>Light Column · 一条の光に吊られて</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ OFFERS ============ -->
+  <section class="offers section" id="offers" data-depth="0.34">
+    <div class="wrap">
+      <p class="kicker" data-reveal="fade">CHOOSE YOUR ESCAPE</p>
+      <h2 class="h-lg lines">別次元への、<br><span class="glow">行き方</span>を選ぶ。</h2>
+      <p class="offers__lead" data-reveal="fade">忙しいあなたのために、手ぶらで、最短で、仕事に一切触れずに潜れるプランだけを揃えました。あなたの週末に、ちょうどいい深さを。</p>
+    </div>
+
+    <div class="offers__grid">
+      <article class="offer" data-reveal="card" data-cursor="drag">
+        <div class="offer__idx">01</div>
+        <h3 class="offer__name">手ぶらの三時間</h3>
+        <p class="offer__tag">はじめての別世界</p>
+        <p class="offer__hook">ライセンス不要。泳げなくていい。マスクをつけて沈むだけで、脳は別次元へ運ばれる。</p>
+        <ul class="offer__inc">
+          <li>全器材レンタル込み（本当に手ぶら）</li>
+          <li>日本語インストラクターがマンツーマン</li>
+          <li>水中写真データをプレゼント</li>
+          <li>初めての方専用の穏やかなポイント</li>
+        </ul>
+        <div class="offer__foot">
+          <span class="offer__dur">約3時間 / 体験2本</span>
+          <span class="offer__price">₱8,800<em>〜 (約23,000円)</em></span>
+        </div>
+      </article>
+
+      <article class="offer offer--feature" data-reveal="card" data-cursor="drag">
+        <div class="offer__idx">02</div>
+        <div class="offer__ribbon">人気</div>
+        <h3 class="offer__name">週末で、ダイバーになる</h3>
+        <p class="offer__tag">PADIオープンウォーター</p>
+        <p class="offer__hook">土日の二日間で、一生モノのライセンスを。月曜には、別世界へのパスポートを持って出社する。</p>
+        <ul class="offer__inc">
+          <li>PADIオープンウォーター認定（2日完結）</li>
+          <li>全器材・教材・申請料すべて込み</li>
+          <li>日本語対応／少人数制</li>
+          <li>取得後に使える会員価格をご案内</li>
+        </ul>
+        <div class="offer__foot">
+          <span class="offer__dur">2日間 / 週末で完結</span>
+          <span class="offer__price">₱28,000<em>〜 (約73,000円)</em></span>
+        </div>
+      </article>
+
+      <article class="offer" data-reveal="card" data-cursor="drag">
+        <div class="offer__idx">03</div>
+        <h3 class="offer__name">平日の別次元</h3>
+        <p class="offer__tag">1DAY ファンダイブ</p>
+        <p class="offer__hook">カレンダーを自分の手で握るあなたへ。平日の昼、こっそり別の惑星で息をする。</p>
+        <ul class="offer__inc">
+          <li>2〜3ダイブのファンダイビング</li>
+          <li>ボート・タンク・ウェイト込み</li>
+          <li>その日の海況で最良のポイントを厳選</li>
+          <li>ランチ付き</li>
+        </ul>
+        <div class="offer__foot">
+          <span class="offer__dur">1日 / 日帰り可</span>
+          <span class="offer__price">₱6,500<em>〜 (約17,000円)</em></span>
+        </div>
+      </article>
+
+      <article class="offer" data-reveal="card" data-cursor="drag">
+        <div class="offer__idx">04</div>
+        <h3 class="offer__name">二日間の、深いリセット</h3>
+        <p class="offer__tag">泊まりのリトリート</p>
+        <p class="offer__hook">金曜の夜に決めて、日曜の夜には、生まれ変わって帰る。いちばん深いところまで、脳を手放す。</p>
+        <ul class="offer__inc">
+          <li>1泊2日・4〜5ダイブのフルコース</li>
+          <li>宿泊・食事・現地送迎すべて込み</li>
+          <li>マニラ発着の国内線手配をサポート</li>
+          <li>夜は、静寂の中で「何もしない」時間</li>
+        </ul>
+        <div class="offer__foot">
+          <span class="offer__dur">1泊2日</span>
+          <span class="offer__price">₱48,000<em>〜 (約125,000円)</em></span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ ACCESS ============ -->
+  <section class="access section" id="access" data-depth="0.3">
+    <div class="wrap access__wrap">
+      <div class="access__text">
+        <p class="kicker" data-reveal="fade">CLOSER THAN YOU THINK</p>
+        <h2 class="h-md lines">オフィスから、数時間。<br>パスポートは、<span class="glow">いらない</span>。</h2>
+        <p data-reveal="fade">BGCやマカティを朝に出れば、昼には別の惑星にいる。ヨーロッパへの10時間より、はるかに速く、はるかに遠くへ。国内線とホテル送迎の手配も、こちらで。金曜の夜に決めて、日曜の夜には、生まれ変わって帰ってくる——そういう距離感です。</p>
+      </div>
+      <ol class="access__steps">
+        <li data-reveal="fade"><span class="access__num">A</span><div><b>金曜の夜、決める</b><em>LINEひとつで予約完了。持ち物は、何もいりません。</em></div></li>
+        <li data-reveal="fade"><span class="access__num">B</span><div><b>土曜の朝、発つ</b><em>マニラから数時間。国内線もホテルも、こちらで手配します。</em></div></li>
+        <li data-reveal="fade"><span class="access__num">C</span><div><b>そのまま、潜る</b><em>着いたら器材を着けるだけ。昼にはもう、別次元の中に。</em></div></li>
+        <li data-reveal="fade"><span class="access__num">D</span><div><b>日曜の夜、還る</b><em>生まれ変わった脳で、月曜のあなたを迎えに行く。</em></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ TRUST ============ -->
+  <section class="trust section" id="trust" data-depth="0.26">
+    <div class="wrap">
+      <p class="kicker" data-reveal="fade">SAFETY IS THE REAL LUXURY</p>
+      <h2 class="h-md lines">究極のリラックスは、<br>究極の<span class="glow">安全</span>の上にしか生まれない。</h2>
+      <div class="trust__grid">
+        <div class="trust__cell" data-reveal="fade">
+          <span class="trust__k">PADI</span>
+          <p>PADI認定のプロフェッショナルが、日本語で、あなたの不安を一つずつ潰していきます。</p>
+        </div>
+        <div class="trust__cell" data-reveal="fade">
+          <span class="trust__k">日本基準</span>
+          <p>器材の点検も、体調の確認も、緊急時の手順も、すべて日本の基準で管理。</p>
+        </div>
+        <div class="trust__cell" data-reveal="fade">
+          <span class="trust__k">全部お任せ</span>
+          <p>安心して脳を手放せるのは、私たちが全部を管理しているから。新しい緊張はいりません。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA (return to light) ============ -->
+  <section class="cta section" id="cta" data-depth="0.08">
+    <div class="cta__inner">
+      <p class="kicker" data-reveal="fade">YOUR NEXT WORLD IS ONE BREATH AWAY</p>
+      <h2 class="cta__title lines">次の週末、<br>別の惑星で<span class="glow">会いましょう</span>。</h2>
+      <p class="cta__lead" data-reveal="fade">明日も、通知は鳴り続ける。重力は、あなたを縛り続ける。でも、あなたはもう知っている——そのすべてが届かない場所が、たった数時間先にあることを。無音（MUON）で、人生でいちばん深いリセットを。</p>
+      <form class="cta__form" id="bookForm" novalidate>
+        <div class="cta__field">
+          <input type="text" id="fName" name="name" required autocomplete="name" placeholder=" " />
+          <label for="fName">お名前</label>
+        </div>
+        <div class="cta__field">
+          <input type="email" id="fMail" name="email" required autocomplete="email" placeholder=" " />
+          <label for="fMail">メールアドレス</label>
+        </div>
+        <div class="cta__field cta__field--sel">
+          <select id="fPlan" name="plan" required>
+            <option value="" selected disabled hidden></option>
+            <option>手ぶらの三時間（体験）</option>
+            <option>週末で、ダイバーになる（PADI）</option>
+            <option>平日の別次元（1DAYファンダイブ）</option>
+            <option>二日間の、深いリセット（リトリート）</option>
+            <option>まだ決めていない・相談したい</option>
+          </select>
+          <label for="fPlan">気になるプラン</label>
+        </div>
+        <button type="submit" class="btn btn--gold btn--block" data-magnetic>別世界を予約する</button>
+        <p class="cta__note" id="formNote" role="status" aria-live="polite">通常24時間以内に、日本語でご返信します。</p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="foot">
+  <div class="foot__top">
+    <div class="foot__brand">
+      <span class="foot__kanji">無音</span>
+      <span class="foot__romaji">MUON — SILENT DIVE</span>
+      <p class="foot__tag">別世界は、いつでも、水面のすぐ下で、あなたを待っている。</p>
+    </div>
+    <nav class="foot__nav" aria-label="フッター">
+      <a href="#contrast">物理法則</a>
+      <a href="#descent">潜降の瞬間</a>
+      <a href="#experience">体験について</a>
+      <a href="#offers">プラン</a>
+      <a href="#access">アクセス</a>
+      <a href="#trust">安全</a>
+      <a href="#cta">予約</a>
+    </nav>
+    <div class="foot__contact">
+      <span>MANILA STUDIO</span>
+      <a href="mailto:hello@muon.dive">hello@muon.dive</a>
+      <a href="#cta">LINEで相談する</a>
+    </div>
+  </div>
+  <div class="foot__bottom">
+    <span>© <span id="year">2026</span> 無音 MUON</span>
+    <span>Concept · Design · Build — Studio MUON</span>
+    <a href="#top" data-cursor="explore">戻る ↑</a>
+  </div>
+</footer>
+
+<!-- ======================= SCRIPTS ======================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+<script src="js/ocean.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
