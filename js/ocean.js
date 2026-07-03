@@ -26,6 +26,9 @@ const Ocean = (() => {
     uniform float uTime;
     uniform float uDepth;     // 0 surface .. 1 abyss
     uniform vec2  uPointer;   // 0..1
+    uniform float uCross;     // 0..1 — water-surface breach sweep (S1)
+    uniform float uFlow;      // 0..1 — scroll flow stirs the water (S8)
+    uniform vec3  uRip[6];    // pointer ripples: (x, y, birthTime) — S2
     uniform vec3  uSurface;
     uniform vec3  uDeep;
     uniform vec3  uLight;
@@ -68,6 +71,23 @@ const Ocean = (() => {
       float t = uTime;
       float depth = clamp(uDepth, 0.0, 1.0);
 
+      // S2 — pointer ripples: each displaces the caustic field and leaves a
+      // travelling bright crest, so moving over the water "disturbs" it.
+      vec2 disp = vec2(0.0);
+      float ring = 0.0;
+      for (int i = 0; i < 6; i++){
+        vec3 r = uRip[i];
+        if (r.z <= 0.0) continue;
+        float age = uTime - r.z;
+        if (age < 0.0 || age > 2.4) continue;
+        vec2 rp = vec2(r.x * aspect, r.y);
+        float d = length(suv - rp);
+        float atten = exp(-4.5 * d) * exp(-1.5 * age);
+        disp += normalize(suv - rp + 1e-4) * sin(38.0 * d - 6.5 * age) * atten * 0.012;
+        ring += smoothstep(0.05, 0.0, abs(d - age * 0.35)) * atten;
+      }
+      vec2 cuv = suv + disp;
+
       // vertical depth gradient — descend pushes everything toward the abyss
       float vert = smoothstep(-0.15, 1.15, uv.y);
       vec3 col = mix(uDeep, uSurface, vert);
@@ -89,14 +109,15 @@ const Ocean = (() => {
       rays *= smoothstep(1.4, 0.1, dl);
       rays *= (1.0 - depth * 0.95);            // rays die as we descend
 
-      // caustics, strongest near surface, gone in the deep
-      float caus = caustic(suv + vec2(0.0, -t * 0.02), t);
-      caus += caustic(suv * 1.8 + 10.0, t * 1.3) * 0.5;
+      // caustics, strongest near surface, gone in the deep (ripple-displaced)
+      float caus = caustic(cuv + vec2(0.0, -t * 0.02), t);
+      caus += caustic(cuv * 1.8 + 10.0, t * 1.3) * 0.5;
       caus *= (1.0 - vert * 0.35);
       caus *= (1.0 - depth);
 
       col += uLight * rays * 0.85;
       col += uLight * caus * 0.40;
+      col += uLight * ring * 0.45 * (1.0 - depth * 0.5);   // S2 — bright ripple crest
 
       // marine snow: two layers of slow drifting motes
       float snow = 0.0;
@@ -113,6 +134,24 @@ const Ocean = (() => {
         }
       }
       col += uLight * snow * 0.5 * (1.0 - depth * 0.3);
+
+      // S8 — scroll flow stirs an extra shimmer of caustic light
+      col += uLight * caus * uFlow * 0.35;
+      col *= (1.0 + uFlow * 0.06);
+
+      // S1 — THRESHOLD CROSSING: a bright refracting band sweeps up the screen
+      // as uCross goes 0→1 (the moment you break the surface and go under).
+      // Brightest mid-sweep, gone at both ends; a caustic crest rides its edge.
+      if (uCross > 0.001) {
+        float yb = 1.0 - uCross;                        // travels bottom → top
+        float d  = uv.y - yb;
+        float line  = smoothstep(0.17, 0.0, abs(d));
+        float crest = smoothstep(0.05, 0.0, abs(d));
+        float env   = clamp(uCross * (1.0 - uCross) * 4.0, 0.0, 1.0);   // 0→1→0
+        float rip   = caustic(suv * 1.4 + vec2(0.0, yb * 3.0), t * 1.7);
+        col += uLight   * (line * 0.5 + crest * 0.95 + rip * crest * 0.6) * env;
+        col += uSurface * smoothstep(0.0, 0.5, d) * line * 0.22 * env;   // light wash above the crest
+      }
 
       // haze + vignette (tightens with depth) + grain
       float vign = smoothstep(1.25, 0.32 - depth * 0.06, length(uv - 0.5));
@@ -174,7 +213,7 @@ const Ocean = (() => {
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
     const U = {};
-    ['uRes','uTime','uDepth','uPointer','uSurface','uDeep','uLight'].forEach(n => U[n] = gl.getUniformLocation(prog, n));
+    ['uRes','uTime','uDepth','uPointer','uCross','uFlow','uRip','uSurface','uDeep','uLight'].forEach(n => U[n] = gl.getUniformLocation(prog, n));
     gl.uniform3fv(U.uSurface, hexToRgb(colors.surface));
     gl.uniform3fv(U.uDeep,    hexToRgb(colors.deep));
     gl.uniform3fv(U.uLight,   hexToRgb(colors.light));
@@ -182,6 +221,8 @@ const Ocean = (() => {
     const state = {
       depth: 0, depthTarget: 0,
       px: 0.5, py: 0.5, pxT: 0.5, pyT: 0.5,
+      cross: 0, flow: 0, flowTarget: 0,
+      rip: new Float32Array(18), ripIdx: 0,
       running: true, t: 0, lastTime: 0, raf: 0, lastW: 0, lastH: 0,
     };
 
@@ -225,9 +266,13 @@ const Ocean = (() => {
       state.depth += (state.depthTarget - state.depth) * 0.06;
       state.px += (state.pxT - state.px) * 0.05;
       state.py += (state.pyT - state.py) * 0.05;
+      state.flow += (state.flowTarget - state.flow) * 0.08;
       gl.uniform1f(U.uTime, state.t);
       gl.uniform1f(U.uDepth, state.depth);
       gl.uniform2f(U.uPointer, state.px, state.py);
+      gl.uniform1f(U.uCross, state.cross);
+      gl.uniform1f(U.uFlow, state.flow);
+      gl.uniform3fv(U.uRip, state.rip);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     state.raf = requestAnimationFrame(frame);
@@ -252,6 +297,14 @@ const Ocean = (() => {
       supported: true,
       setDepth(v){ state.depthTarget = Math.max(0, Math.min(1, v)); },
       setPointer(x, y){ state.pxT = x; state.pyT = y; },
+      setCross(v){ state.cross = Math.max(0, Math.min(1, v)); },   // S1 — driven by a scroll-triggered sweep
+      setFlow(v){ state.flowTarget = Math.max(0, Math.min(1, v)); }, // S8 — scroll velocity
+      addRipple(x, y){                                             // S2 — pointer disturbs the water
+        const i = state.ripIdx * 3;
+        state.rip[i] = x; state.rip[i + 1] = y; state.rip[i + 2] = state.t;
+        state.ripIdx = (state.ripIdx + 1) % 6;
+      },
+      resume(){ resume(); },
       setColors(c){
         if (c.surface) gl.uniform3fv(U.uSurface, hexToRgb(c.surface));
         if (c.deep)    gl.uniform3fv(U.uDeep,    hexToRgb(c.deep));

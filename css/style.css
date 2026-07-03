@@ -615,6 +615,53 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
   font:400 10px/1 var(--label);letter-spacing:.24em;color:var(--ink-faint)}
 @media (max-width:600px){.immersive__foot{flex-direction:column;gap:.5rem;align-items:flex-start}}
 
+/* ---- S2 · gallery liquid drag-rail (desktop; JS adds .is-rail) ---- */
+.gallery{overflow:hidden}
+.gallery__grid.is-rail{
+  display:flex;flex-wrap:nowrap;align-items:stretch;width:max-content;
+  grid-template-columns:none;grid-template-rows:none;grid-auto-rows:auto;
+  gap:clamp(.8rem,1.4vw,1.4rem);padding:0 var(--pad);
+  transform-origin:0 50%;will-change:transform;touch-action:pan-y;
+}
+.gallery__grid.is-rail .gallery__item{
+  flex:0 0 auto;width:clamp(280px,30vw,440px);height:min(64vh,560px);
+  grid-row:auto;grid-column:auto;
+}
+.gallery__grid.is-rail .gallery__item--wide{width:clamp(420px,44vw,660px)}
+.gallery__grid.is-rail .gallery__item--tall{width:clamp(300px,26vw,400px)}
+/* the row itself skews on drag; keep each frame's media from over-cropping */
+.gallery__grid.is-rail .gallery__item img,.gallery__grid.is-rail .gallery__item video{transform-origin:center}
+.gallery.is-grabbing{cursor:grabbing}
+html.has-cursor .gallery.is-grabbing,html.has-cursor .gallery.is-grabbing *{cursor:none!important}
+@media (min-width:1025px){
+  /* rail overrides the desktop mosaic's explicit placement */
+  .gallery__grid.is-rail{grid-template-rows:none}
+  .gallery__grid.is-rail .gallery__item:nth-child(n){grid-column:auto;grid-row:auto}
+}
+
+/* ---- S4 · hold-to-dive charge (feedback only; native click untouched) ---- */
+.has-hold{position:relative}
+/* fill paints above the button's own background but below its text (z-index:-1),
+   so the label never needs a wrapper — critical since a <button>/<a> label is a
+   bare text node that can't be z-indexed directly. */
+.hold-fill{
+  position:absolute;left:0;bottom:0;width:100%;height:calc(var(--fill,0) * 100%);
+  pointer-events:none;z-index:-1;border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.12));
+}
+.btn--ghost .hold-fill{background:linear-gradient(180deg,rgba(83,212,205,.34),rgba(83,212,205,.1))}
+.hold-ring{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  width:24px;height:24px;pointer-events:none;opacity:0;z-index:2;transition:opacity .3s var(--e-drift);
+}
+.has-hold.is-holding .hold-ring{opacity:.9}
+.hold-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.hold-ring .hr-t{fill:none;stroke:rgba(38,23,10,.28);stroke-width:2.5}
+.hold-ring .hr-p{fill:none;stroke:#26170a;stroke-width:2.5;stroke-linecap:round;transition:stroke-dashoffset .05s linear}
+.btn--ghost .hold-ring .hr-t{stroke:rgba(210,240,235,.3)}
+.btn--ghost .hold-ring .hr-p{stroke:var(--cyan)}
+.has-hold.is-charged{box-shadow:0 0 0 1.5px var(--cyan),0 16px 50px -10px rgba(83,212,205,.55)}
+
 /* ================================================================
    RESPONSIVE
    ================================================================ */

@@ -54,6 +54,7 @@
       initNav();
       initScramble();
       initForm();
+      initHold();
       initVideos();
 
       if (!reduced && !lowEnd) initOcean();
@@ -65,6 +66,8 @@
         initParallax();
         initSilencePin();
         initDepthEngine();
+        initCrossing();
+        initGalleryRail();
         initMarquee();
         initFlow();
       } else {
@@ -399,6 +402,88 @@
   }
 
   /* =====================================================================
+     S2 — GALLERY LIQUID RAIL. Desktop only: the mosaic becomes a horizontal
+     reef you drag through, with inertia and a velocity skew/squash so the row
+     bends like water. Touch / reduced / low-end keep the native mosaic grid.
+     ===================================================================== */
+  function initGalleryRail() {
+    if (!finePointer || lowEnd) return;
+    const viewport = $('.gallery');
+    const track = $('.gallery__grid');
+    if (!viewport || !track) return;
+    track.classList.add('is-rail');
+
+    const cursorEl = $('#cursor');
+    if (cursorEl) {
+      viewport.addEventListener('pointerenter', () => cursorEl.classList.add('is-hover', 'is-drag'));
+      viewport.addEventListener('pointerleave', () => cursorEl.classList.remove('is-hover', 'is-drag'));
+    }
+
+    let x = 0, vel = 0, maxX = 0, dragging = false, moved = 0, lastX = 0, raf = 0;
+    const measure = () => { maxX = Math.max(0, track.scrollWidth - viewport.clientWidth + 24); };
+    measure();
+    window.addEventListener('resize', measure);
+    if (window.ScrollTrigger) window.ScrollTrigger.addEventListener('refresh', measure);
+
+    const paint = () => {
+      const skew = clamp(vel * 0.05, -7, 7);
+      const squash = 1 - Math.min(Math.abs(vel) * 0.0016, 0.05);
+      track.style.transform = `translateX(${x.toFixed(2)}px) skewX(${skew.toFixed(2)}deg) scaleY(${squash.toFixed(3)})`;
+    };
+    const loop = () => {
+      raf = requestAnimationFrame(loop);
+      if (!dragging) {
+        x += vel; vel *= 0.9;
+        if (x > 0) { x *= 0.78; vel = 0; }
+        else if (x < -maxX) { x = -maxX + (x + maxX) * 0.78; vel = 0; }
+        if (Math.abs(vel) < 0.03 && !dragging) { paint(); cancelAnimationFrame(raf); raf = 0; return; }
+      }
+      paint();
+    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+
+    viewport.addEventListener('pointerdown', (e) => {
+      if (e.button != null && e.button !== 0) return;
+      dragging = true; moved = 0; lastX = e.clientX; vel = 0;
+      viewport.setPointerCapture(e.pointerId);
+      viewport.classList.add('is-grabbing');
+      kick();
+    });
+    viewport.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX; lastX = e.clientX; moved += Math.abs(dx);
+      x = clamp(x + dx, -maxX - 80, 80);
+      vel = dx;
+    });
+    const release = () => { if (!dragging) return; dragging = false; viewport.classList.remove('is-grabbing'); kick(); };
+    viewport.addEventListener('pointerup', release);
+    viewport.addEventListener('pointercancel', release);
+    // a click that was actually a drag shouldn't also open a lightbox etc. (none here, but guard anchors)
+    viewport.addEventListener('click', (e) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
+    paint();
+  }
+
+  /* =====================================================================
+     S1 — THRESHOLD CROSSING. Fire the ocean's water-breach sweep once, at the
+     surface beat ("通知は、水面で止まる") — the interlude is transparent, so the
+     breach reads on the background water before you drop into the descent.
+     One-shot; the shader envelope fades the band at both ends → resets clean.
+     ===================================================================== */
+  function initCrossing() {
+    const sec = $('.interlude');
+    if (!sec || !ocean || !ocean.setCross) return;
+    const proxy = { v: 0 };
+    window.ScrollTrigger.create({
+      trigger: sec, start: 'top 42%', once: true,
+      onEnter: () => gsap.fromTo(proxy, { v: 0 }, {
+        v: 1, duration: 1.35, ease: 'power2.inOut',
+        onUpdate: () => ocean.setCross(proxy.v),
+        onComplete: () => ocean.setCross(0),
+      }),
+    });
+  }
+
+  /* =====================================================================
      DEPTH ENGINE — one value from scroll position drives water + grade + meter
      Interpolates each section's authored data-depth by scroll.
      ===================================================================== */
@@ -483,13 +568,23 @@
     const loop = () => { x = lerp(x, tx, 0.2); y = lerp(y, ty, 0.2); cur.style.transform = `translate(${x}px,${y}px) translate(-50%,-50%)`; requestAnimationFrame(loop); };
     requestAnimationFrame(loop);
 
+    // S2 — trail ripples into the background water as the pointer moves
+    let lastRip = 0;
     window.addEventListener('mousemove', (e) => {
       tx = e.clientX; ty = e.clientY;
       cur.style.opacity = '1';
-      if (ocean) ocean.setPointer(e.clientX / innerWidth, 1 - e.clientY / innerHeight);
+      const nx = e.clientX / innerWidth, ny = 1 - e.clientY / innerHeight;
+      if (ocean) {
+        ocean.setPointer(nx, ny);
+        const now = performance.now();
+        if (now - lastRip > 90) { lastRip = now; ocean.addRipple(nx, ny); }
+      }
     }, { passive: true });
     window.addEventListener('mouseleave', () => (cur.style.opacity = '0'));
-    window.addEventListener('mousedown', () => cur.classList.add('is-down'));
+    window.addEventListener('mousedown', (e) => {
+      cur.classList.add('is-down');
+      if (ocean) ocean.addRipple(e.clientX / innerWidth, 1 - e.clientY / innerHeight);   // a firmer tap on the water
+    });
     window.addEventListener('mouseup', () => cur.classList.remove('is-down'));
 
     const hoverSel = 'a, button, [data-cursor], [data-magnetic], .offer, input, select';
@@ -626,6 +721,42 @@
       note.textContent = `${name} さん、受け付けました。折り返し、日本語でご連絡します。`;
       note.classList.add('is-ok');
       form.reset();
+    });
+  }
+
+  /* =====================================================================
+     S4 — HOLD TO DIVE. Press-and-hold "charges" a button: water rises inside
+     it and a ring fills, like drawing a breath before you sink. Purely a
+     feedback layer — the native click/submit is untouched, so it never blocks
+     the booking path (release fires the real action, as any button does).
+     ===================================================================== */
+  function initHold() {
+    if (reduced) return;
+    $$('[data-hold]').forEach((el) => {
+      el.classList.add('has-hold');
+      const fill = document.createElement('span'); fill.className = 'hold-fill'; el.appendChild(fill);
+      const ring = document.createElement('span'); ring.className = 'hold-ring';
+      ring.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle class="hr-t" cx="20" cy="20" r="18"></circle><circle class="hr-p" cx="20" cy="20" r="18"></circle></svg>';
+      el.appendChild(ring);
+      const p = ring.querySelector('.hr-p');
+      const C = 2 * Math.PI * 18;
+      p.style.strokeDasharray = C; p.style.strokeDashoffset = C;
+      let raf = 0, prog = 0, holding = false;
+      const HOLD = 700;
+      const frame = () => {
+        raf = requestAnimationFrame(frame);
+        prog = clamp(prog + (holding ? 16 / HOLD : -0.07), 0, 1);
+        p.style.strokeDashoffset = (C * (1 - prog)).toFixed(1);
+        el.style.setProperty('--fill', prog.toFixed(3));
+        el.classList.toggle('is-charged', prog >= 1);
+        if (prog <= 0 && !holding) { cancelAnimationFrame(raf); raf = 0; }
+      };
+      const start = () => { holding = true; el.classList.add('is-holding'); if (!raf) raf = requestAnimationFrame(frame); };
+      const stop = () => { holding = false; el.classList.remove('is-holding'); if (!raf) raf = requestAnimationFrame(frame); };
+      el.addEventListener('pointerdown', start);
+      el.addEventListener('pointerup', stop);
+      el.addEventListener('pointerleave', stop);
+      el.addEventListener('pointercancel', stop);
     });
   }
 
