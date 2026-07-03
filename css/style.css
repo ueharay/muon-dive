@@ -545,6 +545,77 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .foot__bottom{max-width:var(--maxw);margin:0 auto;padding-top:2.5rem;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;font:400 .74rem/1 var(--label);letter-spacing:.1em;color:var(--ink-faint)}
 
 /* ================================================================
+   KINETIC — Phase 1 : buoyant type · immersive menu · scroll-flow
+   ================================================================ */
+/* per-glyph buoyant reveal unit (JS wraps headings into .line > .line-inner > .ch) */
+.ch{display:inline-block;will-change:transform}
+
+/* S8 — the water stirs a touch as you scroll (grain lifts with --flow) */
+.grain{opacity:calc(.05 + var(--flow,0) * .055)}
+
+/* ---- desktop menu trigger (mobile keeps the burger) ---- */
+.nav__menu{
+  display:none;width:40px;height:34px;background:none;border:0;cursor:pointer;
+  flex-direction:column;align-items:flex-end;justify-content:center;gap:5px;
+  filter:drop-shadow(0 1px 16px rgba(5,26,36,.55));
+}
+.nav__menu span{display:block;height:1.5px;background:var(--sand);
+  transition:width .4s var(--e-drift),transform .4s var(--e-drift),opacity .3s}
+.nav__menu span:nth-child(1){width:22px}
+.nav__menu span:nth-child(2){width:14px}
+.nav__menu span:nth-child(3){width:19px}
+.nav__menu:hover span{width:22px}
+html.imm-open .nav__menu span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+html.imm-open .nav__menu span:nth-child(2){opacity:0}
+html.imm-open .nav__menu span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);width:22px}
+@media (min-width:1025px){.nav__menu{display:flex}}
+
+/* keep the trigger clickable (as an ✕) above the open overlay; quiet the rest */
+html.imm-open .nav{z-index:110}
+html.imm-open .nav__links,html.imm-open .nav__cta{opacity:0;pointer-events:none;transition:opacity .3s}
+
+/* ---- full-screen immersive menu (looking up through bright water) ---- */
+.immersive{
+  position:fixed;inset:0;z-index:95;pointer-events:none;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:14vh var(--pad) 9vh;
+  clip-path:inset(0 0 100% 0);
+  transition:clip-path .9s var(--e-sink);
+  background:linear-gradient(180deg,rgba(11,74,96,.93),rgba(9,52,68,.95));
+}
+html.imm-open .immersive{pointer-events:auto;clip-path:inset(0 0 0% 0)}
+.immersive__bg{
+  position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;
+  opacity:0;transform:scale(1.08);transition:opacity .8s ease,transform 6s var(--e-drift);
+  filter:saturate(1.06);
+}
+.immersive.has-preview .immersive__bg{opacity:.34;transform:scale(1.14)}
+.immersive__scrim{position:absolute;inset:0;z-index:-1;
+  background:
+    radial-gradient(120% 88% at 78% 14%, rgba(69,199,196,.16), transparent 55%),
+    linear-gradient(180deg, rgba(6,34,46,.5), rgba(6,34,46,.72));}
+.immersive__nav{display:flex;flex-direction:column;gap:clamp(.05rem,1vh,.7rem);
+  max-width:var(--maxw);margin:0 auto;width:100%}
+.imm-link{
+  position:relative;display:flex;align-items:baseline;gap:1.3rem;width:fit-content;
+  font-family:var(--mincho);font-weight:600;color:var(--sand);
+  font-size:clamp(2rem,7vw,5rem);line-height:1.18;letter-spacing:.04em;padding:.35rem 0;
+  opacity:0;transform:translateY(46px);
+  transition:opacity .6s var(--e-drift),transform .8s var(--e-buoy),color .45s;
+}
+html.imm-open .imm-link{opacity:1;transform:none;transition-delay:calc(.16s + var(--i) * .06s)}
+.imm-link__idx{font-family:var(--marc);font-size:.9rem;color:var(--cyan);letter-spacing:.12em;opacity:.65;align-self:flex-start;margin-top:.4rem}
+.immersive.has-preview .imm-link{color:var(--ink-faint)}
+.imm-link:hover,.imm-link:focus-visible{color:var(--sand)}
+.imm-link:hover .imm-link__idx{color:var(--gold);opacity:1}
+html[data-lang="ja"] .imm-link__en,html[data-lang="en"] .imm-link__jp{display:none}
+html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter-spacing:.01em}
+.immersive__foot{position:absolute;left:var(--pad);right:var(--pad);bottom:5vh;
+  display:flex;justify-content:space-between;gap:1rem;
+  font:400 10px/1 var(--label);letter-spacing:.24em;color:var(--ink-faint)}
+@media (max-width:600px){.immersive__foot{flex-direction:column;gap:.5rem;align-items:flex-start}}
+
+/* ================================================================
    RESPONSIVE
    ================================================================ */
 @media (max-width:1024px){
@@ -587,8 +658,11 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   html.js [data-reveal]{opacity:1}
-  html.js .lines .line-inner{transform:none!important}
+  html.js .lines .line-inner,html.js .lines .ch{transform:none!important}
   html.js [data-clip] img,html.js [data-clip] video{transform:none;clip-path:none}
   .grain,.hero__scroll i::after{display:none}
+  /* immersive menu: appear/disappear instantly, links present with no stagger */
+  .immersive,.imm-link{transition:none!important}
+  html.imm-open .imm-link{transition-delay:0s!important}
   .preloader{display:none}
 }

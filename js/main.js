@@ -48,10 +48,11 @@
       setLangAttrs(curLang);
 
       splitLines();
-      // GSAP owns the hidden state of every masked line (avoids the CSS-%→px matrix trap)
-      if (hasGSAP && !reduced) gsap.set('.lines .line-inner', { yPercent: 115 });
+      // GSAP owns the hidden state of every masked char (avoids the CSS-%→px matrix trap)
+      if (hasGSAP && !reduced) gsap.set('.lines .ch', { yPercent: 120, rotate: 3 });
       initCursor();
       initNav();
+      initScramble();
       initForm();
       initVideos();
 
@@ -64,6 +65,8 @@
         initParallax();
         initSilencePin();
         initDepthEngine();
+        initMarquee();
+        initFlow();
       } else {
         // reduced / no-lib: static depth so the grade + meter still read nicely
         setDepthVars(0.28);
@@ -147,8 +150,8 @@
     if (!hasGSAP || reduced) return;
     const tl = gsap.timeline({ delay: .15 });
     tl.to('#hero .kicker', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' })
-      .fromTo('#hero .hero__title .line-inner', { yPercent: 115 },
-        { yPercent: 0, duration: 1.3, ease: 'expo.out', stagger: .12 }, '-=.7')
+      .fromTo('#hero .hero__title .ch', { yPercent: 120, rotate: 3 },
+        { yPercent: 0, rotate: 0, duration: 1.25, ease: 'expo.out', stagger: { each: .026, from: 'start' } }, '-=.7')
       .to('#hero .hero__lead', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, '-=.8')
       .to('#hero .hero__actions', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, '-=.8')
       .fromTo('#hero .hero__media img', { scale: 1.16 }, { scale: 1, duration: 2.4, ease: 'power2.out' }, 0)
@@ -188,13 +191,54 @@
   /* =====================================================================
      LINE SPLIT — JP-safe: split on authored <br>, wrap for masked reveal
      ===================================================================== */
+  // Wrap a heading fragment into per-character spans for the buoyant reveal.
+  // JP-safe: Latin runs stay whole words (never break mid-word), CJK splits per
+  // glyph, and kinsoku glue (。、small kana …) sticks to the previous glyph so a
+  // char-span never starts a line with punctuation. Inline elements (.glow) are
+  // preserved and their text is split in place.
+  const LATIN = /[0-9A-Za-z'’.,&%@—–\-/]/;
+  const GLUE  = /[。、，．！!？?：；」』）\)】》〉』ぁぃぅぇぉっゃゅょゎ・…‥ー]/;
+  function wrapChars(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    const walk = (node) => {
+      Array.from(node.childNodes).forEach((n) => {
+        if (n.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          let buf = '', last = null;
+          const flush = () => {
+            if (!buf) return;
+            const s = document.createElement('span');
+            s.className = 'ch'; s.textContent = buf;
+            frag.appendChild(s); last = s; buf = '';
+          };
+          for (const ch of n.nodeValue) {
+            if (ch === ' ') { flush(); frag.appendChild(document.createTextNode(' ')); last = null; continue; }
+            if (LATIN.test(ch)) { buf += ch; continue; }
+            if (GLUE.test(ch) && (buf || last)) { if (buf) buf += ch; else last.textContent += ch; continue; }
+            flush();
+            const s = document.createElement('span');
+            s.className = 'ch'; s.textContent = ch;
+            frag.appendChild(s); last = s;
+          }
+          flush();
+          n.replaceWith(frag);
+        } else if (n.nodeType === 1) {
+          walk(n);
+        }
+      });
+    };
+    walk(tmp);
+    return tmp.innerHTML;
+  }
   function splitOne(el) {
     const segs = el.innerHTML.split(/<br\s*\/?>/i);
     el.innerHTML = segs
-      .map((s) => `<span class="line"><span class="line-inner">${s.trim()}</span></span>`)
+      .map((s) => `<span class="line"><span class="line-inner">${wrapChars(s.trim())}</span></span>`)
       .join('');
   }
   function splitLines() { $$('.lines').forEach(splitOne); }
+  const CHARS = (scope) => (scope || document).querySelectorAll('.ch');
 
   /* =====================================================================
      i18n — JP ⇄ EN. Translations keyed by JP source (window.MUON_I18N).
@@ -249,7 +293,7 @@
     setLangAttrs(lang);
     I18N.headings.forEach((o) => {
       splitOne(o.el);
-      if (hasGSAP && !reduced) gsap.set(o.el.querySelectorAll('.line-inner'), { yPercent: 0, opacity: 1, clearProps: 'transform' });
+      if (hasGSAP && !reduced) gsap.set(o.el.querySelectorAll('.ch'), { yPercent: 0, rotate: 0, opacity: 1, clearProps: 'transform' });
     });
     try { localStorage.setItem('muon-lang', lang); } catch (e) {}
     if (window.ScrollTrigger) window.ScrollTrigger.refresh();
@@ -262,14 +306,19 @@
   function initReveals() {
     const ST = window.ScrollTrigger;
 
-    // headline line masks (except hero — handled on load)
+    // headline char masks (except hero — handled on load): each glyph rises with
+    // a touch of rotation, like it's finding its buoyancy. Deeper sections settle
+    // a hair slower (S8 tempo), reinforcing the descent.
     $$('.lines').forEach((el) => {
       if (el.closest('#hero')) return;
-      gsap.set(el.querySelectorAll('.line-inner'), { yPercent: 115 });
+      const chars = el.querySelectorAll('.ch');
+      const depth = parseFloat((el.closest('.section') || {}).getAttribute?.('data-depth')) || 0;
+      const dur = 1.05 + depth * 0.9;
+      gsap.set(chars, { yPercent: 120, rotate: 3 });
       ST.create({
         trigger: el, start: 'top 82%', once: true,
-        onEnter: () => gsap.to(el.querySelectorAll('.line-inner'),
-          { yPercent: 0, duration: 1.25, ease: 'expo.out', stagger: .11 }),
+        onEnter: () => gsap.to(chars,
+          { yPercent: 0, rotate: 0, duration: dur, ease: 'expo.out', stagger: { each: .024, from: 'start' } }),
       });
     });
 
@@ -369,8 +418,13 @@
       root.style.setProperty('--depth', q.toFixed(2));
       if (ocean) ocean.setDepth(graded);
       root.style.setProperty('--dive', clamp(d * 46 / 40).toFixed(3));
+      // S8 tempo: motion slows and swells as we descend (1× surface → ~3.4× abyss).
+      // New tweens read `calc(var(--tempo) * <base>)`; ambient layers read it live.
+      root.style.setProperty('--tempo', (1 + clamp(d) * 2.6).toFixed(2));
       lastDepthQ = q;
     }
+    // S6 audio (Phase 3, no-op until js/audio.js loads): descend → the world muffles
+    if (window.MUON_AUDIO) window.MUON_AUDIO.setDepth(clamp(d));
     const meters = (d * 46).toFixed(1);
     if (meters !== lastRead) { const el = depthReadEl(); if (el) el.textContent = meters; lastRead = meters; }
   }
@@ -499,6 +553,7 @@
      ===================================================================== */
   let menuOpen = false;
   function closeMenu() {
+    if (window.MUON_MENU && window.MUON_MENU.isOpen()) window.MUON_MENU.close();
     if (!menuOpen) return;
     menuOpen = false;
     $('#nav')?.classList.remove('is-open');
@@ -532,6 +587,9 @@
     });
 
     burger?.addEventListener('click', () => {
+      // S7: hand off to the immersive full-screen menu when it's mounted;
+      // fall back to the plain drawer if menu.js failed to load.
+      if (window.MUON_MENU) { window.MUON_MENU.toggle(); return; }
       menuOpen = !menuOpen;
       nav.classList.toggle('is-open', menuOpen);
       links?.classList.toggle('is-open', menuOpen);
@@ -568,6 +626,84 @@
       note.textContent = `${name} さん、受け付けました。折り返し、日本語でご連絡します。`;
       note.classList.add('is-ok');
       form.reset();
+    });
+  }
+
+  /* =====================================================================
+     S3 — NAV GLYPH SCRAMBLE (desktop). Mutates the link's text NODE, not
+     textContent, so the i18n node references survive. A per-link guard keeps
+     the pristine value intact between runs.
+     ===================================================================== */
+  function initScramble() {
+    if (reduced || !finePointer) return;
+    const GLYPHS = 'アイウエオカキクケコサシスセソタチツテトナニヌ0123456789∴·—＋MUON';
+    $$('.nav__links a').forEach((a) => {
+      const tn = Array.from(a.childNodes).find((n) => n.nodeType === 3);
+      if (!tn) return;
+      let timer = 0, busy = false;
+      const run = () => {
+        if (busy) return;
+        busy = true;
+        const target = tn.nodeValue;
+        const arr = Array.from(target);
+        let frame = 0;
+        const total = Math.max(7, arr.length * 3);
+        clearInterval(timer);
+        timer = setInterval(() => {
+          frame++;
+          const done = Math.floor((frame / total) * arr.length);
+          tn.nodeValue = arr.map((c, i) => (i < done || c === ' ') ? c : GLYPHS[(Math.random() * GLYPHS.length) | 0]).join('');
+          if (frame >= total) { clearInterval(timer); tn.nodeValue = target; busy = false; }
+        }, 34);
+      };
+      a.addEventListener('mouseenter', run);
+      a.addEventListener('focus', run);
+    });
+  }
+
+  /* =====================================================================
+     S3/S8 — VELOCITY-REACTIVE MARQUEE. Takes over from the CSS keyframe so it
+     can drift at a base speed and then accelerate + skew with scroll velocity
+     (the drag of water). Populated here; actually driven by the flow ticker.
+     ===================================================================== */
+  let marqRows = [];
+  function initMarquee() {
+    marqRows = $$('.marquee__row').map((row) => {
+      row.style.animation = 'none';
+      const st = { row, dir: parseFloat(row.getAttribute('data-marquee')) || 1, x: 0, half: 0, skew: 0 };
+      const measure = () => { st.half = row.scrollWidth / 2 || 0; };
+      measure();
+      window.addEventListener('resize', measure);
+      if (window.ScrollTrigger) window.ScrollTrigger.addEventListener('refresh', measure);
+      return st;
+    });
+  }
+
+  /* =====================================================================
+     S8 — SCROLL FLOW. Smoothed |velocity| → --flow (0..1) for ambient layers,
+     and it powers the marquee drift/skew + (Phase 2) an ocean stir. One ticker.
+     ===================================================================== */
+  function initFlow() {
+    let flow = 0, lastFlow = -1;
+    gsap.ticker.add(() => {
+      const vRaw = lenis ? (lenis.velocity || 0) : 0;
+      const mag = Math.min(Math.abs(vRaw) / 42, 1);
+      flow += (mag - flow) * 0.12;
+      const fq = flow < 0.001 ? 0 : Math.round(flow * 1000) / 1000;   // quantise → skip idle repaints
+      if (fq !== lastFlow) {
+        root.style.setProperty('--flow', fq.toFixed(3));
+        if (ocean && ocean.setFlow) ocean.setFlow(fq);
+        lastFlow = fq;
+      }
+      for (const st of marqRows) {
+        if (!st.half) { st.half = st.row.scrollWidth / 2 || 0; continue; }
+        st.x -= (0.55 + flow * 6) * st.dir;
+        if (st.x <= -st.half) st.x += st.half;
+        else if (st.x > 0) st.x -= st.half;
+        const targetSkew = clamp(vRaw * st.dir * 0.045, -9, 9);
+        st.skew += (targetSkew - st.skew) * 0.1;
+        st.row.style.transform = `translateX(${st.x.toFixed(2)}px) skewX(${st.skew.toFixed(2)}deg)`;
+      }
     });
   }
 })();
