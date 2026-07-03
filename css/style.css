@@ -662,6 +662,48 @@ html.has-cursor .gallery.is-grabbing,html.has-cursor .gallery.is-grabbing *{curs
 .btn--ghost .hold-ring .hr-p{stroke:var(--cyan)}
 .has-hold.is-charged{box-shadow:0 0 0 1.5px var(--cyan),0 16px 50px -10px rgba(83,212,205,.55)}
 
+/* ---- S5 · dive profile (main.js injects it above the plan cards) ---- */
+.dive-profile{max-width:var(--maxw);margin:0 auto 7vh;padding:0 var(--pad)}
+.dive-profile svg{width:100%;height:auto;display:block;overflow:visible}
+.dp-grid line{stroke:rgba(210,240,235,.1)}
+.dp-lab{fill:var(--ink-faint);font:400 11px var(--label);letter-spacing:.08em}
+.dp-curve{fill:none;stroke:var(--cyan);stroke-width:2;opacity:.85}
+.dp-fill{fill:url(#dpFill);opacity:.45}
+.dp-dot{fill:var(--abyss);stroke:var(--cyan);stroke-width:2;transition:fill .45s var(--e-drift),stroke .45s}
+.dp-node.is-lit .dp-dot{fill:var(--gold);stroke:var(--gold)}
+.dp-price{fill:var(--ink-dim);font:500 15px var(--label);letter-spacing:.02em;transition:fill .45s}
+.dp-node.is-lit .dp-price{fill:var(--gold)}
+.dp-tag{fill:var(--ink-faint);font:400 10.5px var(--label);letter-spacing:.18em}
+.dp-diver{fill:var(--sand);stroke:var(--abyss);stroke-width:2;filter:drop-shadow(0 0 6px rgba(83,212,205,.6))}
+.dp-cap{text-align:center;font:500 .66rem var(--label);letter-spacing:.26em;color:var(--cyan);margin-top:1.1rem}
+.offer{transition:transform .7s var(--e-drift),border-color .5s,box-shadow .6s}
+.offer.is-lit::before{opacity:.65}
+.offer.is-lit{box-shadow:0 26px 60px -34px rgba(2,8,17,.92),0 0 0 1px rgba(83,212,205,.28)}
+@media (max-width:600px){.dive-profile{display:none}}   /* mobile keeps just the cards */
+
+/* ---- ACCESS · route line drawn on scroll ---- */
+.access__steps{position:relative}
+.access__line{position:absolute;left:22px;top:22px;width:1.5px;height:calc(100% - 44px);
+  background:linear-gradient(var(--cyan),var(--gold));transform-origin:50% 0;z-index:0;border-radius:2px}
+.access__steps li{position:relative;z-index:1}
+.access__num{transition:border-color .45s var(--e-drift),color .45s,background .45s,box-shadow .45s}
+.access__num.is-lit{border-color:var(--gold);color:var(--gold);background:rgba(229,182,103,.1);box-shadow:0 0 18px -4px rgba(229,182,103,.5)}
+
+/* ---- S6 · sound toggle (audio.js injects the button) ---- */
+.nav__sound{
+  background:none;border:1px solid var(--line);border-radius:100px;
+  width:36px;height:30px;display:flex;align-items:center;justify-content:center;gap:2.5px;
+  cursor:pointer;transition:border-color .4s;
+  filter:drop-shadow(0 1px 16px rgba(5,26,36,.55));
+}
+.nav__sound:hover{border-color:var(--cyan)}
+.nav__sound:disabled{opacity:.4;cursor:not-allowed}
+.nav__sound i{width:2px;height:6px;background:var(--ink-faint);border-radius:1px;transition:background .3s,height .3s}
+.nav__sound.is-on i{background:var(--cyan);animation:eq .95s var(--e-sway) infinite}
+.nav__sound.is-on i:nth-child(2){animation-delay:.16s}
+.nav__sound.is-on i:nth-child(3){animation-delay:.34s}
+@keyframes eq{0%,100%{height:5px}50%{height:14px}}
+
 /* ================================================================
    RESPONSIVE
    ================================================================ */

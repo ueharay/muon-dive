@@ -68,6 +68,8 @@
         initDepthEngine();
         initCrossing();
         initGalleryRail();
+        initDiveProfile();
+        initRoute();
         initMarquee();
         initFlow();
       } else {
@@ -399,6 +401,121 @@
       .to({}, { duration: .8 })                                   // held silence
       .to([en, sub], { opacity: 0, duration: .5 }, 2.0)
       .to(kanji, { scale: 1.06, opacity: 0, filter: 'blur(10px)', duration: .8, ease: 'power2.in' }, 2.0);
+  }
+
+  /* =====================================================================
+     S5 — DIVE PROFILE. Above the (unchanged) plan cards, a depth×time curve:
+     as you scroll the offers, a diver descends it and each plan's node lights
+     in sync with its card — "the deeper you go, the deeper the reset". The
+     cards stay exactly as they were, so nothing about booking is gated.
+     ===================================================================== */
+  function initDiveProfile() {
+    const offers = $('#offers');
+    const grid = $('.offers__grid');
+    if (!offers || !grid || $('.dive-profile')) return;
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    const NODES = [
+      { tag: '体験',   m: 12, price: '₱8,800' },
+      { tag: 'PADI',   m: 18, price: '₱28,000' },
+      { tag: '1DAY',   m: 24, price: '₱6,500' },
+      { tag: 'RETREAT', m: 32, price: '₱48,000' },
+    ];
+    const PTS = [[0, 3], [190, 12], [430, 18], [660, 24], [870, 32], [1000, 33]];
+    const NODE_I = [1, 2, 3, 4];
+    const Y = (m) => 26 + m * 6.4;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'dive-profile';
+    wrap.setAttribute('aria-hidden', 'true');
+    wrap.innerHTML =
+      '<svg viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet">' +
+      '<defs><linearGradient id="dpFill" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#53D4CD" stop-opacity="0"/><stop offset="1" stop-color="#0E4A5E" stop-opacity=".8"/>' +
+      '</linearGradient></defs><g class="dp-grid"></g>' +
+      '<path class="dp-fill"/><path class="dp-curve"/><g class="dp-nodes"></g>' +
+      '<circle class="dp-diver" r="7"/></svg>' +
+      '<p class="dp-cap"><span data-l="ja">DIVE PROFILE — 深く潜るほど、深いリセット</span></p>';
+    grid.insertAdjacentElement('beforebegin', wrap);
+
+    const svg = $('svg', wrap);
+    let d = 'M ' + PTS[0][0] + ' ' + Y(PTS[0][1]);
+    for (let i = 1; i < PTS.length - 1; i++) {
+      const mx = (PTS[i][0] + PTS[i + 1][0]) / 2, my = (Y(PTS[i][1]) + Y(PTS[i + 1][1])) / 2;
+      d += ' Q ' + PTS[i][0] + ' ' + Y(PTS[i][1]) + ' ' + mx + ' ' + my;
+    }
+    d += ' L 1000 ' + Y(PTS[PTS.length - 1][1]);
+    $('.dp-curve', svg).setAttribute('d', d);
+    $('.dp-fill', svg).setAttribute('d', d + ' L 1000 300 L 0 300 Z');
+
+    const grid_g = $('.dp-grid', svg);
+    [0, 10, 20, 30].forEach((m) => {
+      const y = Y(m);
+      const ln = document.createElementNS(SVGNS, 'line');
+      ln.setAttribute('x1', 0); ln.setAttribute('x2', 1000); ln.setAttribute('y1', y); ln.setAttribute('y2', y);
+      grid_g.appendChild(ln);
+      const tx = document.createElementNS(SVGNS, 'text');
+      tx.setAttribute('x', 6); tx.setAttribute('y', y - 5); tx.setAttribute('class', 'dp-lab');
+      tx.textContent = '-' + m + 'm';
+      grid_g.appendChild(tx);
+    });
+
+    const nodesG = $('.dp-nodes', svg);
+    const nodeEls = NODES.map((n, i) => {
+      const p = PTS[NODE_I[i]];
+      const px = p[0], py = Y(p[1]);
+      const g = document.createElementNS(SVGNS, 'g');
+      g.setAttribute('class', 'dp-node');
+      g.innerHTML =
+        '<circle class="dp-dot" cx="' + px + '" cy="' + py + '" r="6"/>' +
+        '<text class="dp-price" x="' + px + '" y="' + (py - 16) + '" text-anchor="middle">' + n.price + '</text>' +
+        '<text class="dp-tag" x="' + px + '" y="' + (py + 24) + '" text-anchor="middle">' + n.tag + '</text>';
+      nodesG.appendChild(g);
+      return { g, px };
+    });
+
+    const curve = $('.dp-curve', svg);
+    const len = curve.getTotalLength();
+    const diver = $('.dp-diver', svg);
+    const cards = $$('.offer', offers);
+    const place = (frac) => {
+      const pt = curve.getPointAtLength(clamp(frac) * len);
+      diver.setAttribute('cx', pt.x); diver.setAttribute('cy', pt.y);
+      nodeEls.forEach((n, i) => {
+        const lit = pt.x >= n.px - 2;
+        n.g.classList.toggle('is-lit', lit);
+        if (cards[i]) cards[i].classList.toggle('is-lit', lit);
+      });
+    };
+    place(0);
+
+    window.ScrollTrigger.create({
+      trigger: offers, start: 'top 62%', end: 'bottom 78%', scrub: 0.6,
+      onUpdate: (self) => place(self.progress),
+    });
+  }
+
+  /* =====================================================================
+     ACCESS ROUTE — the A→B→C→D steps get a vertical route line that draws as
+     you scroll, lighting each waypoint in turn (the plan of the weekend).
+     ===================================================================== */
+  function initRoute() {
+    const steps = $('.access__steps');
+    if (!steps || $('.access__line', steps)) return;
+    const line = document.createElement('i');
+    line.className = 'access__line';
+    line.setAttribute('aria-hidden', 'true');
+    steps.insertBefore(line, steps.firstChild);
+    const nums = $$('.access__num', steps);
+    gsap.set(line, { scaleY: 0, transformOrigin: '50% 0%' });
+    nums.forEach((n) => n.classList.remove('is-lit'));
+    window.ScrollTrigger.create({
+      trigger: steps, start: 'top 72%', end: 'bottom 82%', scrub: 0.5,
+      onUpdate: (self) => {
+        gsap.set(line, { scaleY: self.progress });
+        const lit = Math.round(self.progress * nums.length);
+        nums.forEach((n, i) => n.classList.toggle('is-lit', i < lit));
+      },
+    });
   }
 
   /* =====================================================================
