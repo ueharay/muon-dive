@@ -620,9 +620,9 @@
       root.style.setProperty('--depth', q.toFixed(2));
       if (ocean) ocean.setDepth(graded);
       root.style.setProperty('--dive', clamp(d * 46 / 40).toFixed(3));
-      // S8 tempo: motion slows and swells as we descend (1× surface → ~3.4× abyss).
-      // New tweens read `calc(var(--tempo) * <base>)`; ambient layers read it live.
-      root.style.setProperty('--tempo', (1 + clamp(d) * 2.6).toFixed(2));
+      // S8 tempo gradient is applied directly where it reads best — each heading's
+      // reveal duration scales with its section depth in initReveals (deeper =
+      // slower). --flow (scroll velocity) is the live ambient driver below.
       lastDepthQ = q;
     }
     // S6 audio (Phase 3, no-op until js/audio.js loads): descend → the world muffles
