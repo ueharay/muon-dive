@@ -30,7 +30,9 @@
   // the preloader gate decodes the hero poster (the video streams in afterwards)
   const HERO_SRC = 'assets/video/hero-montage.jpg';
 
-  const PALETTE = { surface: '#37bcc2', deep: '#0f4d61', light: '#b6f3ea' };
+  // brighter, living teal even at the "deep" end — the user is thalassophobic,
+  // so the water must never read as a dark abyss
+  const PALETTE = { surface: '#45c6cc', deep: '#1f8b9e', light: '#c2f5ee' };
 
   /* If GSAP failed to load, degrade gracefully: reveal everything, keep basics. */
   if (!hasGSAP) root.classList.remove('js');
@@ -625,8 +627,6 @@
       // slower). --flow (scroll velocity) is the live ambient driver below.
       lastDepthQ = q;
     }
-    // S6 audio (Phase 3, no-op until js/audio.js loads): descend → the world muffles
-    if (window.MUON_AUDIO) window.MUON_AUDIO.setDepth(clamp(d));
     const meters = (d * 46).toFixed(1);
     if (meters !== lastRead) { const el = depthReadEl(); if (el) el.textContent = meters; lastRead = meters; }
   }

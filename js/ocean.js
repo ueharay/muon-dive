@@ -91,7 +91,7 @@ const Ocean = (() => {
       // vertical depth gradient — descend pushes everything toward the abyss
       float vert = smoothstep(-0.15, 1.15, uv.y);
       vec3 col = mix(uDeep, uSurface, vert);
-      col = mix(col, uDeep, depth * 0.5);
+      col = mix(col, uDeep, depth * 0.2);   // stay bright with depth (no scary abyss)
 
       // volumetric god rays from an off-screen top light (10-tap raymarch)
       vec2 lightPos = vec2(0.30 + uPointer.x * 0.40, 1.25);
@@ -153,9 +153,9 @@ const Ocean = (() => {
         col += uSurface * smoothstep(0.0, 0.5, d) * line * 0.22 * env;   // light wash above the crest
       }
 
-      // haze + vignette (tightens with depth) + grain
-      float vign = smoothstep(1.25, 0.32 - depth * 0.06, length(uv - 0.5));
-      col *= mix(0.78, 1.0, vign);
+      // haze + vignette (kept gentle so edges never darken into dread) + grain
+      float vign = smoothstep(1.3, 0.28 - depth * 0.04, length(uv - 0.5));
+      col *= mix(0.9, 1.0, vign);
       col += (hash(uv * uRes.xy * 0.5 + t) - 0.5) * 0.035;
 
       col = col / (col + vec3(0.85));
