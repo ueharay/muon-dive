@@ -1,5 +1,5 @@
 /* =========================================================================
-   無音 MUON — a scuba diving landing page
+   ZEN DIVE Manila — a scuba diving landing page
    Art direction: surface glare → abyssal silence → return to light
    ========================================================================= */
 
@@ -75,9 +75,16 @@ ul,ol{list-style:none}
 /* ================================================================
    FIXED WATER LAYERS
    ================================================================ */
+/* The water is rendered, not photographed. The canvas paints it opaquely
+   (WebGL context is alpha:false), so this gradient is only ever seen when the
+   shader cannot run — reduced motion, a low-end device, or a GL failure — and
+   it has to stand on its own as a calm, bright sea. */
 .ocean{
   position:fixed;inset:0;width:100%;height:100%;
-  z-index:-3;display:block;background:var(--abyss);
+  z-index:-3;display:block;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(194,245,238,.5), transparent 55%),
+    linear-gradient(180deg, #45c6cc 0%, #2aa4b0 45%, #157087 100%);
 }
 /* colour grade: surface light fades and the abyss closes in as --depth rises.
    Driven per-frame by JS (main.js). No CSS transition — JS already eases it. */
@@ -85,12 +92,24 @@ ul,ol{list-style:none}
   position:fixed;inset:0;z-index:-1;pointer-events:none;
   /* kept bright & living even at depth — gentle teal wash, never a dark closing-in */
   background:
-    radial-gradient(130% 100% at 50% -12%, rgba(214,244,238,calc(.22 - var(--depth)*.05)) 0%, transparent 50%),
+    radial-gradient(130% 100% at 50% -12%, rgba(214,244,238,calc(.10 - var(--depth)*.04)) 0%, transparent 50%),
     radial-gradient(155% 130% at 50% 46%, transparent 55%, rgba(20,112,132,calc(.05 + var(--depth)*.12)) 100%),
     linear-gradient(180deg,
       rgba(34,140,158,calc(var(--depth)*.07)) 0%,
       rgba(26,120,140,calc(.02 + var(--depth)*.13)) 100%);
 }
+/* No shader (phones, reduced-motion, low-end): the flat --abyss underneath reads
+   far lighter than the rendered water, so text loses the page. Deepen the wash
+   to land where the WebGL version sits. .has-ocean is set by main.js on mount. */
+html:not(.has-ocean) .grade{
+  background:
+    radial-gradient(130% 100% at 50% -14%, rgba(214,244,238,calc(.09 - var(--depth)*.05)) 0%, transparent 52%),
+    radial-gradient(150% 130% at 50% 44%, transparent 42%, rgba(6,38,52,calc(.34 + var(--depth)*.30)) 100%),
+    linear-gradient(180deg,
+      rgba(7,44,60,calc(.30 + var(--depth)*.34)) 0%,
+      rgba(4,28,40,calc(.44 + var(--depth)*.36)) 100%);
+}
+
 .grain{
   position:fixed;inset:-12%;z-index:40;pointer-events:none;opacity:.05;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -202,9 +221,40 @@ html.has-cursor,html.has-cursor *{cursor:none!important}
    the hero; legibility comes from a soft text-shadow, not a coloured band */
 .nav.is-scrolled{padding-top:.85rem;padding-bottom:.85rem}
 .nav__brand,.nav__links a,.nav__cta{text-shadow:0 1px 16px rgba(5,26,36,.55)}
-.nav__brand{display:flex;align-items:baseline;gap:.55rem}
-.nav__kanji{font-family:var(--mincho);font-weight:600;font-size:1.35rem;letter-spacing:.12em;color:var(--sand)}
-.nav__romaji{font-family:var(--label);font-weight:500;font-size:.62rem;letter-spacing:.42em;color:var(--cyan)}
+.nav__brand{display:flex;align-items:center;gap:.6rem}
+/* THE MARK — a thin circle, broken once. Nothing inside; the emptiness is the
+   point (無). No brush cosplay, no fill, no badge: compass-drawn geometry, the
+   same hairline weight as the depth meter and the page rules. The gap is the
+   wabi — beauty carried by what is missing, and the way in. */
+.maru{flex:none}
+.maru circle{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round}
+/* circles must slightly EXCEED a flat text block to read as equal (optical
+   overshoot): visible circle = 93.75% of this box → 27px vs the 26.2px lockup */
+.nav__maru{width:1.8rem;height:1.8rem;align-self:center;color:var(--sand)}
+/* Two-tier lockup, hotel-style: the city is justified to EXACTLY the width of
+   the wordmark above it. That width-lock is what reads as a designed mark
+   rather than two words in a row. Trailing tracking is trimmed (-.34em) so the
+   optical right edges align; the city letters are spread by flex, not tracking. */
+.nav__lockup{display:flex;flex-direction:column;gap:.3rem}
+.nav__word{font-family:var(--label);font-weight:500;font-size:.78rem;
+  letter-spacing:.34em;margin-right:-.34em;color:var(--sand);line-height:1}
+.nav__city{display:flex;justify-content:space-between;font-family:var(--label);
+  font-weight:500;font-size:.56rem;color:var(--ink-faint);line-height:1}
+.nav__city i,.foot__city i{font-style:normal}
+.preloader__maru{display:block;width:clamp(3.8rem,9vw,5.2rem);height:auto;margin:0 auto;
+  color:var(--sand)}
+/* same lockup as the nav — mark + wordmark on row 1, tagline fills row 2.
+   Grid (not flex-wrap) because flex-basis:100% only wraps when the row is
+   already full; here there's slack, so it never broke onto its own line. */
+.foot__brand{display:grid;grid-template-columns:auto auto;column-gap:.75rem;row-gap:1.5rem;align-items:center;justify-content:start}
+.foot__kanji{grid-column:1;grid-row:1;display:flex;align-items:center}
+.foot__maru{display:block;width:2.5rem;height:auto;color:var(--sand)}
+.foot__lockup{grid-column:2;grid-row:1;display:inline-flex;flex-direction:column;gap:.34em;margin:0}
+.foot__word{font-family:var(--label);font-weight:500;font-size:1.02rem;
+  letter-spacing:.34em;margin-right:-.34em;color:var(--sand);line-height:1}
+.foot__city{display:flex;justify-content:space-between;font-family:var(--label);
+  font-weight:500;font-size:.62rem;color:var(--cyan);line-height:1}
+.foot__tag{grid-column:1 / -1;grid-row:2}
 .nav__links{display:flex;gap:clamp(1rem,2.4vw,2.4rem)}
 .nav__links a{
   position:relative;font-size:.82rem;letter-spacing:.06em;color:var(--ink-dim);
@@ -235,7 +285,7 @@ html[data-lang="en"] .nav__lang [data-l="en"]{color:var(--cyan)}
 
 /* English headings look best in the refined Latin display serif */
 html[data-lang="en"] .h-lg,html[data-lang="en"] .h-md,html[data-lang="en"] .hero__title,
-html[data-lang="en"] .cta__title,html[data-lang="en"] .interlude__line{
+html[data-lang="en"] .cta__title{
   font-family:var(--display);font-weight:500;letter-spacing:.005em;line-height:1.12}
 html[data-lang="en"] .glow{font-style:italic}
 .nav__burger{display:none;flex-direction:column;gap:5px;width:34px;height:34px;background:none;border:0;cursor:pointer;align-items:center;justify-content:center}
@@ -264,21 +314,28 @@ html[data-lang="en"] .glow{font-style:italic}
    small kana — kills the amateur lone 「る。」/「う。」orphan tell. Headings wrap
    only when they must (narrow mobile); on desktop the authored <br> controls
    the lines and the relaxed max-widths keep them on one line each. */
-.h-lg,.h-md,.hero__title,.cta__title,.interlude__line,.silence__sub{line-break:strict}
-/* Japanese body: break lines at natural phrase (文節) boundaries so no line ends
-   mid-word. word-break:auto-phrase = Chrome/Edge 119+; older browsers fall back
-   to normal CJK wrapping + kinsoku, which is still fine. */
-p,li,dd,figcaption,.hero__lead,.contrast__text,.offer__hook,.offers__lead,
-.access__steps em,.trust__cell p,.cta__lead,.foot__tag{
-  word-break:auto-phrase;line-break:strict;text-wrap:pretty}
+.h-lg,.h-md,.hero__title,.cta__title,.stay__ttl{
+  line-break:strict;text-wrap:balance}
+/* Japanese body: break at natural phrase (文節) boundaries so a line never ends
+   mid-word — auto-phrase is what stops "18m / まで" and "手元のこ / の一枚".
+   Chrome/Edge 119+; elsewhere it falls back to normal CJK wrapping + kinsoku.
+   text-wrap:pretty additionally keeps a lone character off the last line. */
+p,li,dd,dt,em,b,figcaption,summary,
+.hero__lead,.offer__hook,.offers__lead,
+.course__hook,.course__why,.course__meta,.course__ul li,.incl__list li,
+.sched em,.sched b,.stay__note,.trust__body p,.cta__lead{
+  word-break:auto-phrase;text-wrap:pretty}
 
 .glow{color:var(--cyan);position:relative;text-shadow:0 0 34px rgba(83,212,205,.5)}
 
 /* keep body copy legible over the bright water/video backgrounds */
-.hero__lead,.contrast__text,.offers__lead,.descent__cols p,.access__text p,
-.experience__body>p,.trust__cell p,.cta__lead,.foot__tag{
-  text-shadow:0 1px 18px rgba(5,24,34,.55)}
+.hero__lead,.offers__lead,.access__text p,
 .kicker{text-shadow:0 1px 12px rgba(5,24,34,.4)}
+
+/* .lines splits a heading into one span per character, so the browser may break
+   between any two of them — that is what produced "日曜の夜に / はダイバー。".
+   .nw marks the 文節 that must stay whole; the line then breaks between them. */
+.nw{white-space:nowrap}
 
 /* line-reveal scaffold (JS wraps into .line > .line-inner) */
 .lines{overflow:visible}
@@ -316,7 +373,9 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
    HERO
    ================================================================ */
 .hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;
-  padding:0 var(--pad);overflow:hidden}
+  /* the scroll cue and the meta line are absolutely placed at the bottom, so the
+     flowing content needs room reserved under it or the buttons sit on the fold */
+  padding:14vh var(--pad) clamp(9.5rem,21vh,13rem);overflow:hidden}
 .hero__media{position:absolute;inset:0;z-index:-1;overflow:hidden}
 .hero__media img,.hero__media video{width:100%;height:100%;object-fit:cover;object-position:60% 45%;
   opacity:.94;filter:saturate(1.08)}
@@ -327,11 +386,11 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 /* hero kicker sits on bright, busy video — make it high-contrast */
 #hero .kicker{color:var(--sand);text-shadow:0 2px 20px rgba(4,18,28,.95),0 0 3px rgba(4,18,28,.6)}
 #hero .kicker::before{background:var(--cyan);opacity:1}
-.hero__inner{max-width:960px;margin-top:6vh}
+.hero__inner{max-width:960px}
 .hero__title{font-family:var(--mincho);font-weight:600;color:var(--sand);
   font-size:clamp(2.2rem,6.6vw,6rem);line-height:1.28;letter-spacing:.015em;
   margin:1.4rem 0 2rem;text-shadow:0 6px 40px rgba(3,15,30,.6)}
-.hero__lead{max-width:44ch;color:var(--ink-dim);font-size:clamp(.95rem,1.4vw,1.12rem);line-height:2}
+.hero__lead{max-width:30em;color:var(--ink-dim);font-size:clamp(.95rem,1.4vw,1.12rem);line-height:2}
 .hero__actions{display:flex;flex-wrap:wrap;gap:1rem;margin-top:2.6rem}
 .hero__scroll{position:absolute;left:50%;transform:translateX(-50%);bottom:2.2rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;color:var(--ink-dim);font:500 9px/1 var(--label);letter-spacing:.3em;text-shadow:0 1px 12px rgba(4,18,28,.7)}
 .hero__scroll-jp{font-family:var(--sans);letter-spacing:.3em;font-size:9px}
@@ -343,79 +402,23 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 /* ================================================================
    INTERLUDE (type as image)
    ================================================================ */
-.interlude{min-height:82vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8vh var(--pad)}
-.interlude__en{font-family:var(--label);font-weight:500;font-size:.72rem;letter-spacing:.5em;color:var(--ink-faint);margin-bottom:1.8rem}
-.interlude__line{font-family:var(--mincho);font-weight:500;color:var(--sand);
-  font-size:clamp(1.7rem,7vw,5.4rem);line-height:1.4;letter-spacing:.06em}
 
 /* ================================================================
    CONTRAST
    ================================================================ */
-.contrast{padding:14vh 0}
-.contrast .kicker{justify-content:center}
-.contrast .h-lg{text-align:center;max-width:none;margin:0 auto 8vh}
-.contrast__grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.6rem,4vw,5rem);align-items:center}
-.contrast__fig{position:relative;border-radius:2px}
-.contrast__fig img,.contrast__fig video{width:100%;aspect-ratio:4/5;object-fit:cover;filter:saturate(1.05)}
-.contrast__fig--surface img{filter:saturate(.9) brightness(1.05)}
-.contrast__fig--void{margin-top:14%}
-.contrast__fig figcaption{margin-top:1rem;font:400 .74rem/1.5 var(--label);letter-spacing:.16em;color:var(--ink-faint)}
-.contrast__fig figcaption span{display:block;color:var(--cyan);letter-spacing:.3em;margin-bottom:.3rem;font-size:.66rem}
-.contrast__text{grid-column:1/-1;max-width:46ch;margin:5vh auto 0;text-align:left;
-  font-family:var(--mincho);font-size:clamp(1rem,1.5vw,1.2rem);line-height:2.05;color:var(--ink-dim)}
-.contrast__text p+p{margin-top:1.4rem}
-.contrast__text-strong{color:var(--sand)}
 
 /* ================================================================
    DESCENT
    ================================================================ */
-.descent{min-height:120vh;display:flex;align-items:center;padding:16vh var(--pad);overflow:hidden}
-.descent__media{position:absolute;inset:0;z-index:-1;overflow:hidden}
-.descent__media img,.descent__media video{width:100%;height:100%;object-fit:cover;object-position:center;opacity:.82}
-.descent__media::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,40,54,.8),rgba(7,40,54,.28) 55%,rgba(7,40,54,.6))}
-.descent__inner{max-width:var(--maxw);margin:0 auto;width:100%}
-.descent .h-lg{max-width:none;margin-bottom:8vh}
-.descent__cols{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1.5rem,3vw,3.4rem);max-width:1100px}
-.descent__cols p{font-family:var(--mincho);font-size:clamp(.95rem,1.3vw,1.08rem);line-height:2.1;color:var(--ink-dim);padding-top:1.4rem;border-top:1px solid var(--line)}
-
-/* ================================================================
-   SILENCE (deepest / pinned)
-   ================================================================ */
-/* the quiet, still beat — luminous, not dark: a calm bright-teal glow (no dread) */
-.silence{height:120vh;position:relative;
-  background:radial-gradient(85% 70% at 50% 42%, rgba(120,224,214,.16) 0%, rgba(23,120,140,.5) 82%)}
-.silence__stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.5rem}
-.silence__en{font-family:var(--label);font-weight:300;font-size:clamp(.7rem,1.1vw,.85rem);letter-spacing:.7em;text-indent:.7em;color:var(--cyan);opacity:.7}
-.silence__kanji{font-family:var(--mincho);font-weight:400;color:var(--sand);
-  font-size:clamp(6rem,26vw,20rem);line-height:1;letter-spacing:.1em;text-indent:.1em;
-  text-shadow:0 0 90px rgba(69,199,196,.28)}
-.silence__sub{font-family:var(--mincho);color:var(--ink-dim);font-size:clamp(.9rem,1.4vw,1.15rem);letter-spacing:.1em;max-width:30ch}
 
 /* ================================================================
    EXPERIENCE
    ================================================================ */
-.experience{padding:14vh 0}
-.experience__wrap{display:grid;grid-template-columns:0.9fr 1.1fr;gap:clamp(2rem,5vw,6rem);align-items:center}
-.experience__media{border-radius:2px}
-.experience__media img,.experience__media video{width:100%;aspect-ratio:3/4;object-fit:cover}
-.experience__body>p[data-reveal]{margin:1.8rem 0;max-width:46ch;color:var(--ink-dim);font-family:var(--mincho);line-height:2.1}
-.experience__list{margin:2.4rem 0}
-.experience__list li{display:flex;gap:1.2rem;align-items:baseline;padding:1.1rem 0;border-top:1px solid var(--line);font-size:.98rem;color:var(--sand)}
-.experience__list li:last-child{border-bottom:1px solid var(--line)}
-.experience__list span{font-family:var(--label);font-size:.72rem;letter-spacing:.15em;color:var(--cyan);min-width:2rem}
 
 /* ================================================================
    MARQUEE
    ================================================================ */
-.marquee{padding:9vh 0;overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.marquee__row{display:flex;align-items:center;gap:2.4rem;white-space:nowrap;width:max-content;will-change:transform;
-  padding-left:2.4rem;animation:marquee 42s linear infinite}
-.marquee:hover .marquee__row{animation-play-state:paused}
-.marquee__row span{font-family:var(--mincho);font-weight:500;font-size:clamp(1.4rem,3.4vw,2.8rem);color:var(--sand);letter-spacing:.05em}
-.marquee__row i{font-style:normal;color:var(--cyan);font-size:1rem}
-.marquee__row--alt{margin-top:1.6rem;animation-duration:52s;animation-direction:reverse}
 @keyframes marquee{to{transform:translateX(-50%)}}
-.marquee__row--alt span{font-family:var(--marc);font-size:clamp(1rem,2.2vw,1.8rem);color:var(--ink-dim);letter-spacing:.14em}
 
 /* ================================================================
    GALLERY
@@ -423,21 +426,23 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .gallery{padding:12vh 0}
 .gallery .wrap{margin-bottom:6vh}
 .gallery .h-md{max-width:none}
-.gallery__grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:22vw;gap:clamp(.6rem,1.2vw,1.2rem);padding:0 clamp(.8rem,2vw,2rem)}
-.gallery__item{position:relative;border-radius:2px}
+/* a reef that drifts past on its own — the track holds two copies of the set,
+   so translating it by exactly half loops seamlessly */
+.gallery__marquee{overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.gallery__track{display:flex;width:max-content;gap:clamp(.6rem,1.2vw,1.2rem);
+  animation:reefDrift 45s linear infinite;will-change:transform}
+.gallery__marquee:hover .gallery__track{animation-play-state:paused}
+@keyframes reefDrift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.gallery__item{position:relative;border-radius:2px;flex:none;margin:0;overflow:hidden;
+  width:clamp(230px,25vw,390px);height:clamp(300px,42vw,520px)}
 .gallery__item img,.gallery__item video{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--e-drift),filter 1.2s ease}
 .gallery__item:hover img,.gallery__item:hover video{transform:scale(1.06);filter:saturate(1.15)}
-.gallery__item--tall{grid-row:span 2}
-.gallery__item--wide{grid-column:span 2}
 .gallery__item figcaption{position:absolute;left:1rem;bottom:1rem;font:400 .72rem/1.3 var(--label);letter-spacing:.08em;color:var(--sand);opacity:0;transform:translateY(8px);transition:.5s var(--e-drift);text-shadow:0 2px 12px rgba(0,0,0,.6)}
 .gallery__item:hover figcaption{opacity:1;transform:none}
 /* desktop: explicit tiling so the 4×2 mosaic fills with no dead column */
 @media (min-width:1025px){
-  .gallery__grid{grid-template-rows:repeat(2,25vw);grid-auto-rows:25vw}
-  .gallery__item:nth-child(1){grid-column:1;grid-row:1/3}       /* turtle — tall */
-  .gallery__item:nth-child(2){grid-column:2/4;grid-row:1}        /* reef — wide */
-  .gallery__item:nth-child(3){grid-column:4;grid-row:1/3}        /* shoal — tall */
-  .gallery__item:nth-child(4){grid-column:2/4;grid-row:2}        /* god rays — wide */
 }
 
 /* ================================================================
@@ -445,7 +450,7 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
    ================================================================ */
 .offers{padding:14vh 0}
 .offers .h-lg{max-width:none;margin-bottom:1.8rem}
-.offers__lead{max-width:50ch;color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;margin-bottom:7vh}
+.offers__lead{max-width:32em;color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;margin-bottom:7vh}
 .offers__grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(1rem,2vw,1.6rem);max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
 .offer{
   position:relative;padding:clamp(1.8rem,3vw,2.8rem);
@@ -475,28 +480,359 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .offer__price em{font-style:normal;font-size:.72rem;color:var(--ink-faint);margin-left:.2rem;white-space:nowrap}
 
 /* ================================================================
+   COURSES — the PADI ladder, as a set of doors that open
+   ================================================================ */
+.courses{padding:11vh 0 0}
+.courses .h-md{max-width:none;margin-bottom:1.6rem}
+.courses__lead{max-width:50ch;color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;margin-bottom:7vh}
+.courses__list{max-width:var(--maxw);margin:0 auto 3.4rem;padding:0 var(--pad)}
+/* THE LADDER — the certification path drawn the way a dive computer draws a dive.
+   Reference: the Subsurface / Shearwater profile view — a filled descent curve, a
+   depth scale down the side, the depth called out where it changes. The levels
+   ARE depths here (18 / 30 / 40m), so the chart states a fact rather than
+   decorating one, and it rhymes with the depth meter already on screen. */
+.ladder{position:relative;margin:clamp(3.4rem,6vw,5.5rem) 0 0;padding:0 0 0 3.2rem;
+  height:clamp(250px,27vw,340px)}
+/* absolute children resolve against the padding box, so inset:0 already starts
+   at the content edge — the left gutter is the axis's alone */
+.ladder__graph{position:absolute;inset:0;width:100%;height:100%}
+.ladder__vgraph{display:none}
+.ladder__area{fill:url(#ladderFill)}
+.ladder__line{fill:none;stroke:rgba(83,212,205,.72);stroke-width:1.6;
+  stroke-linejoin:round;stroke-linecap:round}
+.ladder__grid{stroke:rgba(210,240,235,.09);stroke-width:1}
+
+/* depth scale — the graph's own axis, tucked in the left gutter */
+.ladder__axis{position:absolute;left:-3.2rem;top:var(--y);transform:translateY(-50%);
+  font:500 .58rem/1 var(--label);letter-spacing:.14em;color:var(--ink-faint);opacity:.7}
+
+.ladder__steps{list-style:none;margin:0;padding:0;position:absolute;inset:0}
+.ladder__steps li{position:absolute;left:var(--x);top:var(--y);width:0}
+.ladder__dot{position:absolute;left:-4.5px;top:-4.5px;width:9px;height:9px;border-radius:50%;
+  background:var(--sand);opacity:.8}
+/* the label hangs above its own point on the curve */
+.ladder__label{position:absolute;left:0;bottom:1.15rem;transform:translateX(-50%);
+  width:max-content;max-width:min(13rem,21vw);text-align:center}
+.ladder__lv{display:block;font:500 .6rem/1 var(--label);letter-spacing:.2em;
+  color:var(--ink-faint);margin-bottom:.5rem}
+.ladder b{display:block;font-family:var(--mincho);font-weight:600;letter-spacing:.03em;
+  font-size:clamp(.92rem,1.4vw,1.1rem);line-height:1.4;color:var(--ink-dim)}
+.ladder em{display:block;font:400 .72rem/1.55 var(--sans);font-style:normal;
+  color:var(--ink-faint);margin-top:.4rem}
+/* the step this page puts you on */
+.ladder .is-here .ladder__dot{background:var(--cyan);opacity:1;
+  box-shadow:0 0 0 4px rgba(83,212,205,.18),0 0 20px rgba(83,212,205,.6)}
+.ladder .is-here .ladder__lv{color:var(--cyan)}
+.ladder .is-here b{color:var(--sand)}
+
+@media (max-width:900px){
+  /* the same dive, rotated 90°: on a phone the scroll direction IS the descent,
+     so the profile runs down the page. Depth becomes the x-axis; the labels sit
+     to the right of their own plateau, level with the dot. */
+  .ladder{height:clamp(340px,104vw,440px);padding:0;margin-top:clamp(3.6rem,10vw,5rem)}
+  .ladder__graph{display:none}
+  .ladder__vgraph{display:block;position:absolute;inset:0;width:100%;height:100%}
+  /* depth read horizontally is nonsense on a phone — the per-level copy
+     (18mまで / 30mまで) already carries the numbers, so the axis goes */
+  .ladder__axis{display:none}
+  .ladder__steps li{left:var(--mx);top:var(--my)}
+  .ladder__label{left:.95rem;bottom:auto;top:50%;transform:translateY(-50%);
+    text-align:left;max-width:52vw}
+}
+
+/* the band that opens the certification part of the list */
+.courses__band{padding:clamp(3rem,5vw,4.6rem) 0 clamp(1.4rem,2vw,2rem);border-top:1px solid var(--line)}
+/* a group that is one line of text long does not need a full band's air */
+.courses__band--tight{padding:clamp(2.2rem,3.6vw,3.2rem) 0 0}
+.courses__band--tight .kicker{margin-bottom:0}
+.courses__band--tight + .tier__note{margin-top:clamp(1rem,1.6vw,1.3rem)}
+.courses__band .kicker{margin-bottom:1.1rem}
+/* a band's lead is one short line about the group — it does not need the reading
+   measure body copy does, and 50ch broke it onto two lines */
+.courses__band .courses__lead{margin-bottom:0;max-width:none}
+.course__cols--one{grid-template-columns:1fr;max-width:60ch}
+
+/* Quick facts + the ✓/✗ pair that every tour product page uses: what the price
+   covers, and — stated first-hand rather than left to be discovered — what it
+   does not. Both live inside the course card so the price never sits alone. */
+/* the four conditions read as a spec table: ruled box, one cell each */
+@media (max-width:720px){
+}
+
+.incl{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(1.6rem,3.4vw,3.4rem);
+  margin-top:clamp(2.2rem,3.6vw,3rem)}   /* the facts table already closes with a rule */
+.incl__ttl{font:500 .7rem/1 var(--label);letter-spacing:.2em;color:var(--cyan);margin-bottom:1rem}
+.incl__ttl--alt{color:var(--ink-faint)}
+.incl__list li{position:relative;padding:.5rem 0 .5rem 1.6rem;font-size:.86rem;line-height:1.85;color:var(--ink-dim)}
+.incl__list--yes li::before{content:"✓";position:absolute;left:0;top:.5rem;
+  font-size:.82rem;line-height:1.85;color:var(--cyan)}
+.incl__list--no li{color:var(--ink-faint)}
+.incl__list--no li::before{content:"✕";position:absolute;left:0;top:.5rem;
+  font-size:.76rem;line-height:1.9;color:var(--ink-faint)}
+/* the single-occupancy line is a price, so it lives with the price */
+.course__price-alt{color:var(--gold);opacity:.85;margin-top:.25rem}
+@media (max-width:820px){
+  .incl{grid-template-columns:1fr;gap:1.8rem}
+}
+
+
+
+/* One rule per group, drawn by the band that opens it. The rows inside a group
+   do not repeat it — a rule under the boxed LEVEL 1 card, another under the band
+   heading and another under the first row read as three fences in a row. */
+.course{border-top:1px solid var(--line)}
+.courses__band + .course{border-top:none}
+.course--lead + .courses__band{border-top:none}
+/* priced rows disclose a panel; named-only rows do not, so their head is 2 cols */
+.course--plain .course__head{grid-template-columns:auto 1fr}
+.course__head{
+  display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;
+  gap:clamp(1rem,3vw,2.6rem);padding:clamp(1.5rem,2.6vw,2.2rem) 0;
+  list-style:none;cursor:pointer;transition:color .5s var(--e-drift);
+}
+.course__head::-webkit-details-marker{display:none}
+.course__head--static{cursor:default}
+/* min-width keeps the names column starting at the same x on every card, so
+   "はじめての人へ" on LEVEL 1 does not shove its title out of line with LEVEL 2's */
+.course__step{font:500 .68rem/1 var(--label);letter-spacing:.24em;color:var(--cyan);
+  white-space:nowrap;min-width:clamp(4.5rem,8vw,8.5rem)}
+.course--spec .course__step{color:var(--gold)}
+.course__names{display:flex;flex-direction:column;gap:.42rem;min-width:0}
+.course__jp{font-family:var(--mincho);font-weight:600;font-size:clamp(1.12rem,2.1vw,1.62rem);
+  color:var(--sand);letter-spacing:.04em;line-height:1.35;transition:color .5s var(--e-drift)}
+/* the line under each name sells the level — not a translation of it */
+.course__why{font:400 .82rem/1.5 var(--sans);font-style:normal;letter-spacing:.03em;color:var(--ink-dim)}
+.course__price{font-family:var(--label);font-weight:500;font-size:clamp(1.05rem,1.7vw,1.35rem);
+  color:var(--sand);white-space:nowrap;text-align:right;line-height:1.2}
+.course__price i{display:block;font-style:normal;font-size:.7rem;color:var(--ink-faint);margin-top:.4rem;letter-spacing:.04em;font-family:var(--sans)}
+/* plus → minus */
+.course__mark{position:relative;width:15px;height:15px;flex:none}
+.course__mark::before,.course__mark::after{
+  content:"";position:absolute;left:0;top:7px;width:15px;height:1px;background:var(--cyan);
+  transition:transform .55s var(--e-drift),opacity .4s
+}
+.course__mark::after{transform:rotate(90deg)}
+.course[open] .course__mark::after{transform:rotate(0);opacity:0}
+.course__head:hover .course__jp{color:var(--glare)}
+.course__head:hover .course__mark::before,.course__head:hover .course__mark::after{background:var(--glare)}
+
+/* Course facts as a spec sheet: label and value, always the same four rows, so
+   two courses can be compared by running your eye down the same lines. Prose
+   lists made the reader parse sentences to find the one number they wanted. */
+.spec{display:grid;grid-template-columns:repeat(2,1fr);gap:0 clamp(1.6rem,4vw,4rem);
+  margin-bottom:clamp(1.8rem,3vw,2.4rem)}
+.spec__row{display:grid;grid-template-columns:4.6rem 1fr;gap:1rem;align-items:baseline;
+  padding:.9rem 0;border-top:1px solid rgba(191,227,224,.12)}
+.spec dt{font:500 .66rem/1.9 var(--label);letter-spacing:.18em;color:var(--ink-faint)}
+.spec dd{margin:0;font-size:1rem;color:var(--sand);letter-spacing:.03em}
+.course__note{margin-top:1.2rem;font-size:.8rem;line-height:1.85;color:var(--ink-faint)}
+
+/* Levels past Advanced: named so the ladder is visible, but with no price and no
+   spec sheet. Almost nobody books a Divemaster off a landing page — the detail
+   only pushed LEVEL 1, the course this page exists to sell, further down. */
+.tier__list{list-style:none;margin:0;padding:0;display:grid;gap:1.05rem}
+.tier__list li{display:grid;grid-template-columns:clamp(4.5rem,8vw,8.5rem) minmax(0,17rem) 1fr;
+  gap:.25rem 1.4rem;align-items:baseline}
+/* same column and colour as .course__step, so a level reads the same anywhere */
+.tier__lv{font:500 .68rem/1 var(--label);letter-spacing:.24em;color:var(--cyan);white-space:nowrap}
+.tier__list b{font-family:var(--mincho);font-weight:600;font-size:1.02rem;
+  color:var(--ink-dim);letter-spacing:.04em}
+.tier__list em{font:400 .8rem/1.5 var(--sans);font-style:normal;color:var(--ink-faint)}
+.tier__note{margin-top:1.9rem;font-size:.85rem;line-height:1.9;color:var(--ink-faint)}
+.tier__link{color:var(--cyan);text-decoration:none;padding-bottom:.12em;
+  border-bottom:1px solid rgba(83,212,205,.4);transition:color .4s var(--e-drift),border-color .4s var(--e-drift)}
+.tier__link:hover{color:var(--glare);border-bottom-color:rgba(210,240,235,.6)}
+@media (max-width:720px){
+  .spec{grid-template-columns:1fr;gap:0}
+  .spec__row{grid-template-columns:4.2rem 1fr;padding:.8rem 0}
+}
+
+/* open rows become a solid panel — body copy over the live caustics is unreadable */
+.course[open]{
+  border-top-color:transparent;border-radius:6px;
+  padding:0 clamp(1.5rem,2.6vw,2.6rem);
+  background:linear-gradient(180deg,rgba(5,34,47,.9),rgba(3,24,35,.94));
+  box-shadow:0 30px 70px -40px rgba(2,8,17,.92);
+}
+.course[open] + .course{border-top-color:transparent}
+/* clipped so a closing <details> wipes cleanly — the always-open panel never
+   animates, and clipping it cut the "いちばん多い形" tag off at the card edge */
+.course__panel{overflow:hidden}
+.course__panel--static{overflow:visible}
+.course__inner{padding:0 0 clamp(2rem,3.4vw,3rem);max-width:none}
+.course__hook{font-family:var(--mincho);color:var(--ink-dim);line-height:2.05;max-width:34em;margin-bottom:2.4rem}
+.course__cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.6rem,3.4vw,3.4rem)}
+.course__ttl{font:500 .7rem/1 var(--label);letter-spacing:.22em;color:var(--cyan);margin-bottom:1rem}
+.course--spec .course__ttl{color:var(--gold)}
+.course__ul li{position:relative;padding:.62rem 0 .62rem 1.5rem;font-size:.86rem;line-height:1.9;
+  color:var(--ink-dim);border-top:1px solid rgba(191,227,224,.08)}
+.course__ul li::before{content:"";position:absolute;left:0;top:1.18rem;width:6px;height:6px;
+  border:1px solid var(--cyan);border-radius:50%}
+.course--spec .course__ul li::before{border-color:var(--gold)}
+/* numbered steps: no rules between them — the hairlines used to run straight
+   through the 01/02/03 markers. Spacing separates them instead, and the marker
+   line-box matches the first text line so it sits on the same baseline. */
+.course__ul--num{counter-reset:cstep}
+.course__ul--num li{border-top:none;padding:0 0 0 2.3rem;margin-top:1.15rem}
+.course__ul--num li:first-child{margin-top:0}
+.course__ul--num li::before{content:counter(cstep,decimal-leading-zero);counter-increment:cstep;
+  border:none;border-radius:0;width:auto;height:auto;top:0;left:0;
+  font:500 .66rem/1.634rem var(--label);letter-spacing:.06em;color:var(--ink-faint)}
+.course__meta{margin-top:1.8rem;padding-top:1.2rem;border-top:1px solid var(--line);
+  font-size:.76rem;line-height:1.9;color:var(--ink-faint);letter-spacing:.05em}
+
+/* the first door is already open */
+.course--lead{
+  border:1px solid rgba(229,182,103,.42);border-radius:6px;
+  background:linear-gradient(165deg,rgba(229,182,103,.13),rgba(3,13,26,.66));
+  padding:0 clamp(1.5rem,2.6vw,2.6rem);margin-bottom:1.4rem;
+  box-shadow:0 26px 70px -34px rgba(229,182,103,.24),0 22px 56px -36px rgba(2,8,17,.9);
+}
+.course--lead .course__step{color:var(--gold)}
+.course--lead .course__ttl{color:var(--gold)}
+.course--lead .course__ul li::before{border-color:var(--gold)}
+.course--lead .course__ul--num li::before{border:none}
+
+/* LEVEL 2 gets the same card, a shade deeper — same family, still second in line.
+   It also means the rule that would otherwise sit under it is unnecessary. */
+.course--card{
+  border:1px solid rgba(229,182,103,.3);border-radius:6px;
+  background:linear-gradient(165deg,rgba(229,182,103,.09),rgba(3,13,26,.8));
+  padding:0 clamp(1.5rem,2.6vw,2.6rem);margin-bottom:1.4rem;border-top-width:1px;
+  box-shadow:0 26px 70px -34px rgba(229,182,103,.15),0 22px 56px -36px rgba(2,8,17,.9);
+}
+.course--card .course__step{color:var(--gold)}
+.course--card + .courses__band{border-top:none}
+@media (max-width:720px){.course--card{padding:0 1.6rem}}
+
+/* ================================================================
    ACCESS
    ================================================================ */
 .access{padding:14vh 0}
 .access__wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,5vw,6rem);align-items:start}
 .access__text .h-md{max-width:none}
-.access__text p{margin-top:2rem;max-width:42ch;color:var(--ink-dim);font-family:var(--mincho);line-height:2.1}
-.access__steps{position:relative}
-.access__steps li{display:flex;gap:1.6rem;padding:1.6rem 0;border-top:1px solid var(--line)}
-.access__steps li:last-child{border-bottom:1px solid var(--line)}
-.access__num{flex:none;width:44px;height:44px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-family:var(--marc);color:var(--cyan);font-size:1rem}
-.access__steps b{display:block;font-weight:500;font-size:1.05rem;color:var(--sand);margin-bottom:.4rem;letter-spacing:.04em}
-.access__steps em{font-style:normal;font-size:.86rem;color:var(--ink-dim);line-height:1.8}
+.access__text p{margin-top:2rem;max-width:32em;color:var(--ink-dim);font-family:var(--mincho);line-height:2.1}
+
+/* Lodging, laid out the way resort sites do it (SAVU South Alor / Solitude
+   Acacia): the photograph is the product, so it takes the space, and each frame
+   carries one short label instead of a paragraph. Kept as "an example" so a
+   change of hotel never makes the page a lie. */
+/* the rule is drawn inside the gutter, not across the whole .wrap, so it lines up
+   with the course rules directly above it rather than overhanging them */
+.stay{position:relative;padding-top:clamp(3rem,6vw,5rem);margin-top:clamp(3rem,6vw,5rem)}
+.stay::before{content:"";position:absolute;top:0;left:var(--pad);right:var(--pad);
+  height:1px;background:var(--line)}
+/* the title now carries the gap the sub-copy used to hold */
+.stay__ttl{font-family:var(--mincho);font-weight:600;font-size:clamp(1.5rem,3.2vw,2.5rem);
+  color:var(--sand);letter-spacing:.04em;line-height:1.5;margin-bottom:clamp(2rem,3.5vw,3rem)}
+.stay__shots{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.7rem,1.4vw,1.3rem)}
+.stay__shots figure{margin:0;position:relative;overflow:hidden;border-radius:3px}
+.stay__shots img{width:100%;height:clamp(260px,32vw,460px);object-fit:cover;
+  transition:transform 1.4s var(--e-drift)}
+.stay__shots figure:hover img{transform:scale(1.05)}
+.stay__shots figcaption{position:absolute;left:1rem;bottom:.9rem;
+  font:500 .72rem/1.3 var(--label);letter-spacing:.14em;color:var(--sand);
+  text-shadow:0 2px 14px rgba(0,0,0,.75)}
+.stay__note{margin-top:1.6rem;font-size:.86rem;line-height:1.9;color:var(--ink-faint)}
+.stay__note b{font-weight:500;font-family:var(--label);font-size:1.05rem;color:var(--sand)}
+
+/* The two days as one continuous descent: a single rail runs the whole way,
+   each step is a node on it, and the two days are told apart by the node colour
+   (cyan on day one, gold on day two) rather than by a break in the line —
+   pattern per Eleken's timeline rules: 2–3 levels of hierarchy, consistent
+   rhythm, phases separated by weight rather than by cutting the flow. */
+/* rail offset and gutter share one source of truth, so the dots can never drift
+   off the line when a breakpoint changes the padding */
+.sched{position:relative;--rail:clamp(.45rem,1vw,.7rem);--gutter:clamp(2.2rem,4vw,3rem);
+  padding-left:var(--gutter)}
+.sched::before{
+  content:"";position:absolute;left:var(--rail);top:.9rem;bottom:.9rem;width:1px;
+  background:linear-gradient(180deg,
+    rgba(83,212,205,.15) 0%, var(--cyan) 6%, var(--cyan) 46%,
+    var(--gold) 58%, var(--gold) 94%, rgba(229,182,103,.15) 100%);
+}
+.sched__day{position:relative;padding:0;border:none}
+.sched__day + .sched__day{margin-top:clamp(2.4rem,4vw,3.4rem)}
+.sched__label{position:relative;font:500 .7rem/1 var(--label);letter-spacing:.24em;
+  color:var(--cyan);margin-bottom:1.6rem}
+.sched__day:last-child .sched__label{color:var(--gold)}
+/* the day marker: a larger ringed node — centred on the rail's 1px column */
+.sched__label::before{
+  content:"";position:absolute;left:calc(var(--rail) - var(--gutter) - 5px);
+  top:-2px;width:11px;height:11px;border-radius:50%;
+  background:var(--abyss);border:2px solid var(--cyan);
+  box-shadow:0 0 0 4px rgba(14,74,94,.55);
+}
+.sched__day:last-child .sched__label::before{border-color:var(--gold)}
+
+.sched__list{display:grid;gap:clamp(1.6rem,2.6vw,2.2rem)}
+.sched__list li{position:relative;display:grid;grid-template-columns:3.6rem 1fr;
+  gap:1.2rem;align-items:baseline}
+.sched__list li::before{
+  content:"";position:absolute;left:calc(var(--rail) - var(--gutter) - 2.5px);
+  top:.62rem;width:6px;height:6px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 0 3px rgba(14,74,94,.75);
+}
+.sched__day:last-child .sched__list li::before{background:var(--gold)}
+/* the final step is the destination — a filled, ringed node */
+.sched__day:last-child .sched__list li:last-child::before{
+  width:10px;height:10px;left:calc(var(--rail) - var(--gutter) - 4.5px);
+  top:.5rem;box-shadow:0 0 0 4px rgba(14,74,94,.75),0 0 16px 2px rgba(229,182,103,.55);
+}
+.sched__time{font:500 .72rem/1.9 var(--label);letter-spacing:.12em;color:var(--ink-faint);white-space:nowrap}
+/* the rough clock time under the time-of-day label — "早朝" alone leaves the
+   reader guessing whether that means a 5am pickup or a 9am one. Brighter than
+   the label above it (was ink-faint × .62 opacity — nearly invisible) since
+   this is the one concrete number in the row, not a secondary note. */
+.sched__time i{display:block;font-style:normal;font-size:.66rem;letter-spacing:.06em;
+  color:var(--cyan);margin-top:.32rem}
+/* "Early morning" needs three times the room "早朝" does — the fixed column was
+   sized for Japanese, so the English ran under the headings */
+html[data-lang="en"] .sched__list li{grid-template-columns:8rem 1fr}
+/* the same sentence runs about 1.6x longer in English, so the measure that keeps
+   Japanese at one line per sentence has to widen or every line doubles */
+html[data-lang="en"] .access__text p,
+html[data-lang="en"] .offers__lead,
+html[data-lang="en"] .gear__lead,
+html[data-lang="en"] .trust__body p{max-width:56ch}
+html[data-lang="en"] .hero__lead{max-width:52ch}
+.sched b{display:block;font-weight:500;font-size:1.02rem;color:var(--sand);letter-spacing:.04em;margin-bottom:.4rem}
+.sched em{font-style:normal;font-size:.85rem;line-height:1.85;color:var(--ink-dim)}
+
+/* ================================================================
+   GEAR — the argument is the asymmetry: a column of things we carry
+   against the one thing you do. Nothing else needs to be said.
+   ================================================================ */
+.gear{padding:13vh 0}
+.gear .h-lg{max-width:none;margin-bottom:1.6rem}
+.gear__lead{max-width:32em;color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;margin-bottom:clamp(2.6rem,5vw,4rem)}
+.gear__cols{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(2rem,5vw,5rem);align-items:start}
+.gear__ttl{font:500 .7rem/1 var(--label);letter-spacing:.22em;color:var(--cyan);margin-bottom:1.4rem}
+.gear__ttl--alt{color:var(--gold)}
+/* an icon per line — six identical ticks told you nothing about the six things */
+.gear__list li{display:grid;grid-template-columns:26px 1fr;gap:1.1rem;align-items:center;
+  padding:.9rem 0;font-size:.95rem;line-height:1.75;color:var(--ink-dim);
+  border-top:1px solid rgba(191,227,224,.1)}
+.gear__list li:first-child{border-top:none;padding-top:0}
+.gear__ic{width:26px;height:26px;color:var(--cyan);opacity:.92;overflow:visible}
+.gear__yours{padding-left:clamp(0rem,2vw,2rem);border-left:1px solid var(--line)}
+.gear__one{font-family:var(--mincho);font-weight:600;color:var(--gold);
+  font-size:clamp(2.6rem,7vw,5rem);line-height:1.1;letter-spacing:.04em;
+  text-shadow:0 0 46px rgba(229,182,103,.35)}
+.gear__note{margin-top:1rem;font-size:.86rem;color:var(--ink-faint);letter-spacing:.06em}
+@media (max-width:820px){
+  .gear__cols{grid-template-columns:1fr;gap:2.4rem}
+  .gear__yours{padding-left:0;padding-top:2rem;border-left:none;border-top:1px solid var(--line)}
+}
 
 /* ================================================================
    TRUST
    ================================================================ */
 .trust{padding:12vh 0}
-.trust .h-md{max-width:none;margin-bottom:7vh}
-.trust__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1.4rem,3vw,3rem)}
-.trust__cell{padding-top:2rem;border-top:1px solid var(--line)}
-.trust__k{display:block;font-family:var(--display);font-weight:500;font-size:2rem;color:var(--cyan);letter-spacing:.02em;margin-bottom:1.2rem}
-.trust__cell p{color:var(--ink-dim);font-family:var(--mincho);line-height:2}
+.trust .h-md{max-width:none;margin-bottom:clamp(3rem,6vw,5rem)}
+.trust__body{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(1.8rem,4vw,4rem);max-width:64em}
+.trust__body p{color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;max-width:30em}
+@media (max-width:820px){ .trust__body{grid-template-columns:1fr;gap:1.6rem} }
 
 /* ================================================================
    CTA (return to light)
@@ -516,7 +852,7 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .cta .kicker{justify-content:center}
 .cta__title{font-family:var(--mincho);font-weight:600;color:var(--sand);
   font-size:clamp(1.6rem,6.4vw,4.4rem);line-height:1.3;letter-spacing:.02em;margin-bottom:2rem}
-.cta__lead{color:var(--ink-dim);font-family:var(--mincho);line-height:2.1;margin-bottom:3.5rem;max-width:46ch;margin-left:auto;margin-right:auto}
+.cta__lead{color:var(--ink-dim);font-family:var(--mincho);line-height:2.1;margin-bottom:3.5rem;max-width:32em;margin-left:auto;margin-right:auto}
 .cta__form{display:grid;gap:1.1rem;text-align:left}
 .cta__field{position:relative}
 .cta__field input,.cta__field select{
@@ -540,8 +876,6 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
    ================================================================ */
 .foot{position:relative;z-index:1;padding:10vh var(--pad) 3vh;border-top:1px solid var(--line);background:linear-gradient(180deg,transparent,rgba(3,15,30,.6))}
 .foot__top{max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:clamp(2rem,4vw,4rem);padding-bottom:7vh}
-.foot__kanji{display:block;font-family:var(--mincho);font-weight:600;font-size:2.4rem;letter-spacing:.16em;color:var(--sand)}
-.foot__romaji{display:block;font-family:var(--label);font-size:.66rem;letter-spacing:.4em;color:var(--cyan);margin:.6rem 0 1.6rem}
 .foot__tag{font-family:var(--mincho);color:var(--ink-dim);line-height:1.9;max-width:34ch}
 .foot__nav{display:flex;flex-direction:column;gap:1rem}
 .foot__nav a,.foot__contact a{font-size:.88rem;color:var(--ink-dim);transition:color .4s;width:fit-content}
@@ -621,29 +955,7 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
   font:400 10px/1 var(--label);letter-spacing:.24em;color:var(--ink-faint)}
 @media (max-width:600px){.immersive__foot{flex-direction:column;gap:.5rem;align-items:flex-start}}
 
-/* ---- S2 · gallery liquid drag-rail (desktop; JS adds .is-rail) ---- */
 .gallery{overflow:hidden}
-.gallery__grid.is-rail{
-  display:flex;flex-wrap:nowrap;align-items:stretch;width:max-content;
-  grid-template-columns:none;grid-template-rows:none;grid-auto-rows:auto;
-  gap:clamp(.8rem,1.4vw,1.4rem);padding:0 var(--pad);
-  transform-origin:0 50%;will-change:transform;touch-action:pan-y;
-}
-.gallery__grid.is-rail .gallery__item{
-  flex:0 0 auto;width:clamp(280px,30vw,440px);height:min(64vh,560px);
-  grid-row:auto;grid-column:auto;
-}
-.gallery__grid.is-rail .gallery__item--wide{width:clamp(420px,44vw,660px)}
-.gallery__grid.is-rail .gallery__item--tall{width:clamp(300px,26vw,400px)}
-/* the row itself skews on drag; keep each frame's media from over-cropping */
-.gallery__grid.is-rail .gallery__item img,.gallery__grid.is-rail .gallery__item video{transform-origin:center}
-.gallery.is-grabbing{cursor:grabbing}
-html.has-cursor .gallery.is-grabbing,html.has-cursor .gallery.is-grabbing *{cursor:none!important}
-@media (min-width:1025px){
-  /* rail overrides the desktop mosaic's explicit placement */
-  .gallery__grid.is-rail{grid-template-rows:none}
-  .gallery__grid.is-rail .gallery__item:nth-child(n){grid-column:auto;grid-row:auto}
-}
 
 /* ---- S4 · hold-to-dive charge (feedback only; native click untouched) ---- */
 .has-hold{position:relative}
@@ -668,32 +980,9 @@ html.has-cursor .gallery.is-grabbing,html.has-cursor .gallery.is-grabbing *{curs
 .btn--ghost .hold-ring .hr-p{stroke:var(--cyan)}
 .has-hold.is-charged{box-shadow:0 0 0 1.5px var(--cyan),0 16px 50px -10px rgba(83,212,205,.55)}
 
-/* ---- S5 · dive profile (main.js injects it above the plan cards) ---- */
-.dive-profile{max-width:var(--maxw);margin:0 auto 7vh;padding:0 var(--pad)}
-.dive-profile svg{width:100%;height:auto;display:block;overflow:visible}
-.dp-grid line{stroke:rgba(210,240,235,.1)}
-.dp-lab{fill:var(--ink-faint);font:400 11px var(--label);letter-spacing:.08em}
-.dp-curve{fill:none;stroke:var(--cyan);stroke-width:2;opacity:.85}
-.dp-fill{fill:url(#dpFill);opacity:.45}
-.dp-dot{fill:var(--abyss);stroke:var(--cyan);stroke-width:2;transition:fill .45s var(--e-drift),stroke .45s}
-.dp-node.is-lit .dp-dot{fill:var(--gold);stroke:var(--gold)}
-.dp-price{fill:var(--ink-dim);font:500 15px var(--label);letter-spacing:.02em;transition:fill .45s}
-.dp-node.is-lit .dp-price{fill:var(--gold)}
-.dp-tag{fill:var(--ink-faint);font:400 10.5px var(--label);letter-spacing:.18em}
-.dp-diver{fill:var(--sand);stroke:var(--abyss);stroke-width:2;filter:drop-shadow(0 0 6px rgba(83,212,205,.6))}
-.dp-cap{text-align:center;font:500 .66rem var(--label);letter-spacing:.26em;color:var(--cyan);margin-top:1.1rem}
-.offer{transition:transform .7s var(--e-drift),border-color .5s,box-shadow .6s}
-.offer.is-lit::before{opacity:.65}
-.offer.is-lit{box-shadow:0 26px 60px -34px rgba(2,8,17,.92),0 0 0 1px rgba(83,212,205,.28)}
-@media (max-width:600px){.dive-profile{display:none}}   /* mobile keeps just the cards */
-
 /* ---- ACCESS · route line drawn on scroll ---- */
-.access__steps{position:relative}
-.access__line{position:absolute;left:22px;top:22px;width:1.5px;height:calc(100% - 44px);
-  background:linear-gradient(var(--cyan),var(--gold));transform-origin:50% 0;z-index:0;border-radius:2px}
-.access__steps li{position:relative;z-index:1}
-.access__num{transition:border-color .45s var(--e-drift),color .45s,background .45s,box-shadow .45s}
-.access__num.is-lit{border-color:var(--gold);color:var(--gold);background:rgba(229,182,103,.1);box-shadow:0 0 18px -4px rgba(229,182,103,.5)}
+/* the route line runs through the circles' centres — give each circle an opaque
+   disc behind its letter so the line reads as connecting them, not crossing them */
 
 /* ================================================================
    RESPONSIVE
@@ -706,30 +995,24 @@ html.has-cursor .gallery.is-grabbing,html.has-cursor .gallery.is-grabbing *{curs
     background:rgba(3,15,30,.96);backdrop-filter:blur(10px);align-items:center;justify-content:center;
   }
   .nav__links.is-open a{font-size:1.4rem;font-family:var(--mincho);color:var(--sand)}
-  .contrast__grid{grid-template-columns:1fr 1fr}
-  .descent__cols{grid-template-columns:1fr;max-width:52ch;gap:0}
-  .descent__cols p{border-top:none;padding-top:0;margin-top:1.6rem}
-  .experience__wrap,.access__wrap{grid-template-columns:1fr;gap:3rem}
-  .experience__media{max-width:460px}
-  .gallery__grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:44vw}
+  .access__wrap{grid-template-columns:1fr;gap:3rem}
   .offers__grid{grid-template-columns:1fr;max-width:560px}
-  .trust__grid{grid-template-columns:1fr;gap:0}
-  .trust__cell{margin-top:2rem}
+  .course__cols{grid-template-columns:1fr;gap:2rem}
   .foot__top{grid-template-columns:1fr 1fr}
   .depthmeter{display:none}
 }
 @media (max-width:600px){
   .hero__meta{display:none}
-  .contrast__grid{grid-template-columns:1fr;gap:2.6rem}
-  .contrast__fig--void{margin-top:0}
-  .contrast__fig img{aspect-ratio:16/11}
-  .gallery__grid{grid-template-columns:1fr;grid-auto-rows:64vw}
-  .gallery__item--wide{grid-column:auto}
-  .gallery__item--tall{grid-row:auto}
   .foot__top{grid-template-columns:1fr;gap:3rem}
   .nav__cta{display:none}
   .hero__actions{flex-direction:column;align-items:flex-start}
   .btn{width:100%;justify-content:center}
+  /* course rows: step over name, price and marker on the closing line */
+  .course__head{grid-template-columns:1fr auto;gap:.5rem 1rem;padding:1.5rem 0}
+  .course__step{grid-column:1/-1;grid-row:1}
+  .course__names{grid-column:1/-1;grid-row:2}
+  .course__price{grid-column:1;grid-row:3;text-align:left;font-size:1.05rem}
+  .course__mark{grid-column:2;grid-row:3;justify-self:end;align-self:end;margin-bottom:.3rem}
 }
 
 /* ================================================================
@@ -745,4 +1028,167 @@ html.has-cursor .gallery.is-grabbing,html.has-cursor .gallery.is-grabbing *{curs
   .immersive,.imm-link{transition:none!important}
   html.imm-open .imm-link{transition-delay:0s!important}
   .preloader{display:none}
+}
+
+/* Six rooms stacked vertically ran ~2,000px down a phone — a very long scroll for
+   the part of the weekend nobody books the trip for. Swipe instead: one room fills
+   the screen, the next peeks in, and the whole section costs one card of height.
+   The negative margin bleeds the strip to the screen edge so the peek is visible. */
+@media (max-width:900px){
+  .stay__shots{
+    display:flex;gap:.9rem;
+    overflow-x:auto;overscroll-behavior-x:contain;
+    scroll-snap-type:x mandatory;scroll-padding-inline:var(--pad);
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    margin-inline:calc(var(--pad) * -1);padding-inline:var(--pad)}
+  .stay__shots::-webkit-scrollbar{display:none}
+  .stay__shots figure{flex:0 0 84%;scroll-snap-align:center}
+  .stay__shots img{height:clamp(240px,62vw,400px)}
+}
+
+/* the price card ends on its action */
+.course__cta{margin-top:clamp(1.8rem,3vw,2.4rem)}
+@media (max-width:720px){
+  .course__cta .btn{width:100%;justify-content:center}
+}
+
+/* a new sentence starts on a new line — lead copy reads as separate beats
+   rather than one block that has to be untangled */
+.sent{display:block}
+.sent + .sent{margin-top:.15em}
+
+/* ================================================================
+   SP — the small screen was running on desktop's spacing scale, which
+   reads as cramped. One rhythm, tuned for a 390px viewport.
+   ================================================================ */
+@media (max-width:720px){
+  :root{--pad:1.7rem}                       /* page gutter 21.6px → 27.2px */
+
+
+  /* was 1.6rem — tighter than every other section's gutter (--pad: 1.7rem),
+     so the gold border read as crowding the copy instead of framing it */
+  .course--lead{padding:0 2rem}
+  .course--card{padding:0 2rem}
+  .course__inner{padding-bottom:2.6rem}
+  .course__hook{margin-bottom:2rem}
+  .course__cols{gap:2.4rem}
+  .course__ul li{padding-top:.66rem;padding-bottom:.66rem}
+  .incl{gap:2.2rem;margin-top:2.2rem;padding-top:2rem}
+
+  .sched{--gutter:2rem}
+  .sched__list{gap:1.8rem}
+  .sched__list li{grid-template-columns:3rem 1fr;gap:.9rem}
+  html[data-lang="en"] .sched__list li{grid-template-columns:1fr;gap:.3rem}
+  /* six 3-line captions turned this into the longest scroll on the page.
+     Headlines alone (マニラを出発 → プールで練習 → …) already read as a beat. */
+  .sched em{display:none}
+  .sched b{margin-bottom:0}
+
+  /* name over line, never beside it — "ダイブマスター" is short enough to fit next
+     to its line and the mixed rhythm read as a layout accident */
+  .tier__list li{grid-template-columns:1fr;gap:.4rem}
+
+  .stay{padding-top:3.4rem;margin-top:3.4rem}
+  .stay__shots{gap:.9rem}
+
+
+  .hero__lead{line-height:2.1}
+
+  /* portrait crops ~74% of a 16:9 frame away horizontally. The montage's subject
+     (the turtle) sits left of centre, so the window has to move left with it. */
+  .hero__media video,.hero__media img{object-position:38% 50%}
+
+  /* 14vh top + 14vh bottom stacked into a ~290px hole between sections */
+  .offers,.access,.trust,.gear{padding:9vh 0}
+  .gallery{padding:8vh 0}
+  .cta{padding-top:9vh}
+  .courses{padding:6vh 0 0}
+  .courses__list{margin-bottom:2rem}
+}
+
+/* ================================================================
+   CHAT WIDGET — a floating assistant, not another hero. Same lockup
+   language as the nav (the broken-ring maru), same glass/line vocabulary
+   as the booking form's inputs. Sits above nav (80) but below the
+   full-screen menu (95+) so opening the menu reasonably hides it.
+   ================================================================ */
+.chatw{position:fixed;right:clamp(1.1rem,3vw,1.9rem);bottom:clamp(1.1rem,3vw,1.9rem);z-index:90}
+
+.chatw__toggle{
+  position:relative;width:3.4rem;height:3.4rem;border-radius:50%;flex:none;
+  display:grid;place-items:center;cursor:pointer;color:var(--abyss);
+  background:var(--cyan);border:none;
+  box-shadow:0 14px 34px -12px rgba(83,212,205,.55),0 6px 18px -8px rgba(2,8,17,.6);
+  transition:transform .5s var(--e-buoy),box-shadow .5s var(--e-drift);
+}
+.chatw__toggle:hover{transform:translateY(-2px);box-shadow:0 18px 42px -12px rgba(83,212,205,.68),0 8px 20px -8px rgba(2,8,17,.65)}
+.chatw__toggle:focus-visible{outline:2px solid var(--sand);outline-offset:3px}
+.chatw__ic{width:1.5rem;height:1.5rem;grid-area:1/1;transition:opacity .35s var(--e-drift),transform .35s var(--e-drift)}
+.chatw__ic--close{opacity:0;transform:scale(.6) rotate(-20deg)}
+.chatw.is-open .chatw__ic--ask{opacity:0;transform:scale(.6) rotate(20deg)}
+.chatw.is-open .chatw__ic--close{opacity:1;transform:none}
+
+.chatw__panel{
+  position:absolute;right:0;bottom:calc(100% + .9rem);
+  width:min(23rem,calc(100vw - 2.2rem));height:min(32rem,70vh);
+  display:flex;flex-direction:column;overflow:hidden;
+  background:linear-gradient(165deg,rgba(14,74,94,.94),rgba(3,13,26,.97));
+  border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 34px 80px -30px rgba(2,8,17,.75),0 12px 30px -14px rgba(2,8,17,.6);
+  opacity:0;transform:translateY(.8rem) scale(.97);transform-origin:100% 100%;
+  pointer-events:none;transition:opacity .4s var(--e-drift),transform .45s var(--e-buoy);
+}
+.chatw.is-open .chatw__panel{opacity:1;transform:none;pointer-events:auto}
+
+.chatw__head{display:flex;align-items:center;gap:.75rem;padding:1.1rem 1.2rem;border-bottom:1px solid var(--line)}
+.chatw__maru{width:2rem;height:2rem;flex:none;color:var(--sand)}
+.chatw__headtext{min-width:0}
+.chatw__title{font-family:var(--label);font-weight:500;font-size:.86rem;letter-spacing:.03em;color:var(--sand)}
+.chatw__status{display:flex;align-items:center;gap:.4rem;margin-top:.25rem;
+  font-size:.7rem;color:var(--ink-faint);letter-spacing:.02em}
+.chatw__dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);flex:none;
+  box-shadow:0 0 8px rgba(83,212,205,.8);animation:chatwPulse 2.4s ease-in-out infinite}
+@keyframes chatwPulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+.chatw__body{flex:1;overflow-y:auto;padding:1.1rem 1.2rem;display:flex;flex-direction:column;gap:.7rem;
+  overscroll-behavior:contain}
+.chatw__msg{max-width:86%;padding:.65rem .85rem;border-radius:11px;
+  font-family:var(--sans);font-size:.84rem;line-height:1.65;letter-spacing:.01em}
+.chatw__msg--bot{align-self:flex-start;background:rgba(210,240,235,.08);
+  border:1px solid var(--line);color:var(--ink-dim);border-bottom-left-radius:3px}
+.chatw__msg--user{align-self:flex-end;background:var(--cyan);color:var(--abyss);
+  border-bottom-right-radius:3px}
+.chatw__msg--pending{align-self:flex-start;display:flex;gap:.3rem;padding:.8rem .95rem}
+.chatw__msg--pending i{width:5px;height:5px;border-radius:50%;background:var(--ink-faint);
+  animation:chatwBob 1.1s ease-in-out infinite}
+.chatw__msg--pending i:nth-child(2){animation-delay:.15s}
+.chatw__msg--pending i:nth-child(3){animation-delay:.3s}
+@keyframes chatwBob{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-3px);opacity:1}}
+.chatw__msg--error{align-self:stretch;background:rgba(226,141,122,.1);
+  border:1px solid rgba(226,141,122,.3);color:#e8b3a4}
+
+.chatw__form{display:flex;gap:.6rem;padding:.9rem 1rem;border-top:1px solid var(--line)}
+.chatw__input{
+  flex:1;min-width:0;background:rgba(3,15,30,.5);border:1px solid var(--line);border-radius:9px;
+  padding:.65rem .8rem;font-family:var(--sans);font-size:.84rem;color:var(--sand);
+  transition:border-color .35s var(--e-drift);
+}
+.chatw__input::placeholder{color:var(--ink-faint)}
+.chatw__input:focus{outline:none;border-color:var(--cyan)}
+.chatw__send{
+  flex:none;width:2.5rem;height:2.5rem;border-radius:9px;border:none;cursor:pointer;
+  display:grid;place-items:center;background:var(--gold);color:#26170a;
+  transition:filter .3s var(--e-drift);
+}
+.chatw__send svg{width:1.15rem;height:1.15rem}
+.chatw__send:hover{filter:brightness(1.08)}
+.chatw__send:disabled{opacity:.5;cursor:not-allowed;filter:none}
+
+@media (max-width:520px){
+  .chatw__panel{width:calc(100vw - 2rem);height:min(30rem,72vh)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .chatw__toggle,.chatw__panel,.chatw__ic{transition:none!important}
+  .chatw__dot,.chatw__msg--pending i{animation:none!important}
 }

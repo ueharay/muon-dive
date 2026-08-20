@@ -1,11 +1,11 @@
 /* =========================================================================
-   無音 MUON — js/menu.js  (S7 · immersive full-screen menu)
+   ZEN DIVE Manila — js/menu.js  (S7 · immersive full-screen menu)
    A single overlay used on every width: giant mincho links that rise on open,
    and hovering a link bleeds that section's poster into the background. Built
    in JS so a load failure leaves main.js's plain drawer as the fallback.
 
    Public API (read by main.js's burger + closeMenu):
-     window.MUON_MENU = { open, close, toggle, isOpen }
+     window.ZEN_MENU = { open, close, toggle, isOpen }
    ========================================================================= */
 (() => {
   'use strict';
@@ -15,13 +15,11 @@
 
   // section → poster preview (posters already ship for the background videos)
   const ITEMS = [
-    { href: '#contrast',   jp: '物理法則',   en: 'Physics',    poster: 'assets/video/reef-orange.jpg' },
-    { href: '#descent',    jp: '潜降',       en: 'Descent',    poster: 'assets/video/reef-teal.jpg' },
-    { href: '#experience', jp: '体験',       en: 'Experience', poster: 'assets/video/reef-portrait.jpg' },
-    { href: '#offers',     jp: 'プラン',     en: 'Plans',      poster: 'assets/video/table-coral.jpg' },
-    { href: '#access',     jp: 'アクセス',   en: 'Access',     poster: 'assets/video/hero-montage.jpg' },
-    { href: '#trust',      jp: '安全',       en: 'Safety',     poster: 'assets/video/reef-orange.jpg' },
-    { href: '#cta',        jp: '予約する',   en: 'Book',       poster: 'assets/video/reef-teal.jpg' },
+    { href: '#gear',    jp: '手ぶら',       en: 'Bring nothing', poster: 'assets/img/reef-wall.jpg' },
+    { href: '#access',  jp: 'スケジュール', en: 'Schedule',      poster: 'assets/video/hero-montage.jpg' },
+    { href: '#offers',  jp: '料金',         en: 'Price',         poster: 'assets/video/table-coral.jpg' },
+    { href: '#trust',   jp: '安全',         en: 'Safety',        poster: 'assets/video/reef-orange.jpg' },
+    { href: '#cta',     jp: '予約する',     en: 'Book',          poster: 'assets/video/reef-teal.jpg' },
   ];
 
   let overlay, bg, trigger, burger, open = false, lastFocus = null;
@@ -43,7 +41,7 @@
         '</a>'
       ).join('') +
       '</nav>' +
-      '<div class="immersive__foot"><span>無音 MUON — SILENT DIVE</span><span>MANILA ↝ THE OTHER SIDE</span></div>';
+      '<div class="immersive__foot"><span>ZEN DIVE — MANILA</span><span>MANILA ↝ THE OTHER SIDE</span></div>';
     document.body.appendChild(overlay);
     bg = $('#immBg', overlay);
 
@@ -76,7 +74,7 @@
         const id = a.getAttribute('href');
         const target = id && id.length > 1 ? $(id) : null;
         close();
-        const lenis = window.__MUON && window.__MUON.lenis;
+        const lenis = window.__ZEN && window.__ZEN.lenis;
         if (target && lenis) {
           e.preventDefault();
           // let the close begin, then glide down
@@ -100,7 +98,7 @@
     links().forEach((a) => a.setAttribute('tabindex', state ? '0' : '-1'));
     if (trigger) { trigger.setAttribute('aria-expanded', String(state)); trigger.setAttribute('aria-label', state ? 'メニューを閉じる' : 'メニューを開く'); }
     if (burger) burger.setAttribute('aria-expanded', String(state));
-    const lenis = window.__MUON && window.__MUON.lenis;
+    const lenis = window.__ZEN && window.__ZEN.lenis;
     if (state) lenis && lenis.stop(); else lenis && lenis.start();
   }
 
@@ -136,7 +134,7 @@
     if (document.getElementById('immersive')) return;
     build();
     document.addEventListener('keydown', trap);
-    window.MUON_MENU = { open: doOpen, close: doClose, toggle, isOpen: () => open };
+    window.ZEN_MENU = { open: doOpen, close: doClose, toggle, isOpen: () => open };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

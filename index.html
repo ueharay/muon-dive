@@ -3,19 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>無音 MUON — 別世界は、水面の下にある。｜マニラ発 スキューバダイビング</title>
-<meta name="description" content="マニラで戦うあなたへ。擦り減った脳を、最も速く、最も深くリセットする。音も、電波も、重力も届かない別次元へ——無音（MUON）は、あなたを潜降させる最短の航路です。手ぶら3時間から、週末で取るライセンスまで。" />
+<title>ZEN DIVE Manila — 本当の別世界は、海外ではなく、海の中にある。｜マニラ発 スキューバダイビング</title>
+<meta name="description" content="マニラで戦うあなたへ。擦り減った脳を、最も速く、最も深くリセットする。音も、電波も、重力も届かない別次元へ——ZEN DIVE Manila は、あなたを潜降させる最短の航路です。手ぶら3時間から、週末で取るライセンスまで。" />
 <meta name="theme-color" content="#030F1E" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="無音 MUON — 別世界は、水面の下にある。" />
+<meta property="og:title" content="ZEN DIVE Manila — 本当の別世界は、海外ではなく、海の中にある。" />
 <meta property="og:description" content="10時間のフライトが着くのは、同じ世界の別の街。数時間の海が着くのは、別の世界。マニラ発、脳を別次元へ運ぶダイビング。" />
 <meta property="og:image" content="https://ueharay.github.io/muon-dive/assets/video/hero-montage.jpg" />
 <meta name="twitter:card" content="summary_large_image" />
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23030F1E'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='none' stroke='%2345C7C4' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%23E5B667'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23030F1E'/%3E%3Ccircle cx='24' cy='24' r='19' fill='none' stroke='%23F1EADC' stroke-width='4.5' stroke-linecap='round' pathLength='100' stroke-dasharray='90 10' transform='rotate(-18 24 24)'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="preconnect" href="https://images.unsplash.com" />
 <link rel="preload" as="image" href="assets/video/hero-montage.jpg" />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=Marcellus&family=Shippori+Mincho:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
@@ -24,18 +23,16 @@
 {
   "@context": "https://schema.org",
   "@type": "SportsActivityLocation",
-  "name": "無音 MUON",
-  "alternateName": "MUON — Silent Dive",
+  "name": "ZEN DIVE Manila",
+  "alternateName": "禅 — ZEN DIVE",
   "description": "マニラ在住の日本人向けのスキューバダイビング。音も電波も重力も届かない別次元へ、最短でリセットする体験を提供します。",
   "areaServed": { "@type": "City", "name": "Metro Manila" },
   "sport": "Scuba Diving",
   "knowsLanguage": ["ja", "en"],
-  "email": "hello@muon.dive",
+  "email": "hello@zendivemanila.com",
   "makesOffer": [
-    { "@type": "Offer", "name": "手ぶらの三時間 — はじめての別世界", "priceCurrency": "PHP", "price": "8800" },
-    { "@type": "Offer", "name": "週末で、ダイバーになる — PADIオープンウォーター", "priceCurrency": "PHP", "price": "28000" },
-    { "@type": "Offer", "name": "平日の別次元 — 1DAYファンダイブ", "priceCurrency": "PHP", "price": "6500" },
-    { "@type": "Offer", "name": "二日間の、深いリセット — 泊まりのリトリート", "priceCurrency": "PHP", "price": "48000" }
+    { "@type": "Offer", "name": "PADIオープンウォーター・ダイバー", "priceCurrency": "PHP", "price": "30000" },
+    { "@type": "Offer", "name": "PADIアドバンス・オープンウォーター", "priceCurrency": "PHP", "price": "28000" }
   ]
 }
 </script>
@@ -48,7 +45,7 @@
 <!-- ======================= PRELOADER (dive-computer boot) ======================= -->
 <div class="preloader" id="preloader" aria-hidden="true">
   <div class="preloader__inner">
-    <div class="preloader__mark">無音</div>
+    <div class="preloader__mark" aria-hidden="true"><svg class="maru preloader__maru" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" pathLength="100" stroke-dasharray="90 10" transform="rotate(-18 24 24)"/></svg></div>
     <div class="preloader__gauge">
       <span class="preloader__label">DEPTH</span>
       <span class="preloader__depth" id="preDepth">0.0</span><span class="preloader__unit">m</span>
@@ -79,15 +76,17 @@
 
 <!-- ======================= NAV ======================= -->
 <header class="nav" id="nav">
-  <a class="nav__brand" href="#top" aria-label="無音 MUON トップへ">
-    <span class="nav__kanji">無音</span><span class="nav__romaji">MUON</span>
+  <a class="nav__brand" href="#top" aria-label="ZEN DIVE Manila トップへ">
+    <svg class="maru nav__maru" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" pathLength="100" stroke-dasharray="90 10" transform="rotate(-18 24 24)"/></svg>
+    <span class="nav__lockup">
+      <span class="nav__word">ZEN DIVE</span>
+      <span class="nav__city" aria-label="MANILA"><i>M</i><i>A</i><i>N</i><i>I</i><i>L</i><i>A</i></span>
+    </span>
   </a>
   <nav class="nav__links" id="navLinks" aria-label="セクション">
-    <a href="#contrast">物理法則</a>
-    <a href="#descent">潜降</a>
-    <a href="#experience">体験</a>
-    <a href="#offers">プラン</a>
-    <a href="#access">アクセス</a>
+    <a href="#gear">手ぶら</a>
+    <a href="#access">スケジュール</a>
+    <a href="#offers">料金</a>
     <a href="#trust">安全</a>
   </nav>
   <div class="nav__actions">
@@ -110,14 +109,14 @@
     </figure>
     <div class="hero__inner">
       <p class="kicker" data-reveal="fade">TELEPORT, NOT TRAVEL</p>
-      <h1 class="hero__title lines">別世界は、飛行機の先ではなく、<br>水面の<span class="glow">下</span>にある。</h1>
-      <p class="hero__lead" data-reveal="fade">マニラで戦うあなたへ。擦り減った脳を、最も速く、最も深くリセットする方法。それは10時間のフライトではない。マスクをつけ、頭まで沈むことだ。</p>
+      <h1 class="hero__title lines">本当の別世界は、<br>海外ではなく、<br><span class="glow">海の中</span>にある。</h1>
+      <p class="hero__lead" data-reveal="fade"><span class="sent">フィリピン・マニラ発。</span><span class="sent">手ぶらで行けるダイビングサービス。</span><span class="sent">講習・器材・ボート・送迎、すべて込み。</span></p>
       <div class="hero__actions" data-reveal="fade">
         <a href="#cta" class="btn btn--gold" data-magnetic data-hold>別世界へ、潜る</a>
-        <a href="#contrast" class="btn btn--ghost" data-cursor="explore">なぜ海なのか<em aria-hidden="true">→</em></a>
+        <a href="#offers" class="btn btn--ghost" data-cursor="explore">コースと料金を見る<em aria-hidden="true">→</em></a>
       </div>
     </div>
-    <a href="#contrast" class="hero__scroll" aria-label="下へスクロール">
+    <a href="#gear" class="hero__scroll" aria-label="下へスクロール">
       <span>SCROLL</span><span class="hero__scroll-jp">潜降</span><i aria-hidden="true"></i>
     </a>
     <div class="hero__meta">
@@ -126,259 +125,361 @@
     </div>
   </section>
 
-  <!-- ============ INTERLUDE 1 ============ -->
-  <section class="interlude section" data-depth="0.14">
-    <p class="interlude__en" data-reveal="fade">DIGITAL DETOX</p>
-    <h2 class="interlude__line lines">通知は、<span class="glow">水面</span>で止まる。</h2>
-  </section>
-
-  <!-- ============ CONTRAST ============ -->
-  <section class="contrast section" id="contrast" data-depth="0.24">
+  <!-- ============ WHAT YOU BRING — the whole pitch is the asymmetry ============ -->
+  <section class="gear section" id="gear" data-depth="0.22">
     <div class="wrap">
-      <p class="kicker" data-reveal="fade">SURFACE WORLD vs. THE OTHER SIDE</p>
-      <h2 class="h-lg lines">旅は、文化を変える。<br>潜水は、<span class="glow">物理法則</span>を変える。</h2>
+      <p class="kicker" data-reveal="fade">BRING NOTHING</p>
+      <h2 class="h-lg lines">手ぶらで来て、<br><span class="glow">ダイバー</span>になって帰る。</h2>
+      <p class="gear__lead" data-reveal="fade"><span class="sent">事前に準備するものは、ひとつもありません。</span><span class="sent">道具も船も宿も、こちらで用意します。</span></p>
 
-      <div class="contrast__grid">
-        <figure class="contrast__fig contrast__fig--surface" data-clip data-parallax="0.08">
-          <img loading="lazy" decoding="async"
-               src="https://images.unsplash.com/photo-1675223894754-7b0af6c38a90?q=80&w=1600&auto=format&fit=crop"
-               alt="雲間から陽が差す、静かな外洋の海面" />
-          <figcaption><span>THE SURFACE</span>あなたが後にする、地上の世界</figcaption>
-        </figure>
-        <figure class="contrast__fig contrast__fig--void" data-clip data-parallax="0.14">
-          <video class="bgvid" data-bg data-src="assets/video/reef-orange.mp4"
-                 poster="assets/video/reef-orange.jpg" muted loop playsinline preload="none"
-                 aria-hidden="true"></video>
-          <figcaption><span>THE OTHER SIDE</span>あなたが辿り着く、別の惑星</figcaption>
-        </figure>
-        <div class="contrast__text" data-reveal="fade">
-          <p>疲れたら旅に出る——けれど飛行機を降りて気づく。変わったのは、人と、建物と、言葉だけ。空港でもホテルでも、スマホは鳴り、重力はあなたを地面に縛りつける。それは「同じ世界の、別の街」にすぎない。</p>
-          <p class="contrast__text-strong">本当のリセットは、水平線の向こうにはない。世界のルールそのものが書き換わる場所——それは、水面のすぐ下にある。</p>
+      <div class="gear__cols" data-reveal="fade">
+        <div class="gear__ours">
+          <h3 class="gear__ttl">必要なものは、ぜんぶこちらで</h3>
+          <ul class="gear__list">
+            <li><svg class="gear__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5h16v4.2a4.3 4.3 0 0 1-4.3 4.3h-1.4L12 15l-2.3 2h-1.4A4.3 4.3 0 0 1 4 12.7V8.5z"/><path d="M1.5 10.5H4M20 10.5h2.5"/><path d="M12 15v2"/></svg>器材一式（ウェットスーツから足ひれまで）</li>
+            <li><svg class="gear__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.2" y="6.5" width="7.6" height="14" rx="3.4"/><path d="M11 6.5V3.6h2V6.5"/><path d="M9.6 3.6h4.8"/><path d="M8.2 11.5h7.6"/></svg>タンクとウェイト</li>
+            <li><svg class="gear__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 16.5h18.8l-2.2 4.2H4.8z"/><path d="M12 14.5V3.5l6.2 6.4H12"/><path d="M9.4 14.5v-6"/></svg>ボートと燃料</li>
+            <li><svg class="gear__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 16.4V8.6h11.2l3.6 3.8h4.2v4"/><circle cx="7" cy="17.4" r="1.9"/><circle cx="17.2" cy="17.4" r="1.9"/><path d="M8.9 17.4h6.4"/></svg>マニラ⇄アニラオの送迎</li>
+            <li><svg class="gear__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 18.6V7.4"/><path d="M2.8 12.8h18.4v5.8"/><path d="M6.4 12.8v-2.4h5.2v2.4"/></svg>宿の予約と手配</li>
+            <li><svg class="gear__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.6" y="4.6" width="14.8" height="14.8" rx="2.4"/><path d="M9.4 4.6v14.8"/><path d="M12.4 8.4c1.6 0 1.6 1.6 3.2 1.6M12.4 12c1.6 0 1.6 1.6 3.2 1.6"/></svg>タオル</li>
+          </ul>
+        </div>
+        <div class="gear__yours">
+          <h3 class="gear__ttl gear__ttl--alt">あなたが持ってくるもの</h3>
+          <p class="gear__one">水着</p>
+          <p class="gear__note">以上です。</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ DESCENT ============ -->
-  <section class="descent section" id="descent" data-depth="0.42">
-    <figure class="descent__media">
-      <video class="bgvid" data-bg data-src="assets/video/reef-teal.mp4"
-             poster="assets/video/reef-teal.jpg" muted loop playsinline preload="none"
-             aria-hidden="true"></video>
-    </figure>
-    <div class="descent__inner">
-      <p class="kicker" data-reveal="fade">THE MOMENT OF CROSSING</p>
-      <h2 class="h-lg lines">頭まで沈んだ瞬間、<br>世界のルールが<span class="glow">書き換わる</span>。</h2>
-      <div class="descent__cols">
-        <p data-reveal="fade">音が消える。通知が消える。そして——重力が、消える。宙に浮いたまま、あなたは前へ進んでいく。</p>
-        <p data-reveal="fade">聞こえるのは、自分の呼吸だけ。ゴボ、ゴボ、という、生まれて初めてまともに耳を傾ける「生きている音」。</p>
-        <p data-reveal="fade">視界の果てまで、青。魚の群れが、差し込む光の柱が、あなたのためだけに流れていく。ここには、あなたを呼ぶ声が、ひとつもない。</p>
+  <!-- ============ SCHEDULE — what the two days actually look like ============ -->
+  <section class="access section" id="access" data-depth="0.34">
+    <div class="wrap access__wrap">
+      <div class="access__text">
+        <p class="kicker" data-reveal="fade">OPEN WATER · MODEL SCHEDULE</p>
+        <h2 class="h-md lines">土曜の朝に出て、<br><span class="nw">日曜の夜には</span><span class="nw"><span class="glow">ダイバー</span>。</span></h2>
+        <p data-reveal="fade"><span class="sent">2日間は、こんな流れです。</span><span class="sent">事前学習は、マニラからスマホで完結。</span><span class="sent">現地ですることは、潜ることだけ。</span><span class="sent">有給は、1日もいりません。</span></p>
+      </div>
+
+      <div class="sched">
+        <section class="sched__day" data-reveal="fade">
+          <p class="sched__label">DAY 1 — 土曜</p>
+          <ol class="sched__list">
+            <li><span class="sched__time">早朝<i>5:00頃</i></span><div><b>マニラを出発</b><em>マニラから車で数時間。送迎の手配もこちらで。着いたその日から始めます。</em></div></li>
+            <li><span class="sched__time">午前<i>9:00頃</i></span><div><b>プールで練習</b><em>足の着く浅いところで、器材の使い方と、水中で息をすることに慣れます。</em></div></li>
+            <li><span class="sched__time">午後<i>13:00頃</i></span><div><b>海へ。1本目</b><em>穏やかな場所で、プールで覚えたことをそのまま海で試します。</em></div></li>
+          </ol>
+        </section>
+
+        <section class="sched__day" data-reveal="fade">
+          <p class="sched__label">DAY 2 — 日曜</p>
+          <ol class="sched__list">
+            <li><span class="sched__time">朝<i>7:00頃</i></span><div><b>ボートで沖へ</b><em>2日目は船に乗って、本物のダイビングポイントまで出ます。</em></div></li>
+            <li><span class="sched__time">日中<i>8:00〜15:00</i></span><div><b>海で3本</b><em>2本目、3本目、4本目。最後の1本は、もうただ潜って楽しんでいるだけです。</em></div></li>
+            <li><span class="sched__time">夕方</span><div><b>認定</b><em>日曜の夜、あなたは認定ダイバーとしてマニラに帰ります。</em></div></li>
+          </ol>
+        </section>
       </div>
     </div>
+
   </section>
 
-  <!-- ============ SILENCE (pinned low point) ============ -->
-  <section class="silence section" id="silence" data-depth="0.62">
-    <div class="silence__stage" id="silenceStage">
-      <p class="silence__en">S · I · L · E · N · C · E</p>
-      <h2 class="silence__kanji">無音</h2>
-      <p class="silence__sub">あるのは、あなたの呼吸と、どこまでも続く青だけ。</p>
-    </div>
-  </section>
+  <!-- ============ COURSES — the ladder, and what each level costs ============ -->
+  <section class="offers section" id="offers" data-depth="0.44">
+    <div class="wrap">
+      <p class="kicker" data-reveal="fade">PADI OPEN WATER DIVER</p>
+      <h2 class="h-lg lines">たった一度の週末が、<br>その先の<span class="glow">人生</span>を変える。</h2>
+      <p class="offers__lead" data-reveal="fade"><span class="sent">はじめての人が取るのが、オープンウォーター・ダイバーです。</span><span class="sent">一度取れば、世界中で一生使えます。</span></p>
 
-  <!-- ============ EXPERIENCE ============ -->
-  <section class="experience section" id="experience" data-depth="0.5">
-    <div class="wrap experience__wrap">
-      <figure class="experience__media" data-clip data-parallax="0.12">
-        <video class="bgvid" data-bg data-src="assets/video/reef-portrait.mp4"
-               poster="assets/video/reef-portrait.jpg" muted loop playsinline preload="none"
-               aria-hidden="true"></video>
+      <!-- The ladder, drawn the way a dive computer draws a dive: a depth profile.
+           Reference: the Subsurface / Shearwater log view — filled curve, depth
+           scale down the left, the depth called out at each step. Levels here ARE
+           depths (18m / 30m / 40m), so the chart is literal, not decorative. -->
+      <figure class="ladder" data-reveal="fade">
+        <span class="ladder__axis" style="--y:0%">0m</span>
+        <span class="ladder__axis" style="--y:44.4%">-20</span>
+        <span class="ladder__axis" style="--y:88.8%">-40</span>
+
+        <svg class="ladder__graph" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="ladderFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="rgba(83,212,205,.20)" />
+              <stop offset="1" stop-color="rgba(83,212,205,0)" />
+            </linearGradient>
+          </defs>
+          <line class="ladder__grid" x1="0" y1="44.4" x2="100" y2="44.4" vector-effect="non-scaling-stroke" />
+          <line class="ladder__grid" x1="0" y1="88.8" x2="100" y2="88.8" vector-effect="non-scaling-stroke" />
+          <!-- Control points sit halfway between each pair, level with their own
+               end, so the curve leaves and meets every step horizontally: a slow
+               settling descent rather than a staircase. -->
+          <path class="ladder__area"
+                d="M0,0 C6.25,0 6.25,40 12.5,40 C25,40 25,66.7 37.5,66.7 L62.5,66.7 C75,66.7 75,88.9 87.5,88.9 L100,88.9 L100,100 L0,100 Z" />
+          <path class="ladder__line" vector-effect="non-scaling-stroke"
+                d="M0,0 C6.25,0 6.25,40 12.5,40 C25,40 25,66.7 37.5,66.7 L62.5,66.7 C75,66.7 75,88.9 87.5,88.9 L100,88.9" />
+        </svg>
+
+        <!-- Mobile: the same dive rotated 90° — scroll direction IS the descent
+             direction, so the profile runs down the page. Depth is now the
+             x-axis (0m→40m, left→right); each plateau is a vertical hold. -->
+        <svg class="ladder__vgraph" viewBox="0 0 100 230" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="ladderFillV" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="rgba(83,212,205,.20)" />
+              <stop offset="1" stop-color="rgba(83,212,205,0)" />
+            </linearGradient>
+          </defs>
+          <line class="ladder__grid" x1="24" y1="0" x2="24" y2="230" vector-effect="non-scaling-stroke" />
+          <line class="ladder__grid" x1="42" y1="0" x2="42" y2="230" vector-effect="non-scaling-stroke" />
+          <path class="ladder__area" style="fill:url(#ladderFillV)"
+                d="M6,0 C6,26 20,26 20,48 C20,78 32,75 32,105 L32,152 C32,180 42,180 42,205 L42,228 L100,228 L100,0 Z" />
+          <path class="ladder__line" vector-effect="non-scaling-stroke"
+                d="M6,0 C6,26 20,26 20,48 C20,78 32,75 32,105 L32,152 C32,180 42,180 42,205 L42,228" />
+        </svg>
+
+        <ol class="ladder__steps">
+          <li class="is-here" style="--x:12.5%;--y:40%;--i:0;--mx:20%;--my:20.9%">
+            <i class="ladder__dot" aria-hidden="true"></i>
+            <span class="ladder__label">
+              <span class="ladder__lv">LEVEL 1</span>
+              <b>オープンウォーター</b>
+              <em>18mまで。ここから始まります</em>
+            </span>
+          </li>
+          <li style="--x:37.5%;--y:66.7%;--i:1;--mx:32%;--my:45.7%">
+            <i class="ladder__dot" aria-hidden="true"></i>
+            <span class="ladder__label">
+              <span class="ladder__lv">LEVEL 2</span>
+              <b>アドバンス</b>
+              <em>30mまで。夜の海にも</em>
+            </span>
+          </li>
+          <li style="--x:62.5%;--y:66.7%;--i:2;--mx:32%;--my:66.1%">
+            <i class="ladder__dot" aria-hidden="true"></i>
+            <span class="ladder__label">
+              <span class="ladder__lv">LEVEL 3</span>
+              <b>レスキュー</b>
+              <em>仲間を救えるダイバーに</em>
+            </span>
+          </li>
+          <li style="--x:87.5%;--y:88.9%;--i:3;--mx:42%;--my:89.1%">
+            <i class="ladder__dot" aria-hidden="true"></i>
+            <span class="ladder__label">
+              <span class="ladder__lv">LEVEL MAX</span>
+              <b>ダイブマスター</b>
+              <em>プロとして働ける</em>
+            </span>
+          </li>
+        </ol>
       </figure>
-      <div class="experience__body">
-        <p class="kicker" data-reveal="fade">NO EXPERIENCE NEEDED</p>
-        <h2 class="h-md lines">泳げなくていい。<br>ただ、<span class="glow">沈む</span>だけ。</h2>
-        <p data-reveal="fade">「怖い」「泳げない」「時間がない」——その全部を、私たちが引き受けます。器材はすべて用意。マンツーマンで、日本語のガイドが隣を一度も離れません。あなたがすることは、ただ呼吸して、青に身を委ねるだけ。</p>
-        <ul class="experience__list">
-          <li data-reveal="fade"><span>01</span>器材はすべてこちらで。本当に、手ぶらでいい。</li>
-          <li data-reveal="fade"><span>02</span>日本語のインストラクターが、マンツーマンで。</li>
-          <li data-reveal="fade"><span>03</span>ライセンスは不要。マスクをつけて沈むだけ。</li>
-        </ul>
-        <a href="#offers" class="btn btn--ghost" data-cursor="explore">はじめての一本を選ぶ<em aria-hidden="true">→</em></a>
-      </div>
     </div>
-  </section>
 
-  <!-- ============ MARQUEE (catchphrases) ============ -->
-  <section class="marquee section" aria-hidden="true" data-depth="0.44">
-    <div class="marquee__row" data-marquee="1">
-      <span>別次元まで、最短ルート</span><i>◦</i>
-      <span>パスポート、不要</span><i>◦</i>
-      <span>脳のリセットに、滑走路はいらない</span><i>◦</i>
-      <span>圏外を探しに行くのではない。潜れば、そこが圏外だ</span><i>◦</i>
-      <span>別次元まで、最短ルート</span><i>◦</i>
-      <span>パスポート、不要</span><i>◦</i>
-      <span>脳のリセットに、滑走路はいらない</span><i>◦</i>
-      <span>圏外を探しに行くのではない。潜れば、そこが圏外だ</span><i>◦</i>
+    <div class="courses" id="courses">
+      <div class="courses__list">
+
+        <!-- LEVEL 1 — Open Water (always open) -->
+        <article class="course course--lead" data-reveal="fade">
+          <div class="course__head course__head--static">
+            <span class="course__step">はじめての人へ</span>
+            <span class="course__names">
+              <b class="course__jp">オープンウォーター・ダイバー</b>
+              <em class="course__why">はじめて潜る人が取る、世界共通のライセンス</em>
+            </span>
+            <span class="course__price">₱30,000<i>お一人あたり・講習料</i></span>
+          </div>
+          <div class="course__panel course__panel--static">
+            <div class="course__inner">
+              <!-- What the course IS, before what it costs. -->
+              <dl class="spec">
+                  <div class="spec__row"><dt>日程</dt><dd>1泊2日</dd></div>
+                  <div class="spec__row"><dt>深さ</dt><dd>18mまで</dd></div>
+                  <div class="spec__row"><dt>年齢</dt><dd>10歳以上</dd></div>
+                  <div class="spec__row"><dt>前提</dt><dd>なし</dd></div>
+              </dl>
+
+              <div class="incl">
+                <div class="incl__col">
+                  <h4 class="incl__ttl">料金にふくまれるもの</h4>
+                  <ul class="incl__list incl__list--yes">
+                    <li>講習料・教材・認定申請料</li>
+                    <li>マニラ⇄アニラオの往復送迎</li>
+                    <li>朝・昼・晩の食事</li>
+                  </ul>
+                </div>
+                <div class="incl__col">
+                  <!-- every figure is for the whole 1泊2日, so they can be added up -->
+                  <h4 class="incl__ttl incl__ttl--alt">ふくまれないもの（1泊2日ぶん）</h4>
+                  <ul class="incl__list incl__list--no">
+                    <li>器材一式のレンタルとタンク（₱5,000前後）</li>
+                    <li>ボート・燃料・ダイブパス（海に入るための地元の料金／₱2,000〜3,000）</li>
+                    <li>宿泊（1室 ₱8,000前後／予約はこちらで取ります）</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="course__cta">
+                <a href="#cta" class="btn btn--gold" data-magnetic data-hold>このコースを予約する</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- The ladder, grouped: what each band of courses is FOR, before the
+             course names. "アドバンス" means nothing to someone who just learned
+             what Open Water is. -->
+        <div class="courses__band" data-reveal="fade">
+          <p class="kicker">INTERMEDIATE &amp; ADVANCED</p>
+          <p class="courses__lead">オープンウォーターの次。潜れる深さも、行ける場所も増えます。</p>
+        </div>
+
+        <details class="course course--card" data-reveal="fade">
+          <summary class="course__head" data-cursor="explore">
+            <span class="course__step">LEVEL 2</span>
+            <span class="course__names">
+              <b class="course__jp">アドバンス・オープンウォーター</b>
+              <em class="course__why">沈没船も、30mの地形も</em>
+            </span>
+            <span class="course__price">₱28,000<i>お一人あたり・講習料</i></span>
+            <span class="course__mark" aria-hidden="true"></span>
+          </summary>
+          <div class="course__panel">
+            <div class="course__inner">
+              <dl class="spec">
+                  <div class="spec__row"><dt>日程</dt><dd>1泊2日</dd></div>
+                  <div class="spec__row"><dt>深さ</dt><dd>30mまで</dd></div>
+                  <div class="spec__row"><dt>年齢</dt><dd>12歳以上</dd></div>
+                  <div class="spec__row"><dt>前提</dt><dd>オープンウォーター</dd></div>
+              </dl>
+
+              <div class="incl">
+                <div class="incl__col">
+                  <h4 class="incl__ttl">料金にふくまれるもの</h4>
+                  <ul class="incl__list incl__list--yes">
+                    <li>講習料・教材・認定申請料</li>
+                    <li>マニラ⇄アニラオの往復送迎</li>
+                    <li>朝・昼・晩の食事</li>
+                  </ul>
+                </div>
+                <div class="incl__col">
+                  <h4 class="incl__ttl incl__ttl--alt">ふくまれないもの（1泊2日ぶん）</h4>
+                  <ul class="incl__list incl__list--no">
+                    <li>器材一式のレンタルとタンク（₱5,000前後）</li>
+                    <li>ボート・燃料・ダイブパス（海に入るための地元の料金／₱2,000〜3,000）</li>
+                    <li>宿泊（1室 ₱8,000前後／予約はこちらで取ります）</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Rescue and Divemaster are named on the depth profile above, so here
+             they only need to exist — one line, not a row each. -->
+        <div class="courses__band courses__band--tight" data-reveal="fade">
+          <p class="kicker">OTHER COURSES</p>
+        </div>
+
+        <p class="tier__note" data-reveal="fade">レスキュー・ダイバー、ダイブマスター。<a class="tier__link" href="#cta">詳しくは、お尋ねください。</a></p>
+
+      </div>
+
     </div>
-    <div class="marquee__row marquee__row--alt" data-marquee="-1">
-      <span>ELSEWHERE IS ONE BREATH AWAY</span><i>—</i>
-      <span>NO SIGNAL · NO GRAVITY · NO SOUND</span><i>—</i>
-      <span>電波の届かない場所で、ようやく、自分に電波が届く</span><i>—</i>
-      <span>ELSEWHERE IS ONE BREATH AWAY</span><i>—</i>
-      <span>NO SIGNAL · NO GRAVITY · NO SOUND</span><i>—</i>
-      <span>電波の届かない場所で、ようやく、自分に電波が届く</span><i>—</i>
+
+    <!-- Where you stay — right after the price, where "宿泊は別（1室 ₱6,000〜）"
+         has just been read and the reader wants to see what that ₱6,000 buys. -->
+    <div class="wrap stay" data-reveal="fade">
+      <p class="kicker">WHERE YOU STAY</p>
+      <h3 class="stay__ttl lines"><span class="nw">潜ったあとは、</span><span class="nw"><span class="glow">海のそば</span>で。</span></h3>
+      <div class="stay__shots">
+        <figure>
+          <img loading="lazy" decoding="async" src="assets/img/stay-standard.jpg" alt="間接照明のきいた、ベッドが一台の落ち着いた客室" />
+          <figcaption>スタンダード</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" decoding="async" src="assets/img/stay-room.jpg" alt="海に面したバルコニー付きの、ベッドが二台並んだ客室" />
+          <figcaption>デラックス（海側）</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" decoding="async" src="assets/img/stay-suite.jpg" alt="大きな窓の向こうに海とヤシの木が見える、広めの客室" />
+          <figcaption>スイート（海側）</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" decoding="async" src="assets/img/stay-poolside.jpg" alt="海に面したプールサイドと、木陰のデッキチェア" />
+          <figcaption>海の見えるプールサイド</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" decoding="async" src="assets/img/stay-dining.jpg" alt="木の天井に照明が並ぶ、開放的な食堂" />
+          <figcaption>食堂</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" decoding="async" src="assets/img/stay-pool.jpg" alt="夕暮れの照明がともるプールと、白い三階建ての宿" />
+          <figcaption>プール</figcaption>
+        </figure>
+      </div>
     </div>
   </section>
 
   <!-- ============ GALLERY ============ -->
-  <section class="gallery section" id="gallery" data-depth="0.4">
+  <section class="gallery section" id="gallery" data-depth="0.52">
     <div class="wrap">
       <p class="kicker" data-reveal="fade">THE WORLD THAT WAITS</p>
       <h2 class="h-md lines">この青の果てに、<br><span class="glow">帰る場所</span>がある。</h2>
     </div>
-    <div class="gallery__grid">
-      <figure class="gallery__item gallery__item--tall" data-clip data-parallax="0.1">
+    <div class="gallery__marquee">
+      <div class="gallery__track">
+          <figure class="gallery__item">
+          <img loading="lazy" decoding="async" src="assets/img/surface-light.jpg"
+               alt="水面から光の筋が差し込む、明るい浅場を泳ぐウミガメ" />
+          <figcaption>Sunbeams · 光の差す浅場</figcaption>
+        </figure>
+        <figure class="gallery__item">
         <video class="bgvid" data-bg data-src="assets/video/table-coral.mp4"
                poster="assets/video/table-coral.jpg" muted loop playsinline preload="none"
                aria-hidden="true"></video>
         <figcaption>Coral Garden · 珊瑚の庭</figcaption>
-      </figure>
-      <figure class="gallery__item" data-clip data-parallax="0.16">
+        </figure>
+        <figure class="gallery__item">
         <img loading="lazy" decoding="async"
-             src="https://images.unsplash.com/photo-1682687981907-170c006e3744?q=80&w=1400&auto=format&fit=crop"
-             alt="色とりどりの珊瑚礁の上を泳ぐダイバー" />
+             src="assets/img/clownfish.jpg"
+             alt="白い砂地のイソギンチャクに寄り添う2匹のカクレクマノミ" />
         <figcaption>Coral Reef · 極彩色の別世界</figcaption>
-      </figure>
-      <figure class="gallery__item" data-clip data-parallax="0.12">
+        </figure>
+        <figure class="gallery__item">
         <img loading="lazy" decoding="async"
-             src="https://images.unsplash.com/photo-1712672122149-038926f84bb1?q=80&w=1400&auto=format&fit=crop"
-             alt="珊瑚礁の上を静かに滑空するウミガメ" />
+             src="assets/img/turtle-diver.jpg"
+             alt="珊瑚礁の上を泳ぐタイマイと、その上を進むダイバー" />
         <figcaption>Sea Turtle · 静寂の住人</figcaption>
-      </figure>
-      <figure class="gallery__item gallery__item--wide" data-clip data-parallax="0.08">
+        </figure>
+        <figure class="gallery__item">
         <img loading="lazy" decoding="async"
-             src="https://images.unsplash.com/photo-1708649290066-5f617003b93f?q=80&w=2000&auto=format&fit=crop"
-             alt="極彩色に群れる魚とサンゴ礁" />
+             src="assets/img/school-silhouette.jpg"
+             alt="渦を巻く魚の大群と、逆光でシルエットになった2人のダイバー" />
+        <figcaption>Sardine Run · 銀色の渦</figcaption>
+        </figure>
+        <figure class="gallery__item">
+        <img loading="lazy" decoding="async"
+             src="assets/img/barracuda.jpg"
+             alt="青い水の中を隊列を組んで泳ぐバラクーダの群れ" />
+        <figcaption>Barracuda · 群れの中へ</figcaption>
+        </figure>
+          <figure class="gallery__item">
+        <img loading="lazy" decoding="async"
+             src="assets/img/reef-wall.jpg"
+             alt="オレンジの小魚が群れる珊瑚の壁と、脇を泳ぐ2人のダイバー" />
         <figcaption>Reef Life · 極彩色の楽園</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ============ OFFERS ============ -->
-  <section class="offers section" id="offers" data-depth="0.34">
-    <div class="wrap">
-      <p class="kicker" data-reveal="fade">CHOOSE YOUR ESCAPE</p>
-      <h2 class="h-lg lines">別次元への、<br><span class="glow">行き方</span>を選ぶ。</h2>
-      <p class="offers__lead" data-reveal="fade">忙しいあなたのために、手ぶらで、最短で、仕事に一切触れずに潜れるプランだけを揃えました。あなたの週末に、ちょうどいい深さを。</p>
-    </div>
-
-    <div class="offers__grid">
-      <article class="offer" data-reveal="card" data-cursor="drag">
-        <div class="offer__idx">01</div>
-        <h3 class="offer__name">手ぶらの三時間</h3>
-        <p class="offer__tag">はじめての別世界</p>
-        <p class="offer__hook">ライセンス不要。泳げなくていい。マスクをつけて沈むだけで、脳は別次元へ運ばれる。</p>
-        <ul class="offer__inc">
-          <li>全器材レンタル込み（本当に手ぶら）</li>
-          <li>日本語インストラクターがマンツーマン</li>
-          <li>水中写真データをプレゼント</li>
-          <li>初めての方専用の穏やかなポイント</li>
-        </ul>
-        <div class="offer__foot">
-          <span class="offer__dur">約3時間 / 体験2本</span>
-          <span class="offer__price">₱8,800<em>〜 (約23,000円)</em></span>
-        </div>
-      </article>
-
-      <article class="offer offer--feature" data-reveal="card" data-cursor="drag">
-        <div class="offer__idx">02</div>
-        <div class="offer__ribbon">人気</div>
-        <h3 class="offer__name">週末で、ダイバーになる</h3>
-        <p class="offer__tag">PADIオープンウォーター</p>
-        <p class="offer__hook">土日の二日間で、一生モノのライセンスを。月曜には、別世界へのパスポートを持って出社する。</p>
-        <ul class="offer__inc">
-          <li>PADIオープンウォーター認定（2日完結）</li>
-          <li>全器材・教材・申請料すべて込み</li>
-          <li>日本語対応／少人数制</li>
-          <li>取得後に使える会員価格をご案内</li>
-        </ul>
-        <div class="offer__foot">
-          <span class="offer__dur">2日間 / 週末で完結</span>
-          <span class="offer__price">₱28,000<em>〜 (約73,000円)</em></span>
-        </div>
-      </article>
-
-      <article class="offer" data-reveal="card" data-cursor="drag">
-        <div class="offer__idx">03</div>
-        <h3 class="offer__name">平日の別次元</h3>
-        <p class="offer__tag">1DAY ファンダイブ</p>
-        <p class="offer__hook">カレンダーを自分の手で握るあなたへ。平日の昼、こっそり別の惑星で息をする。</p>
-        <ul class="offer__inc">
-          <li>2〜3ダイブのファンダイビング</li>
-          <li>ボート・タンク・ウェイト込み</li>
-          <li>その日の海況で最良のポイントを厳選</li>
-          <li>ランチ付き</li>
-        </ul>
-        <div class="offer__foot">
-          <span class="offer__dur">1日 / 日帰り可</span>
-          <span class="offer__price">₱6,500<em>〜 (約17,000円)</em></span>
-        </div>
-      </article>
-
-      <article class="offer" data-reveal="card" data-cursor="drag">
-        <div class="offer__idx">04</div>
-        <h3 class="offer__name">二日間の、深いリセット</h3>
-        <p class="offer__tag">泊まりのリトリート</p>
-        <p class="offer__hook">金曜の夜に決めて、日曜の夜には、生まれ変わって帰る。いちばん深いところまで、脳を手放す。</p>
-        <ul class="offer__inc">
-          <li>1泊2日・4〜5ダイブのフルコース</li>
-          <li>宿泊・食事・現地送迎すべて込み</li>
-          <li>マニラ発着の国内線手配をサポート</li>
-          <li>夜は、静寂の中で「何もしない」時間</li>
-        </ul>
-        <div class="offer__foot">
-          <span class="offer__dur">1泊2日</span>
-          <span class="offer__price">₱48,000<em>〜 (約125,000円)</em></span>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <!-- ============ ACCESS ============ -->
-  <section class="access section" id="access" data-depth="0.3">
-    <div class="wrap access__wrap">
-      <div class="access__text">
-        <p class="kicker" data-reveal="fade">CLOSER THAN YOU THINK</p>
-        <h2 class="h-md lines">オフィスから、数時間。<br>パスポートは、<span class="glow">いらない</span>。</h2>
-        <p data-reveal="fade">BGCやマカティを朝に出れば、昼には別の惑星にいる。ヨーロッパへの10時間より、はるかに速く、はるかに遠くへ。国内線とホテル送迎の手配も、こちらで。金曜の夜に決めて、日曜の夜には、生まれ変わって帰ってくる——そういう距離感です。</p>
+        </figure>
       </div>
-      <ol class="access__steps">
-        <li data-reveal="fade"><span class="access__num">A</span><div><b>金曜の夜、決める</b><em>LINEひとつで予約完了。持ち物は、何もいりません。</em></div></li>
-        <li data-reveal="fade"><span class="access__num">B</span><div><b>土曜の朝、発つ</b><em>マニラから数時間。国内線もホテルも、こちらで手配します。</em></div></li>
-        <li data-reveal="fade"><span class="access__num">C</span><div><b>そのまま、潜る</b><em>着いたら器材を着けるだけ。昼にはもう、別次元の中に。</em></div></li>
-        <li data-reveal="fade"><span class="access__num">D</span><div><b>日曜の夜、還る</b><em>生まれ変わった脳で、月曜のあなたを迎えに行く。</em></div></li>
-      </ol>
     </div>
   </section>
 
-  <!-- ============ TRUST ============ -->
-  <section class="trust section" id="trust" data-depth="0.26">
+  <!-- ============ INSTRUCTOR — the thing an Instagram visitor came for ============ -->
+  <section class="trust section" id="trust" data-depth="0.30">
     <div class="wrap">
-      <p class="kicker" data-reveal="fade">SAFETY IS THE REAL LUXURY</p>
-      <h2 class="h-md lines">究極のリラックスは、<br>究極の<span class="glow">安全</span>の上にしか生まれない。</h2>
-      <div class="trust__grid">
-        <div class="trust__cell" data-reveal="fade">
-          <span class="trust__k">PADI</span>
-          <p>PADI認定のプロフェッショナルが、日本語で、あなたの不安を一つずつ潰していきます。</p>
-        </div>
-        <div class="trust__cell" data-reveal="fade">
-          <span class="trust__k">日本基準</span>
-          <p>器材の点検も、体調の確認も、緊急時の手順も、すべて日本の基準で管理。</p>
-        </div>
-        <div class="trust__cell" data-reveal="fade">
-          <span class="trust__k">全部お任せ</span>
-          <p>安心して脳を手放せるのは、私たちが全部を管理しているから。新しい緊張はいりません。</p>
-        </div>
+      <p class="kicker" data-reveal="fade">YOUR INSTRUCTOR</p>
+      <h2 class="h-md lines">教えるのは、<br><span class="nw">日本人の</span><span class="nw"><span class="glow">PADIインストラクター</span>。</span></h2>
+      <div class="trust__body" data-reveal="fade">
+        <p><span class="sent">教わるのも、質問するのも日本語です。</span><span class="sent">「耳が抜けない」も「怖い」も、そのまま。</span></p>
+        <p><span class="sent">安全の確認から、器材の点検まで。</span><span class="sent">ぜんぶ、こちらでやります。</span></p>
       </div>
     </div>
   </section>
@@ -392,8 +493,8 @@
     </div>
     <div class="cta__inner">
       <p class="kicker" data-reveal="fade">YOUR NEXT WORLD IS ONE BREATH AWAY</p>
-      <h2 class="cta__title lines">次の週末、<br>別の惑星で<span class="glow">会いましょう</span>。</h2>
-      <p class="cta__lead" data-reveal="fade">明日も、通知は鳴り続ける。重力は、あなたを縛り続ける。でも、あなたはもう知っている——そのすべてが届かない場所が、たった数時間先にあることを。無音（MUON）で、人生でいちばん深いリセットを。</p>
+      <h2 class="cta__title lines">次の週末、<br><span class="nw"><span class="glow">別の惑星</span>へ。</span></h2>
+      <p class="cta__lead" data-reveal="fade">明日も、通知は鳴り続ける。重力は、あなたを縛り続ける。でも、あなたはもう知っている——そのすべてが届かない場所が、たった数時間先にあることを。ZEN DIVE で、人生でいちばん深いリセットを。</p>
       <form class="cta__form" id="bookForm" novalidate>
         <div class="cta__field">
           <input type="text" id="fName" name="name" required autocomplete="name" placeholder=" " />
@@ -406,10 +507,7 @@
         <div class="cta__field cta__field--sel">
           <select id="fPlan" name="plan" required>
             <option value="" selected disabled hidden></option>
-            <option>手ぶらの三時間（体験）</option>
-            <option>週末で、ダイバーになる（PADI）</option>
-            <option>平日の別次元（1DAYファンダイブ）</option>
-            <option>二日間の、深いリセット（リトリート）</option>
+            <option>PADIライセンス講習</option>
             <option>まだ決めていない・相談したい</option>
           </select>
           <label for="fPlan">気になるプラン</label>
@@ -426,31 +524,58 @@
 <footer class="foot">
   <div class="foot__top">
     <div class="foot__brand">
-      <span class="foot__kanji">無音</span>
-      <span class="foot__romaji">MUON — SILENT DIVE</span>
+      <span class="foot__kanji"><svg class="maru foot__maru" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" pathLength="100" stroke-dasharray="90 10" transform="rotate(-18 24 24)"/></svg></span>
+      <span class="foot__lockup"><span class="foot__word">ZEN DIVE</span><span class="foot__city" aria-label="MANILA"><i>M</i><i>A</i><i>N</i><i>I</i><i>L</i><i>A</i></span></span>
       <p class="foot__tag">別世界は、いつでも、水面のすぐ下で、あなたを待っている。</p>
     </div>
     <nav class="foot__nav" aria-label="フッター">
-      <a href="#contrast">物理法則</a>
-      <a href="#descent">潜降の瞬間</a>
-      <a href="#experience">体験について</a>
-      <a href="#offers">プラン</a>
-      <a href="#access">アクセス</a>
+      <a href="#gear">手ぶら</a>
+      <a href="#access">スケジュール</a>
+      <a href="#offers">料金</a>
       <a href="#trust">安全</a>
       <a href="#cta">予約</a>
     </nav>
     <div class="foot__contact">
       <span>MANILA STUDIO</span>
-      <a href="mailto:hello@muon.dive">hello@muon.dive</a>
+      <a href="mailto:hello@zendivemanila.com">hello@zendivemanila.com</a>
       <a href="#cta">LINEで相談する</a>
     </div>
   </div>
   <div class="foot__bottom">
-    <span>© <span id="year">2026</span> 無音 MUON</span>
-    <span>Concept · Design · Build — Studio MUON</span>
+    <span>© <span id="year">2026</span> ZEN DIVE Manila</span>
+    <span>Concept · Design · Build — Studio ZEN</span>
     <a href="#top" data-cursor="explore">戻る ↑</a>
   </div>
 </footer>
+
+<!-- ======================= CHAT WIDGET ======================= -->
+<div class="chatw" id="chatWidget">
+  <button class="chatw__toggle" id="chatToggle" type="button" aria-expanded="false" aria-controls="chatPanel" aria-label="チャットで質問する">
+    <svg class="chatw__ic chatw__ic--ask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h16v11H9l-4 3.5v-3.5H4z"/></svg>
+    <svg class="chatw__ic chatw__ic--close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+
+  <div class="chatw__panel" id="chatPanel" role="dialog" aria-label="ZEN DIVE アシスタント" aria-hidden="true">
+    <header class="chatw__head">
+      <svg class="maru chatw__maru" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" pathLength="100" stroke-dasharray="90 10" transform="rotate(-18 24 24)"/></svg>
+      <div class="chatw__headtext">
+        <p class="chatw__title">ZEN DIVE アシスタント</p>
+        <p class="chatw__status"><i class="chatw__dot" aria-hidden="true"></i>コース・料金について質問できます</p>
+      </div>
+    </header>
+
+    <div class="chatw__body" id="chatBody" aria-live="polite">
+      <div class="chatw__msg chatw__msg--bot">こんにちは。オープンウォーターの料金や、2日間の流れなど、気になることを聞いてください。</div>
+    </div>
+
+    <form class="chatw__form" id="chatForm">
+      <input type="text" id="chatInput" class="chatw__input" placeholder="質問を入力…" autocomplete="off" maxlength="400" />
+      <button type="submit" class="chatw__send" aria-label="送信">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+      </button>
+    </form>
+  </div>
+</div>
 
 <!-- ======================= SCRIPTS ======================= -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -460,5 +585,8 @@
 <script src="js/i18n.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/main.js"></script>
+<script src="js/courses.js"></script>
+<script src="js/gallery.js"></script>
+<script src="js/chat.js"></script>
 </body>
 </html>

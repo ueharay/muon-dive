@@ -1,3 +1,8 @@
 .DS_Store
 node_modules/
 *.log
+
+# Vercel chat backend — never commit the real Gemini key
+.env
+.env.local
+.vercel

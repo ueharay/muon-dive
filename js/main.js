@@ -1,5 +1,5 @@
 /* =========================================================================
-   無音 MUON — interaction layer
+   ZEN DIVE Manila — interaction layer
    Lenis smooth-scroll ⇄ GSAP ScrollTrigger, one master "depth" that drives the
    WebGL water, the colour grade and the depth meter — the whole page is one dive.
    ========================================================================= */
@@ -32,7 +32,7 @@
 
   // brighter, living teal even at the "deep" end — the user is thalassophobic,
   // so the water must never read as a dark abyss
-  const PALETTE = { surface: '#45c6cc', deep: '#1f8b9e', light: '#c2f5ee' };
+  const PALETTE = { surface: '#8ff0e6', deep: '#0a4f8f', light: '#eafffb' };
 
   /* If GSAP failed to load, degrade gracefully: reveal everything, keep basics. */
   if (!hasGSAP) root.classList.remove('js');
@@ -59,19 +59,15 @@
       initHold();
       initVideos();
 
-      if (!reduced && !lowEnd) initOcean();
+      if (!reduced && !lowEnd) { initOcean(); root.classList.add('has-ocean'); }
 
       if (hasGSAP && !reduced) {
         gsap.registerPlugin(window.ScrollTrigger);
         initLenis();
         initReveals();
         initParallax();
-        initSilencePin();
         initDepthEngine();
         initCrossing();
-        initGalleryRail();
-        initDiveProfile();
-        initRoute();
         initMarquee();
         initFlow();
       } else {
@@ -80,12 +76,12 @@
         const dm = $('#depthmeter'); if (dm) dm.classList.remove('is-on');
       }
     } catch (err) {
-      console.error('[MUON] init error:', err);
+      console.error('[ZEN DIVE] init error:', err);
     } finally {
       // ALWAYS lift the preloader — a thrown init above must never trap the
       // page behind the opaque overlay (a CSS keyframe is the final failsafe).
       initPreloader();
-      window.__MUON = { get lenis() { return lenis; }, get ocean() { return ocean; }, reduced, hasGSAP, lowEnd };
+      window.__ZEN = { get lenis() { return lenis; }, get ocean() { return ocean; }, reduced, hasGSAP, lowEnd };
     }
   }
 
@@ -156,9 +152,11 @@
   function revealHero() {
     if (!hasGSAP || reduced) return;
     const tl = gsap.timeline({ delay: .15 });
-    tl.to('#hero .kicker', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' })
-      .fromTo('#hero .hero__title .ch', { yPercent: 120, rotate: 3 },
-        { yPercent: 0, rotate: 0, duration: 1.25, ease: 'expo.out', stagger: { each: .026, from: 'start' } }, '-=.7')
+    // the Japanese headline leads; the English kicker rides in alongside it, so
+    // the first thing on screen is never a lone line of English
+    tl.fromTo('#hero .hero__title .ch', { yPercent: 120, rotate: 3 },
+        { yPercent: 0, rotate: 0, duration: 1.25, ease: 'expo.out', stagger: { each: .026, from: 'start' } })
+      .to('#hero .kicker', { opacity: 1, y: 0, duration: .9, ease: 'power3.out' }, '-=1.05')
       .to('#hero .hero__lead', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, '-=.8')
       .to('#hero .hero__actions', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, '-=.8')
       .fromTo('#hero .hero__media img', { scale: 1.16 }, { scale: 1, duration: 2.4, ease: 'power2.out' }, 0)
@@ -248,7 +246,7 @@
   const CHARS = (scope) => (scope || document).querySelectorAll('.ch');
 
   /* =====================================================================
-     i18n — JP ⇄ EN. Translations keyed by JP source (window.MUON_I18N).
+     i18n — JP ⇄ EN. Translations keyed by JP source (window.ZEN_I18N).
      Body copy swaps at the text-node level (mixed markup like "01…" or "→"
      is preserved); display headings swap innerHTML and re-split.
      ===================================================================== */
@@ -257,7 +255,7 @@
   let curLang = 'ja';
 
   function collectI18n() {
-    (window.MUON_I18N || []).forEach((t) => { I18N.map[normI(t.jp)] = t; });
+    (window.ZEN_I18N || []).forEach((t) => { I18N.map[normI(t.jp)] = t; });
     $$('.lines').forEach((el) => {
       const t = I18N.map[normI(el.textContent)];
       if (t) I18N.headings.push({ el, jpHtml: el.innerHTML, t });
@@ -291,7 +289,7 @@
     root.setAttribute('data-lang', lang);
   }
   function storedLang() {
-    try { return localStorage.getItem('muon-lang') === 'en' ? 'en' : 'ja'; } catch (e) { return 'ja'; }
+    try { return localStorage.getItem('zen-lang') === 'en' ? 'en' : 'ja'; } catch (e) { return 'ja'; }
   }
   function switchLang(lang) {
     if (lang === curLang) return;
@@ -302,7 +300,7 @@
       splitOne(o.el);
       if (hasGSAP && !reduced) gsap.set(o.el.querySelectorAll('.ch'), { yPercent: 0, rotate: 0, opacity: 1, clearProps: 'transform' });
     });
-    try { localStorage.setItem('muon-lang', lang); } catch (e) {}
+    try { localStorage.setItem('zen-lang', lang); } catch (e) {}
     if (window.ScrollTrigger) window.ScrollTrigger.refresh();
   }
 
@@ -379,217 +377,13 @@
   }
 
   /* =====================================================================
-     SILENCE — the deepest, quietest beat, briefly held
-     ===================================================================== */
-  function initSilencePin() {
-    const sec = $('#silence');
-    if (!sec) return;
-    const kanji = $('.silence__kanji', sec);
-    const en = $('.silence__en', sec);
-    const sub = $('.silence__sub', sec);
-
-    gsap.set(kanji, { scale: .82, opacity: 0, filter: 'blur(18px)', letterSpacing: '.34em' });
-    gsap.set([en, sub], { opacity: 0 });
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sec, start: 'top top', end: '+=140%',
-        pin: true, scrub: true, anticipatePin: 1,
-      },
-    });
-    tl.to(en, { opacity: .7, duration: .4 }, 0)
-      .to(kanji, { scale: 1, opacity: 1, filter: 'blur(0px)', letterSpacing: '.1em', duration: 1, ease: 'power2.out' }, 0)
-      .to(sub, { opacity: 1, duration: .5 }, .5)
-      .to({}, { duration: .8 })                                   // held silence
-      .to([en, sub], { opacity: 0, duration: .5 }, 2.0)
-      .to(kanji, { scale: 1.06, opacity: 0, filter: 'blur(10px)', duration: .8, ease: 'power2.in' }, 2.0);
-  }
-
-  /* =====================================================================
-     S5 — DIVE PROFILE. Above the (unchanged) plan cards, a depth×time curve:
-     as you scroll the offers, a diver descends it and each plan's node lights
-     in sync with its card — "the deeper you go, the deeper the reset". The
-     cards stay exactly as they were, so nothing about booking is gated.
-     ===================================================================== */
-  function initDiveProfile() {
-    const offers = $('#offers');
-    const grid = $('.offers__grid');
-    if (!offers || !grid || $('.dive-profile')) return;
-    const SVGNS = 'http://www.w3.org/2000/svg';
-    const NODES = [
-      { tag: '体験',   m: 12, price: '₱8,800' },
-      { tag: 'PADI',   m: 18, price: '₱28,000' },
-      { tag: '1DAY',   m: 24, price: '₱6,500' },
-      { tag: 'RETREAT', m: 32, price: '₱48,000' },
-    ];
-    const PTS = [[0, 3], [190, 12], [430, 18], [660, 24], [870, 32], [1000, 33]];
-    const NODE_I = [1, 2, 3, 4];
-    const Y = (m) => 26 + m * 6.4;
-
-    const wrap = document.createElement('div');
-    wrap.className = 'dive-profile';
-    wrap.setAttribute('aria-hidden', 'true');
-    wrap.innerHTML =
-      '<svg viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet">' +
-      '<defs><linearGradient id="dpFill" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#53D4CD" stop-opacity="0"/><stop offset="1" stop-color="#0E4A5E" stop-opacity=".8"/>' +
-      '</linearGradient></defs><g class="dp-grid"></g>' +
-      '<path class="dp-fill"/><path class="dp-curve"/><g class="dp-nodes"></g>' +
-      '<circle class="dp-diver" r="7"/></svg>' +
-      '<p class="dp-cap"><span data-l="ja">DIVE PROFILE — 深く潜るほど、深いリセット</span></p>';
-    grid.insertAdjacentElement('beforebegin', wrap);
-
-    const svg = $('svg', wrap);
-    let d = 'M ' + PTS[0][0] + ' ' + Y(PTS[0][1]);
-    for (let i = 1; i < PTS.length - 1; i++) {
-      const mx = (PTS[i][0] + PTS[i + 1][0]) / 2, my = (Y(PTS[i][1]) + Y(PTS[i + 1][1])) / 2;
-      d += ' Q ' + PTS[i][0] + ' ' + Y(PTS[i][1]) + ' ' + mx + ' ' + my;
-    }
-    d += ' L 1000 ' + Y(PTS[PTS.length - 1][1]);
-    $('.dp-curve', svg).setAttribute('d', d);
-    $('.dp-fill', svg).setAttribute('d', d + ' L 1000 300 L 0 300 Z');
-
-    const grid_g = $('.dp-grid', svg);
-    [0, 10, 20, 30].forEach((m) => {
-      const y = Y(m);
-      const ln = document.createElementNS(SVGNS, 'line');
-      ln.setAttribute('x1', 0); ln.setAttribute('x2', 1000); ln.setAttribute('y1', y); ln.setAttribute('y2', y);
-      grid_g.appendChild(ln);
-      const tx = document.createElementNS(SVGNS, 'text');
-      tx.setAttribute('x', 6); tx.setAttribute('y', y - 5); tx.setAttribute('class', 'dp-lab');
-      tx.textContent = '-' + m + 'm';
-      grid_g.appendChild(tx);
-    });
-
-    const nodesG = $('.dp-nodes', svg);
-    const nodeEls = NODES.map((n, i) => {
-      const p = PTS[NODE_I[i]];
-      const px = p[0], py = Y(p[1]);
-      const g = document.createElementNS(SVGNS, 'g');
-      g.setAttribute('class', 'dp-node');
-      g.innerHTML =
-        '<circle class="dp-dot" cx="' + px + '" cy="' + py + '" r="6"/>' +
-        '<text class="dp-price" x="' + px + '" y="' + (py - 16) + '" text-anchor="middle">' + n.price + '</text>' +
-        '<text class="dp-tag" x="' + px + '" y="' + (py + 24) + '" text-anchor="middle">' + n.tag + '</text>';
-      nodesG.appendChild(g);
-      return { g, px };
-    });
-
-    const curve = $('.dp-curve', svg);
-    const len = curve.getTotalLength();
-    const diver = $('.dp-diver', svg);
-    const cards = $$('.offer', offers);
-    const place = (frac) => {
-      const pt = curve.getPointAtLength(clamp(frac) * len);
-      diver.setAttribute('cx', pt.x); diver.setAttribute('cy', pt.y);
-      nodeEls.forEach((n, i) => {
-        const lit = pt.x >= n.px - 2;
-        n.g.classList.toggle('is-lit', lit);
-        if (cards[i]) cards[i].classList.toggle('is-lit', lit);
-      });
-    };
-    place(0);
-
-    window.ScrollTrigger.create({
-      trigger: offers, start: 'top 62%', end: 'bottom 78%', scrub: 0.6,
-      onUpdate: (self) => place(self.progress),
-    });
-  }
-
-  /* =====================================================================
-     ACCESS ROUTE — the A→B→C→D steps get a vertical route line that draws as
-     you scroll, lighting each waypoint in turn (the plan of the weekend).
-     ===================================================================== */
-  function initRoute() {
-    const steps = $('.access__steps');
-    if (!steps || $('.access__line', steps)) return;
-    const line = document.createElement('i');
-    line.className = 'access__line';
-    line.setAttribute('aria-hidden', 'true');
-    steps.insertBefore(line, steps.firstChild);
-    const nums = $$('.access__num', steps);
-    gsap.set(line, { scaleY: 0, transformOrigin: '50% 0%' });
-    nums.forEach((n) => n.classList.remove('is-lit'));
-    window.ScrollTrigger.create({
-      trigger: steps, start: 'top 72%', end: 'bottom 82%', scrub: 0.5,
-      onUpdate: (self) => {
-        gsap.set(line, { scaleY: self.progress });
-        const lit = Math.round(self.progress * nums.length);
-        nums.forEach((n, i) => n.classList.toggle('is-lit', i < lit));
-      },
-    });
-  }
-
-  /* =====================================================================
-     S2 — GALLERY LIQUID RAIL. Desktop only: the mosaic becomes a horizontal
-     reef you drag through, with inertia and a velocity skew/squash so the row
-     bends like water. Touch / reduced / low-end keep the native mosaic grid.
-     ===================================================================== */
-  function initGalleryRail() {
-    if (!finePointer || lowEnd) return;
-    const viewport = $('.gallery');
-    const track = $('.gallery__grid');
-    if (!viewport || !track) return;
-    track.classList.add('is-rail');
-
-    const cursorEl = $('#cursor');
-    if (cursorEl) {
-      viewport.addEventListener('pointerenter', () => cursorEl.classList.add('is-hover', 'is-drag'));
-      viewport.addEventListener('pointerleave', () => cursorEl.classList.remove('is-hover', 'is-drag'));
-    }
-
-    let x = 0, vel = 0, maxX = 0, dragging = false, moved = 0, lastX = 0, raf = 0;
-    const measure = () => { maxX = Math.max(0, track.scrollWidth - viewport.clientWidth + 24); };
-    measure();
-    window.addEventListener('resize', measure);
-    if (window.ScrollTrigger) window.ScrollTrigger.addEventListener('refresh', measure);
-
-    const paint = () => {
-      const skew = clamp(vel * 0.05, -7, 7);
-      const squash = 1 - Math.min(Math.abs(vel) * 0.0016, 0.05);
-      track.style.transform = `translateX(${x.toFixed(2)}px) skewX(${skew.toFixed(2)}deg) scaleY(${squash.toFixed(3)})`;
-    };
-    const loop = () => {
-      raf = requestAnimationFrame(loop);
-      if (!dragging) {
-        x += vel; vel *= 0.9;
-        if (x > 0) { x *= 0.78; vel = 0; }
-        else if (x < -maxX) { x = -maxX + (x + maxX) * 0.78; vel = 0; }
-        if (Math.abs(vel) < 0.03 && !dragging) { paint(); cancelAnimationFrame(raf); raf = 0; return; }
-      }
-      paint();
-    };
-    const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
-
-    viewport.addEventListener('pointerdown', (e) => {
-      if (e.button != null && e.button !== 0) return;
-      dragging = true; moved = 0; lastX = e.clientX; vel = 0;
-      viewport.setPointerCapture(e.pointerId);
-      viewport.classList.add('is-grabbing');
-      kick();
-    });
-    viewport.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
-      const dx = e.clientX - lastX; lastX = e.clientX; moved += Math.abs(dx);
-      x = clamp(x + dx, -maxX - 80, 80);
-      vel = dx;
-    });
-    const release = () => { if (!dragging) return; dragging = false; viewport.classList.remove('is-grabbing'); kick(); };
-    viewport.addEventListener('pointerup', release);
-    viewport.addEventListener('pointercancel', release);
-    // a click that was actually a drag shouldn't also open a lightbox etc. (none here, but guard anchors)
-    viewport.addEventListener('click', (e) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
-    paint();
-  }
-
-  /* =====================================================================
-     S1 — THRESHOLD CROSSING. Fire the ocean's water-breach sweep once, at the
-     surface beat ("通知は、水面で止まる") — the interlude is transparent, so the
-     breach reads on the background water before you drop into the descent.
+     S1 — THRESHOLD CROSSING. Fire the ocean's water-breach sweep once, as the
+     first section after the hero arrives — the surface passing overhead as the
+     page leaves the opening and goes under.
      One-shot; the shader envelope fades the band at both ends → resets clean.
      ===================================================================== */
   function initCrossing() {
-    const sec = $('.interlude');
+    const sec = $('#gear');
     if (!sec || !ocean || !ocean.setCross) return;
     const proxy = { v: 0 };
     window.ScrollTrigger.create({
@@ -621,14 +415,27 @@
     if (q !== lastDepthQ) {
       root.style.setProperty('--depth', q.toFixed(2));
       if (ocean) ocean.setDepth(graded);
-      root.style.setProperty('--dive', clamp(d * 46 / 40).toFixed(3));
       // S8 tempo gradient is applied directly where it reads best — each heading's
       // reveal duration scales with its section depth in initReveals (deeper =
       // slower). --flow (scroll velocity) is the live ambient driver below.
       lastDepthQ = q;
     }
-    const meters = (d * 46).toFixed(1);
+  }
+
+  /* The gauge is deliberately NOT driven by data-depth: those values rise again
+     past the silence so the water can return to the light, and a depth reading
+     that climbs while you keep scrolling down reads as broken. The gauge tracks
+     scroll position instead — one continuous descent, 0m to 40m (the authored
+     tick range), never going back up. */
+  const METER_MAX = 40;
+  function setMeter(p) {
+    root.style.setProperty('--dive', p.toFixed(3));
+    const meters = (p * METER_MAX).toFixed(1);
     if (meters !== lastRead) { const el = depthReadEl(); if (el) el.textContent = meters; lastRead = meters; }
+  }
+  function scrollProgress() {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    return max > 0 ? clamp(window.scrollY / max) : 0;
   }
 
   function initDepthEngine() {
@@ -664,13 +471,20 @@
       return current;
     }
 
+    let meter = scrollProgress();
     gsap.ticker.add(() => {
+      const mt = scrollProgress();
+      if (Math.abs(mt - meter) >= 0.0002) {
+        meter += (mt - meter) * 0.08;
+        setMeter(meter);
+      }
       const target = targetDepth();
       if (Math.abs(target - current) < 0.0004) return;      // idle → stop writing
       current += (target - current) * 0.06;
       setDepthVars(current);
     });
     setDepthVars(current);
+    setMeter(meter);
   }
 
   /* =====================================================================
@@ -686,22 +500,14 @@
     requestAnimationFrame(loop);
 
     // S2 — trail ripples into the background water as the pointer moves
-    let lastRip = 0;
     window.addEventListener('mousemove', (e) => {
       tx = e.clientX; ty = e.clientY;
       cur.style.opacity = '1';
-      const nx = e.clientX / innerWidth, ny = 1 - e.clientY / innerHeight;
-      if (ocean) {
-        ocean.setPointer(nx, ny);
-        const now = performance.now();
-        if (now - lastRip > 90) { lastRip = now; ocean.addRipple(nx, ny); }
-      }
+      // the light source drifts with the pointer; the water is not disturbed by it
+      if (ocean) ocean.setPointer(e.clientX / innerWidth, 1 - e.clientY / innerHeight);
     }, { passive: true });
     window.addEventListener('mouseleave', () => (cur.style.opacity = '0'));
-    window.addEventListener('mousedown', (e) => {
-      cur.classList.add('is-down');
-      if (ocean) ocean.addRipple(e.clientX / innerWidth, 1 - e.clientY / innerHeight);   // a firmer tap on the water
-    });
+    window.addEventListener('mousedown', () => cur.classList.add('is-down'));
     window.addEventListener('mouseup', () => cur.classList.remove('is-down'));
 
     const hoverSel = 'a, button, [data-cursor], [data-magnetic], .offer, input, select';
@@ -765,7 +571,7 @@
      ===================================================================== */
   let menuOpen = false;
   function closeMenu() {
-    if (window.MUON_MENU && window.MUON_MENU.isOpen()) window.MUON_MENU.close();
+    if (window.ZEN_MENU && window.ZEN_MENU.isOpen()) window.ZEN_MENU.close();
     if (!menuOpen) return;
     menuOpen = false;
     $('#nav')?.classList.remove('is-open');
@@ -801,7 +607,7 @@
     burger?.addEventListener('click', () => {
       // S7: hand off to the immersive full-screen menu when it's mounted;
       // fall back to the plain drawer if menu.js failed to load.
-      if (window.MUON_MENU) { window.MUON_MENU.toggle(); return; }
+      if (window.ZEN_MENU) { window.ZEN_MENU.toggle(); return; }
       menuOpen = !menuOpen;
       nav.classList.toggle('is-open', menuOpen);
       links?.classList.toggle('is-open', menuOpen);
@@ -884,7 +690,15 @@
      ===================================================================== */
   function initScramble() {
     if (reduced || !finePointer) return;
-    const GLYPHS = 'アイウエオカキクケコサシスセソタチツテトナニヌ0123456789∴·—＋MUON';
+    const GLYPHS = 'アイウエオカキクケコサシスセソタチツテトナニヌ0123456789∴·—＋ZEN禅';
+
+    // The header hides on scroll-down and slides back on scroll-up. When it
+    // returns under a cursor that never moved, the browser fires mouseenter and
+    // the scramble runs — Japanese labels flick through Latin glyphs and read as
+    // the page changing language. Only scramble when the pointer actually moved.
+    let lastMove = 0;
+    window.addEventListener('mousemove', () => { lastMove = performance.now(); }, { passive: true });
+    const moved = () => performance.now() - lastMove < 300;
     $$('.nav__links a').forEach((a) => {
       const tn = Array.from(a.childNodes).find((n) => n.nodeType === 3);
       if (!tn) return;
@@ -904,8 +718,8 @@
           if (frame >= total) { clearInterval(timer); tn.nodeValue = target; busy = false; }
         }, 34);
       };
-      a.addEventListener('mouseenter', run);
-      a.addEventListener('focus', run);
+      a.addEventListener('mouseenter', () => { if (moved()) run(); });
+      a.addEventListener('focus', run);      // keyboard focus is always intent
     });
   }
 
@@ -932,7 +746,7 @@
      and it powers the marquee drift/skew + (Phase 2) an ocean stir. One ticker.
      ===================================================================== */
   function initFlow() {
-    let flow = 0, lastFlow = -1;
+    let flow = 0, lastFlow = -1, lastDescent = 0;
     gsap.ticker.add(() => {
       const vRaw = lenis ? (lenis.velocity || 0) : 0;
       const mag = Math.min(Math.abs(vRaw) / 42, 1);
@@ -942,6 +756,17 @@
         root.style.setProperty('--flow', fq.toFixed(3));
         if (ocean && ocean.setFlow) ocean.setFlow(fq);
         lastFlow = fq;
+      }
+
+      // DESCENT — how far we have sunk, in viewports, plus how hard we are
+      // sinking right now. Taken from real scroll position rather than Lenis'
+      // velocity so the water still responds if Lenis never loaded.
+      if (ocean && ocean.setDescent) {
+        const d = window.scrollY / Math.max(1, window.innerHeight);
+        const dd = d - lastDescent;                       // > 0 while going down
+        lastDescent = d;
+        ocean.setDescent(d);
+        ocean.setBubble(Math.min(1, Math.abs(dd) * 26) * (dd > 0 ? 1 : 0.25));
       }
       for (const st of marqRows) {
         if (!st.half) { st.half = st.row.scrollWidth / 2 || 0; continue; }
