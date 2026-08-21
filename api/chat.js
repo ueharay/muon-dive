@@ -96,14 +96,17 @@ export default async function handler(request, response) {
     { role: 'user', parts: [{ text: message }] },
   ];
 
-  if (!process.env.GEMINI_API_KEY) {
+  // Vercel env var is named `geminiapi` (GEMINI_API_KEY kept as a fallback so
+  // either name works if the variable is ever renamed in the dashboard).
+  const apiKey = process.env.geminiapi || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
     return response.status(500).json({ error: 'server not configured' });
   }
 
   let upstream;
   try {
     upstream = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'content-type': 'application/json' },

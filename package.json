@@ -1,0 +1,7 @@
+{
+  "name": "zen-dive-manila",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ZEN DIVE Manila — landing page and chat assistant",
+  "type": "module"
+}
