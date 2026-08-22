@@ -7,3 +7,7 @@ node_modules/
 .env.local
 .vercel
 .env*
+
+# ループ実行時の状態（資産ではないのでコミットしない）
+.claude/loop/state/*
+!.claude/loop/state/.gitkeep

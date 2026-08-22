@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "project": "zen-dive-manila",
+  "goal": "./scripts/verify.sh が PASS し、ブラウザで index.html を開いた時に console error 0、チャットウィジェットが /api/chat から応答を返すこと",
+  "verify": {
+    "commands": [
+      { "name": "syntax", "run": "node --check api/chat.js && node --check js/chat.js && node --check js/main.js", "required": true },
+      { "name": "smoke", "run": "bash scripts/verify.sh", "required": true }
+    ]
+  },
+  "limits": {
+    "maxIterations": 5,
+    "maxWallClockMin": 20,
+    "sameFailureStreak": 2
+  },
+  "irreversible": [
+    "git push",
+    "gh pr merge",
+    "vercel --prod",
+    "vercel deploy --prod",
+    "vercel env rm",
+    "rm -rf"
+  ],
+  "protected": [
+    "scripts/verify.sh",
+    ".claude/loop/harness.json",
+    "api/system-prompt.txt",
+    "**/*.test.*",
+    "**/*.spec.*"
+  ],
+  "worktree": {
+    "strategy": "branch",
+    "prefix": "loop/"
+  },
+  "observer": {
+    "everyNMutations": 12
+  }
+}
