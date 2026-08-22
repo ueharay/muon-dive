@@ -732,7 +732,11 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .access{padding:clamp(4.5rem,9vh,8rem) 0}
 .access__wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,5vw,6rem);align-items:start}
 .access__text .h-md{max-width:none}
-.access__text p{margin-top:2rem;max-width:32em;color:var(--ink-dim);font-family:var(--mincho);line-height:2.1}
+/* :not(.kicker) is the fix, not decoration. The kicker is also a <p>, so this
+   rule was giving it a 2rem top margin and pushing the whole left column down
+   32px — while the schedule beside it started at the container top. The two
+   columns were aligned; only their contents were not. */
+.access__text p:not(.kicker){margin-top:2rem;max-width:32em;color:var(--ink-dim);font-family:var(--mincho);line-height:2.1}
 
 /* Lodging, laid out the way resort sites do it (SAVU South Alor / Solitude
    Acacia): the photograph is the product, so it takes the space, and each frame
@@ -790,7 +794,9 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
    separate three-line rows that carried a description underneath; at one line
    it left the timeline stretched out with nothing in the gaps. */
 .sched__list{display:grid;gap:clamp(1.1rem,1.7vw,1.4rem)}
-.sched__list li{position:relative;display:grid;grid-template-columns:3.6rem 1fr;
+/* 4.8rem, not 3.6rem: "8:00〜15:00" measures exactly 3.6rem at this size, so the
+   old column had zero slack and the range ran straight into the step title. */
+.sched__list li{position:relative;display:grid;grid-template-columns:4.8rem 1fr;
   gap:1.2rem;align-items:baseline}
 .sched__list li::before{
   content:"";position:absolute;left:calc(var(--rail) - var(--gutter) - 2.5px);
@@ -804,15 +810,14 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
   top:.5rem;box-shadow:0 0 0 4px rgba(14,74,94,.75),0 0 16px 2px rgba(229,182,103,.55);
 }
 .sched__time{font:500 .72rem/1.9 var(--label);letter-spacing:.12em;color:var(--ink-faint);white-space:nowrap}
-/* the rough clock time under the time-of-day label — "早朝" alone leaves the
-   reader guessing whether that means a 5am pickup or a 9am one. Brighter than
-   the label above it (was ink-faint × .62 opacity — nearly invisible) since
-   this is the one concrete number in the row, not a secondary note. */
-.sched__time i{display:block;font-style:normal;font-size:.66rem;letter-spacing:.06em;
-  color:var(--cyan);margin-top:.32rem}
-/* "Early morning" needs three times the room "早朝" does — the fixed column was
-   sized for Japanese, so the English ran under the headings */
-html[data-lang="en"] .sched__list li{grid-template-columns:8rem 1fr}
+/* The clock time is the whole column now. It used to sit under a time-of-day
+   label ("早朝" over "5:00頃"), which said the same thing twice and cost a line
+   per row. The one row without a fixed hour — certification, on the Sunday
+   evening — keeps 夕方 / Evening here instead of inventing a time for it. */
+.sched__time i{display:block;font-style:normal;font-size:.72rem;letter-spacing:.06em;
+  color:var(--cyan)}
+/* wide enough for the longest value, "8:00–15:00", in either language */
+html[data-lang="en"] .sched__list li{grid-template-columns:5.4rem 1fr}
 /* the same sentence runs about 1.6x longer in English, so the measure that keeps
    Japanese at one line per sentence has to widen or every line doubles */
 html[data-lang="en"] .access__text p,
