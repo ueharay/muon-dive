@@ -161,6 +161,59 @@ test('schedule times and counts read as numerals in English', async ({ page }) =
   expect(sched, 'dive counts should be numerals').not.toMatch(/\bdives? (one|two|three|four)\b/i);
 });
 
+/**
+ * Every other test in this file reaches English by writing localStorage and
+ * reloading, which is not how anyone actually gets there. A visitor clicks the
+ * JP / EN button, and that path swaps text nodes live rather than rendering
+ * English from the start — a string could translate on load and not on click.
+ * Nothing had ever exercised it.
+ */
+test('the JP / EN button translates the page (the path a visitor uses)', async ({ page }) => {
+  await page.goto('/index.html', { waitUntil: 'load' });
+  await page.evaluate(() => localStorage.removeItem('zen-lang'));
+  await page.reload({ waitUntil: 'load' });
+  await page.evaluate(() => document.fonts.ready);
+
+  // The preloader covers the nav; clicking through it silently does nothing.
+  await page.waitForFunction(() => {
+    const p = document.querySelector('.preloader');
+    if (!p) return true;
+    const cs = getComputedStyle(p);
+    return cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05;
+  }, null, { timeout: 20000 }).catch(() => {});
+  await page.waitForTimeout(800);
+
+  const before = await page.evaluate(() => document.body.innerText);
+  expect(before, 'sanity: starts in Japanese').toMatch(/[぀-ヿ一-鿿]/);
+
+  await page.locator('.nav__lang').click({ force: true });
+  await page.waitForTimeout(1200);
+
+  expect(await page.getAttribute('html', 'data-lang'), 'the toggle sets the language').toBe('en');
+
+  const CJK = /[぀-ヿ㐀-䶿一-鿿ｦ-ﾟ々〆〜～]/;
+  const leaks = await page.evaluate((allow) => {
+    const out = [];
+    const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = tw.nextNode())) {
+      const t = n.textContent.trim();
+      if (!t || !/[぀-ヿ㐀-䶿一-鿿ｦ-ﾟ々〆〜～]/.test(t)) continue;
+      const el = n.parentElement;
+      if (!el || allow.some(a => el.closest?.(a.sel))) continue;
+      out.push(`${el.tagName.toLowerCase()}.${el.className || '(no class)'}: "${t.slice(0, 40)}"`);
+    }
+    return out;
+  }, INTENTIONAL_JP);
+
+  expect(
+    leaks,
+    'Text that stays Japanese after clicking the toggle. A string can translate ' +
+    'on load and not on click, so this is checked separately.\n' + leaks.join('\n')
+  ).toEqual([]);
+  expect(CJK.test('あ'), 'sanity: the CJK pattern matches Japanese').toBe(true);
+});
+
 test('the instructor section still carries the quality message', async ({ page }) => {
   await englishPage(page);
   const trust = await page.locator('#trust').innerText();

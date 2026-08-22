@@ -124,6 +124,12 @@ test('footer lockup matches its baseline', async ({ page }) => {
   await page.waitForTimeout(600);
   // The ring and the wordmark, without .foot__tag — the tagline is translated,
   // so including it would make this test fail on a language switch.
-  await shootStable(page, '.foot__kanji', 'footer-ring');
+  //
+  // Target the <svg> itself, not its .foot__kanji wrapper: the wrapper is a
+  // flex box with align-items:center and a fractional height, so centring put
+  // the ring on a half pixel even when the wrapper was snapped to a whole one.
+  // Snapping something that merely contains the subject does not snap the
+  // subject.
+  await shootStable(page, '.foot__maru', 'footer-ring');
   await shootStable(page, '.foot__lockup', 'footer-lockup');
 });
