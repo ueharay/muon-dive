@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "description": "ZEN DIVE Manila — landing page and chat assistant",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  }
 }

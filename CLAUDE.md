@@ -19,6 +19,19 @@
   （実例: 2026-08-22、フッターロゴの比率修正をローカルでは正しく直し `getBoundingClientRect()` で数値検証までしたが、
   デプロイし忘れて本番は旧CSSのまま → ユーザーが「全然違う」と本番で確認し手戻りになった。`Learning.md` 参照）
 
+## 見た目を変えたら
+
+見た目の合否は**主観で決めない**。`./scripts/verify.sh` の `[6/6] appearance` が判定する。
+
+- ロゴ・レイアウトの形は `tests/logo-lockup.spec.mjs` が**実描画のインク幅**で検証する。
+  要素のボックス幅で判断しない — 232.9 と 232.8 で「一致」と誤判定し、実際の文字幅は
+  112px と 231px だった前例がある
+- 色・線幅は `tests/__screenshots__/` のピクセル基準画像が守る
+- **基準画像の更新（`--update-snapshots`）は、意図した変更を人間が承認する時だけ。**
+  テストを通すために更新するのは、テストを消すのと同じ
+- 検証を足したら `./scripts/self-test.sh` にミューテーションを追加する。
+  「落ちること」を確認していない検証は信用しない
+
 ## 触ってはいけないもの
 
 `scripts/verify.sh` と `api/system-prompt.txt` は protected（`.claude/loop/harness.json`）。

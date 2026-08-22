@@ -11,3 +11,7 @@ node_modules/
 # ループ実行時の状態（資産ではないのでコミットしない）
 .claude/loop/state/*
 !.claude/loop/state/.gitkeep
+
+# Playwright
+test-results/
+playwright-report/

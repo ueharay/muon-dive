@@ -62,7 +62,7 @@ grep -q 'REPLACE_ME' index.html css/style.css js/*.js 2>/dev/null \
   || pass "no leftover placeholders"
 
 # --- 5. Page actually serves -----------------------------------------------
-echo "[5/5] serves"
+echo "[5/6] serves"
 port=8231
 python3 -m http.server "$port" --bind 127.0.0.1 >/dev/null 2>&1 &
 srv=$!
@@ -73,6 +73,36 @@ done
 code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$port/index.html")
 kill "$srv" 2>/dev/null; wait "$srv" 2>/dev/null
 [ "$code" = "200" ] && pass "index.html -> 200" || bad "index.html -> $code"
+
+# --- 6. Appearance ---------------------------------------------------------
+# Everything above answers "is it broken". None of it answers "does it look
+# right", which is the only question the owner ever actually asks. The brand
+# lockup shipped visibly wrong twice while checks 1-5 were green, so appearance
+# is now a gate, not a matter of opinion.
+#
+# Blank baselines are treated as sabotage, not as a pass: a snapshot of nothing
+# would match any future render forever. (That happened on the first run here.)
+echo "[6/6] appearance"
+if [ ! -d node_modules/@playwright ]; then
+  bad "@playwright/test is not installed — run: npm install. Appearance is UNVERIFIED (this is a failure, not a skip)"
+else
+  blank=0
+  while IFS= read -r png; do
+    std=$(python3 -c "
+from PIL import Image; import numpy as np, sys
+print(int(np.array(Image.open(sys.argv[1]).convert('L')).astype(float).std()))" "$png" 2>/dev/null)
+    if [ -z "$std" ]; then continue; fi
+    if [ "$std" -lt 8 ]; then bad "blank baseline: $png (std=$std) — it captured nothing and would pass forever"; blank=1; fi
+  done < <(find tests/__screenshots__ -name '*.png' 2>/dev/null)
+  [ "$blank" -eq 0 ] && pass "no blank baselines"
+
+  if npx playwright test >/tmp/pw-verify.log 2>&1; then
+    pass "$(grep -oE '[0-9]+ passed' /tmp/pw-verify.log | tail -1) — lockup shape + pixel baselines"
+  else
+    bad "visual tests failed — see /tmp/pw-verify.log"
+    grep -E '✘|Error:|Expected|Received' /tmp/pw-verify.log | head -12 | sed 's/^/        /'
+  fi
+fi
 
 echo
 if [ "$fail" -eq 0 ]; then echo "verify: PASS"; else echo "verify: FAIL"; fi

@@ -5,7 +5,10 @@
   "verify": {
     "commands": [
       { "name": "syntax", "run": "node --check api/chat.js && node --check js/chat.js && node --check js/main.js", "required": true },
-      { "name": "smoke", "run": "bash scripts/verify.sh", "required": true }
+      { "name": "smoke", "run": "bash scripts/verify.sh", "required": true },
+      { "name": "self-test", "run": "bash scripts/self-test.sh", "required": true },
+      { "name": "live-sync", "run": "bash scripts/check-live.sh", "required": false },
+      { "name": "visual-prod", "run": "TARGET_URL=https://zen-dive-manila.vercel.app npx playwright test", "required": false }
     ]
   },
   "limits": {
@@ -24,8 +27,11 @@
   "protected": [
     "scripts/verify.sh",
     "scripts/check-live.sh",
+    "scripts/self-test.sh",
     ".claude/loop/harness.json",
     "api/system-prompt.txt",
+    "tests/**",
+    "playwright.config.mjs",
     "**/*.test.*",
     "**/*.spec.*"
   ],
