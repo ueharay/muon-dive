@@ -255,8 +255,11 @@ html.has-cursor,html.has-cursor *{cursor:none!important}
 .foot__lockup{grid-column:2;grid-row:1;display:inline-flex;flex-direction:column;gap:.34em;margin:0}
 .foot__word{font-family:var(--label);font-weight:500;font-size:1.02rem;
   letter-spacing:.34em;margin-right:-.34em;color:var(--sand);line-height:1}
+/* Same lockup as the nav: the city sits at .56/1 of the wordmark and stays in
+   the quiet ink colour. Cyan and a larger size made it read as a second brand
+   rather than a location line. */
 .foot__city{display:flex;justify-content:space-between;font-family:var(--label);
-  font-weight:500;font-size:.62rem;color:var(--cyan);line-height:1}
+  font-weight:500;font-size:.57rem;color:var(--ink-faint);line-height:1}
 .foot__tag{grid-column:1 / -1;grid-row:2}
 .nav__links{display:flex;gap:clamp(1rem,2.4vw,2.4rem)}
 .nav__links a{
@@ -426,8 +429,8 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 /* ================================================================
    GALLERY
    ================================================================ */
-.gallery{padding:12vh 0}
-.gallery .wrap{margin-bottom:6vh}
+.gallery{padding:clamp(4rem,8vh,7rem) 0}
+.gallery .wrap{margin-bottom:clamp(2rem,4vh,3.4rem)}
 .gallery .h-md{max-width:none}
 /* a reef that drifts past on its own — the track holds two copies of the set,
    so translating it by exactly half loops seamlessly */
@@ -451,7 +454,7 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 /* ================================================================
    OFFERS
    ================================================================ */
-.offers{padding:14vh 0}
+.offers{padding:clamp(4.5rem,9vh,8rem) 0}
 .offers .h-lg{max-width:none;margin-bottom:1.8rem}
 .offers__lead{max-width:32em;color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;margin-bottom:7vh}
 .offers__grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(1rem,2vw,1.6rem);max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
@@ -485,7 +488,7 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 /* ================================================================
    COURSES — the PADI ladder, as a set of doors that open
    ================================================================ */
-.courses{padding:11vh 0 0}
+.courses{padding:clamp(3rem,6vh,5rem) 0 0}
 .courses .h-md{max-width:none;margin-bottom:1.6rem}
 .courses__lead{max-width:50ch;color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;margin-bottom:7vh}
 .courses__list{max-width:var(--maxw);margin:0 auto 3.4rem;padding:0 var(--pad)}
@@ -711,7 +714,7 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 /* ================================================================
    ACCESS
    ================================================================ */
-.access{padding:14vh 0}
+.access{padding:clamp(4.5rem,9vh,8rem) 0}
 .access__wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,5vw,6rem);align-items:start}
 .access__text .h-md{max-width:none}
 .access__text p{margin-top:2rem;max-width:32em;color:var(--ink-dim);font-family:var(--mincho);line-height:2.1}
@@ -806,7 +809,7 @@ html[data-lang="en"] .hero__lead{max-width:52ch}
    GEAR — the argument is the asymmetry: a column of things we carry
    against the one thing you do. Nothing else needs to be said.
    ================================================================ */
-.gear{padding:13vh 0}
+.gear{padding:clamp(4.5rem,9vh,8rem) 0}
 .gear .h-lg{max-width:none;margin-bottom:1.6rem}
 .gear__lead{max-width:32em;color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;margin-bottom:clamp(2.6rem,5vw,4rem)}
 .gear__cols{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(2rem,5vw,5rem);align-items:start}
@@ -831,7 +834,7 @@ html[data-lang="en"] .hero__lead{max-width:52ch}
 /* ================================================================
    TRUST
    ================================================================ */
-.trust{padding:12vh 0}
+.trust{padding:clamp(4rem,8vh,7rem) 0}
 .trust .h-md{max-width:none;margin-bottom:clamp(3rem,6vw,5rem)}
 /* the claim ("a Japanese PADI instructor") and its proof (the two of them in
    kit, under the PADI flag) sit side by side — copy alone was asking to be
@@ -1116,12 +1119,20 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
      (the turtle) sits left of centre, so the window has to move left with it. */
   .hero__media video,.hero__media img{object-position:38% 50%}
 
-  /* 14vh top + 14vh bottom stacked into a ~290px hole between sections */
-  .offers,.access,.trust,.gear{padding:9vh 0}
-  .gallery{padding:8vh 0}
-  .cta{padding-top:9vh}
-  .courses{padding:6vh 0 0}
-  .courses__list{margin-bottom:2rem}
+  /* Section rhythm in rem, not vh. At 9vh a tall phone (844px) produced 76px of
+     padding on each side — a 152–184px hole between sections, ~20% of the
+     viewport spent on nothing. Fixed values keep the rhythm the same on every
+     handset instead of scaling with screen height. */
+  /* the hero reserves room for the absolutely-placed scroll cue + meta line;
+     21vh was over-reserving on tall phones and left a 464px hole below the fold */
+  .hero{padding-bottom:clamp(7rem,14vh,9rem)}
+  .offers,.access,.trust,.gear{padding:3.4rem 0}
+  .gallery{padding:3rem 0}
+  .cta{padding-top:3.4rem}
+  .courses{padding:2.2rem 0 0}
+  .courses__list{margin-bottom:1.6rem}
+  .trust .h-md{margin-bottom:2rem}
+  .gallery .wrap{margin-bottom:2rem}
 }
 
 /* ================================================================
