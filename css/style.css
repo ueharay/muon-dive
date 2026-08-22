@@ -247,7 +247,9 @@ html.has-cursor,html.has-cursor *{cursor:none!important}
    Grid (not flex-wrap) because flex-basis:100% only wraps when the row is
    already full; here there's slack, so it never broke onto its own line. */
 .foot__brand{display:grid;grid-template-columns:auto auto;column-gap:.75rem;row-gap:1.5rem;align-items:center;justify-content:start}
-.foot__kanji{grid-column:1;grid-row:1;display:flex;align-items:center}
+/* width:max-content — this span used to hold the 無音 kanji at 2.4rem, so it kept
+   a ~99px box around a 40px ring and pushed the wordmark 71px away */
+.foot__kanji{grid-column:1;grid-row:1;display:flex;align-items:center;width:max-content}
 .foot__maru{display:block;width:2.5rem;height:auto;color:var(--sand)}
 .foot__lockup{grid-column:2;grid-row:1;display:inline-flex;flex-direction:column;gap:.34em;margin:0}
 .foot__word{font-family:var(--label);font-weight:500;font-size:1.02rem;
