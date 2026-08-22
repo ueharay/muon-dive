@@ -77,6 +77,12 @@ async function fingerprint(page, { ring, word, city, letters }) {
 
       return {
         cityToWord:     +((c.right - c.left) / wordW).toFixed(4),
+        // Height, not just width. .foot__city is justify-content:space-between,
+        // so its ink WIDTH is pinned to the container no matter what size the
+        // letters are — halving the city font-size left every width ratio here
+        // unchanged and the whole suite green. Height is the only measure that
+        // notices the type shrinking.
+        cityToWordSize: +((c.bottom - c.top) / (w.bottom - w.top)).toFixed(4),
         ringToWord:     +(ringBox.width / wordW).toFixed(4),
         wordAspect:     +((w.bottom - w.top) / wordW).toFixed(4),
         // gap between the two tiers, normalised
@@ -114,6 +120,7 @@ test('footer lockup is the same shape as the nav lockup', async ({ page }) => {
   // Tolerances are tight enough to catch a real design drift and loose enough to
   // survive subpixel text layout. The bug that shipped was 2.06 vs 1.00 here.
   expect(foot.cityToWord,  'MANILA width relative to ZEN DIVE').toBeCloseTo(nav.cityToWord, 1);
+  expect(foot.cityToWordSize, 'MANILA type size relative to ZEN DIVE').toBeCloseTo(nav.cityToWordSize, 1);
   expect(foot.ringToWord,  'ring diameter relative to ZEN DIVE').toBeCloseTo(nav.ringToWord, 1);
   expect(foot.wordAspect,  'ZEN DIVE height:width').toBeCloseTo(nav.wordAspect, 1);
   expect(foot.leftAlign,   'the two tiers share a left edge').toBeCloseTo(nav.leftAlign, 1);

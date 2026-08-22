@@ -29,10 +29,14 @@ export default defineConfig({
       animations: 'disabled',
       caret: 'hide',
       scale: 'css',
-      // Font rasterisation differs a hair between machines; allow a sliver of
-      // noise but nothing structural. A 2x-too-wide wordmark is ~40% of pixels.
-      maxDiffPixelRatio: 0.02,
-      threshold: 0.25,
+      // These clips are small (a 124x44 wordmark), so a percentage that sounds
+      // strict is not: at 0.02, halving MANILA's font-size changed under 2% of
+      // the pixels and the baseline passed. The capture is snapped to whole
+      // pixels and verified stable across page-height changes, so it can afford
+      // to be near-exact. Raise this only with evidence of real cross-machine
+      // noise, never to make a failing baseline pass.
+      maxDiffPixelRatio: 0.002,
+      threshold: 0.2,
     },
   },
 

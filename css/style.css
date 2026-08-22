@@ -342,7 +342,7 @@ html[data-lang="en"] .glow{font-style:italic}
 p,li,dd,dt,em,b,figcaption,summary,
 .hero__lead,.offer__hook,.offers__lead,
 .course__hook,.course__why,.course__meta,.course__ul li,.incl__list li,
-.sched em,.sched b,.stay__note,.trust__body p,.cta__lead{
+.sched b,.stay__note,.trust__body p,.cta__lead{
   word-break:auto-phrase;text-wrap:pretty}
 
 .glow{color:var(--cyan);position:relative;text-shadow:0 0 34px rgba(83,212,205,.5)}
@@ -452,7 +452,9 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
           mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
 .gallery__track{display:flex;width:max-content;gap:clamp(.6rem,1.2vw,1.2rem);
   animation:reefDrift 45s linear infinite;will-change:transform}
-.gallery__marquee:hover .gallery__track{animation-play-state:paused}
+/* No pause on hover. The drift is meant to read as current, not as a carousel
+   waiting to be inspected — and the cursor rests over this band on the way down
+   the page, so pausing made the reef stall for no reason the visitor asked for. */
 @keyframes reefDrift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 .gallery__item{position:relative;border-radius:2px;flex:none;margin:0;overflow:hidden;
   width:clamp(230px,25vw,390px);height:clamp(300px,42vw,520px)}
@@ -784,7 +786,10 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 }
 .sched__day:last-child .sched__label::before{border-color:var(--gold)}
 
-.sched__list{display:grid;gap:clamp(1.6rem,2.6vw,2.2rem)}
+/* Each row is now a single line — time, then the step. The old gap was sized to
+   separate three-line rows that carried a description underneath; at one line
+   it left the timeline stretched out with nothing in the gaps. */
+.sched__list{display:grid;gap:clamp(1.1rem,1.7vw,1.4rem)}
 .sched__list li{position:relative;display:grid;grid-template-columns:3.6rem 1fr;
   gap:1.2rem;align-items:baseline}
 .sched__list li::before{
@@ -815,8 +820,7 @@ html[data-lang="en"] .offers__lead,
 html[data-lang="en"] .gear__lead,
 html[data-lang="en"] .trust__body p{max-width:56ch}
 html[data-lang="en"] .hero__lead{max-width:52ch}
-.sched b{display:block;font-weight:500;font-size:1.02rem;color:var(--sand);letter-spacing:.04em;margin-bottom:.4rem}
-.sched em{font-style:normal;font-size:.85rem;line-height:1.85;color:var(--ink-dim)}
+.sched b{display:block;font-weight:500;font-size:1.02rem;color:var(--sand);letter-spacing:.04em}
 
 /* ================================================================
    GEAR — the argument is the asymmetry: a column of things we carry
@@ -863,6 +867,21 @@ html[data-lang="en"] .hero__lead{max-width:52ch}
   background:linear-gradient(180deg,transparent 42%,rgba(3,15,30,.26) 100%)}
 .trust__body{display:grid;gap:clamp(1.4rem,2.4vw,2rem)}
 .trust__body p{color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;max-width:30em}
+/* The credential, stated once and quietly. A hairline rule above it rather than
+   a card or a badge — the mark is already a strong shape, and boxing it would
+   turn a fact into an advertisement. Held to 132px so it reads as a footnote
+   beside the copy, never as a second logo competing with the ZEN DIVE lockup. */
+.padi{margin:0;padding-top:clamp(1.2rem,2.2vw,1.7rem);border-top:1px solid var(--line);
+  display:flex;align-items:center;gap:clamp(.9rem,2vw,1.4rem);flex-wrap:wrap}
+.padi__mark{display:block;width:clamp(96px,11vw,132px);height:auto;flex:none;
+  /* the PNG is flat white; dimming it keeps the mark from out-shouting the wordmark */
+  opacity:.72}
+.padi__note{font-family:var(--mincho);font-size:.8rem;line-height:1.9;color:var(--ink-faint);
+  max-width:24em;margin:0}
+@media (max-width:720px){
+  .padi{gap:.9rem}
+  .padi__note{font-size:.76rem}
+}
 @media (max-width:820px){
   .trust__cols{grid-template-columns:1fr;gap:2rem}
   .trust__body{gap:1.6rem}
@@ -1110,13 +1129,9 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
   .incl{gap:2.2rem;margin-top:2.2rem;padding-top:2rem}
 
   .sched{--gutter:2rem}
-  .sched__list{gap:1.8rem}
+  .sched__list{gap:1.1rem}
   .sched__list li{grid-template-columns:3rem 1fr;gap:.9rem}
   html[data-lang="en"] .sched__list li{grid-template-columns:1fr;gap:.3rem}
-  /* six 3-line captions turned this into the longest scroll on the page.
-     Headlines alone (マニラを出発 → プールで練習 → …) already read as a beat. */
-  .sched em{display:none}
-  .sched b{margin-bottom:0}
 
   /* name over line, never beside it — "ダイブマスター" is short enough to fit next
      to its line and the mixed rhythm read as a layout accident */

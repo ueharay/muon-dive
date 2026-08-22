@@ -21,22 +21,41 @@ cd "$(dirname "$0")/.." || exit 1
 BACKUP=$(mktemp -d)
 trap 'restore; rm -rf "$BACKUP"' EXIT
 
-snapshot() { cp css/style.css "$BACKUP/style.css"; cp js/chat.js "$BACKUP/chat.js"; cp index.html "$BACKUP/index.html"; }
+snapshot() { cp css/style.css "$BACKUP/style.css"; cp js/chat.js "$BACKUP/chat.js"
+             cp index.html "$BACKUP/index.html"; cp js/i18n.js "$BACKUP/i18n.js"; }
 restore()  { [ -f "$BACKUP/style.css" ] && cp "$BACKUP/style.css" css/style.css
              [ -f "$BACKUP/chat.js" ]  && cp "$BACKUP/chat.js"  js/chat.js
-             [ -f "$BACKUP/index.html" ] && cp "$BACKUP/index.html" index.html; return 0; }
+             [ -f "$BACKUP/index.html" ] && cp "$BACKUP/index.html" index.html
+             [ -f "$BACKUP/i18n.js" ] && cp "$BACKUP/i18n.js" js/i18n.js; return 0; }
 
 snapshot
 fail=0
 n=0
 
 # Each mutation is a real defect that has either shipped here or nearly did.
+# A mutation that no longer matches anything is the more dangerous failure of
+# the two: it silently stops seeding a defect, verify.sh passes, and the run
+# reads as "this defect is not covered" when the truth is "this test rotted".
+# Mutations quote concrete source text, so ordinary copy edits break them.
+# Checking that the tree actually changed keeps the two apart.
 mutate() {
   n=$((n+1))
   local name="$1" cmd="$2"
   printf '\n[%d] %s\n' "$n" "$name"
   restore
+  local sig_before sig_after
+  sig_before=$(cat css/style.css js/chat.js index.html js/i18n.js | shasum | cut -d' ' -f1)
   eval "$cmd"
+  sig_after=$(cat css/style.css js/chat.js index.html js/i18n.js | shasum | cut -d' ' -f1)
+
+  if [ "$sig_before" = "$sig_after" ]; then
+    printf '  STALE     the mutation changed nothing — it references text that no longer exists.\n'
+    printf '            Update the mutation to match the current source, then re-run.\n'
+    fail=1
+    restore
+    return
+  fi
+
   if ./scripts/verify.sh >/tmp/selftest-$n.log 2>&1; then
     printf '  SURVIVED  verify.sh still passed — this defect is NOT covered\n'
     fail=1
@@ -65,6 +84,21 @@ mutate "referenced image is missing" \
 
 mutate "JS syntax error" \
   "printf '\nfunction(' >> js/chat.js"
+
+mutate "English copy reverts to selling the Japanese language" \
+  "perl -0pi -e 's/\"en\":\"Everything is run to a Japanese standard\.\"/\"en\":\"You are taught in Japanese, and ask in Japanese.\"/' js/i18n.js"
+
+# Targets a dictionary entry that nothing currently renders. It survived until
+# the copy test was widened to scan i18n.js itself, which is the point: a banned
+# claim sitting dormant in the dictionary is a landmine for the next revision.
+mutate "unverified English-instruction claim, in a non-rendered i18n entry" \
+  "perl -0pi -e 's/\"en\":\"A PADI instructor, one-on-one\.\"/\"en\":\"An English-speaking instructor, one-on-one.\"/' js/i18n.js"
+
+mutate "untranslated Japanese leaks onto the English page (the 5:00頃 bug)" \
+  "perl -0pi -e 's/,\{\"jp\":\"5:00頃\",\"en\":\"5:00\"\}//' js/i18n.js"
+
+mutate "schedule counts revert to spelled-out English numbers" \
+  "perl -0pi -e 's/\"en\":\"3 dives\"/\"en\":\"Three dives\"/' js/i18n.js"
 
 restore
 echo
