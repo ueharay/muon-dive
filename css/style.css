@@ -249,17 +249,23 @@ html.has-cursor,html.has-cursor *{cursor:none!important}
 /* Column 1 is pinned to the ring's own width. With `auto` the tagline spanning
    both columns still fed into the track sizing, holding column 1 at ~99px and
    pushing the wordmark 71px off the mark. */
-.foot__brand{display:grid;grid-template-columns:2.5rem auto;column-gap:.75rem;row-gap:1.5rem;align-items:center;justify-content:start}
+/* Same mark as the nav, scaled up — not just enlarged. Every measure here is
+   nav's value × (1.02 / .78), the ratio of foot__word's size to nav__word's,
+   so the ring-to-text overshoot and the MANILA-to-ZEN-DIVE weight match the
+   nav exactly. Previously the ring (2.5rem) and city (.57rem) were sized on
+   their own and drifted off that ratio — the ring read oversized and MANILA
+   read undersized next to the header mark. */
+.foot__brand{display:grid;grid-template-columns:2.35rem auto;column-gap:.78rem;row-gap:1.5rem;align-items:center;justify-content:start}
 .foot__kanji{grid-column:1;grid-row:1;display:flex;align-items:center}
-.foot__maru{display:block;width:2.5rem;height:auto;color:var(--sand)}
-.foot__lockup{grid-column:2;grid-row:1;display:inline-flex;flex-direction:column;gap:.34em;margin:0}
+.foot__maru{display:block;width:2.35rem;height:auto;color:var(--sand)}
+.foot__lockup{grid-column:2;grid-row:1;display:inline-flex;flex-direction:column;gap:.39rem;margin:0}
 .foot__word{font-family:var(--label);font-weight:500;font-size:1.02rem;
   letter-spacing:.34em;margin-right:-.34em;color:var(--sand);line-height:1}
-/* Same lockup as the nav: the city sits at .56/1 of the wordmark and stays in
+/* Same lockup as the nav: the city sits at .718/1 of the wordmark and stays in
    the quiet ink colour. Cyan and a larger size made it read as a second brand
    rather than a location line. */
 .foot__city{display:flex;justify-content:space-between;font-family:var(--label);
-  font-weight:500;font-size:.57rem;color:var(--ink-faint);line-height:1}
+  font-weight:500;font-size:.73rem;color:var(--ink-faint);line-height:1}
 .foot__tag{grid-column:1 / -1;grid-row:2}
 .nav__links{display:flex;gap:clamp(1rem,2.4vw,2.4rem)}
 .nav__links a{

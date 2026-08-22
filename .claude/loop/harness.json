@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project": "zen-dive-manila",
-  "goal": "./scripts/verify.sh が PASS し、ブラウザで index.html を開いた時に console error 0、チャットウィジェットが /api/chat から応答を返すこと",
+  "goal": "./scripts/verify.sh が PASS し、ブラウザで index.html を開いた時に console error 0、チャットウィジェットが /api/chat から応答を返すこと。見た目/配線の修正では、これは『ローカルで正しい』の完了条件であって『ユーザーに見える』の完了条件ではない — 後者は ./scripts/check-live.sh が in sync を返すまで満たされない",
   "verify": {
     "commands": [
       { "name": "syntax", "run": "node --check api/chat.js && node --check js/chat.js && node --check js/main.js", "required": true },
@@ -23,6 +23,7 @@
   ],
   "protected": [
     "scripts/verify.sh",
+    "scripts/check-live.sh",
     ".claude/loop/harness.json",
     "api/system-prompt.txt",
     "**/*.test.*",
