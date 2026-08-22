@@ -833,9 +833,25 @@ html[data-lang="en"] .hero__lead{max-width:52ch}
    ================================================================ */
 .trust{padding:12vh 0}
 .trust .h-md{max-width:none;margin-bottom:clamp(3rem,6vw,5rem)}
-.trust__body{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(1.8rem,4vw,4rem);max-width:64em}
+/* the claim ("a Japanese PADI instructor") and its proof (the two of them in
+   kit, under the PADI flag) sit side by side — copy alone was asking to be
+   taken on faith */
+.trust__cols{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(2rem,5vw,4.5rem);
+  align-items:center;max-width:74em}
+.trust__shot{margin:0;overflow:hidden;border-radius:4px;position:relative}
+.trust__shot img{display:block;width:100%;height:clamp(260px,30vw,420px);object-fit:cover;
+  object-position:50% 22%;filter:saturate(.92) contrast(1.02)}
+/* the same cool wash the rest of the page sits under, so the photo belongs to
+   the water rather than interrupting it */
+.trust__shot::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(3,15,30,.10),rgba(3,15,30,.34));
+  mix-blend-mode:multiply}
+.trust__body{display:grid;gap:clamp(1.4rem,2.4vw,2rem)}
 .trust__body p{color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;max-width:30em}
-@media (max-width:820px){ .trust__body{grid-template-columns:1fr;gap:1.6rem} }
+@media (max-width:820px){
+  .trust__cols{grid-template-columns:1fr;gap:2rem}
+  .trust__body{gap:1.6rem}
+}
 
 /* ================================================================
    CTA (return to light)
