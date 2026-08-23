@@ -1,0 +1,16 @@
+# The whole repo ships to Vercel by default, which put the test suite on the
+# public site — /tests/fixtures/lockups.html answered 200 in production. None of
+# this belongs on a page visitors can reach, and the fixture in particular is a
+# half-rendered copy of the brand lockup that would be confusing to stumble on.
+#
+# Nothing here is needed to serve the site: index.html, css/, js/, assets/ and
+# api/ are the deployment.
+tests/
+scripts/
+playwright.config.mjs
+playwright-report/
+test-results/
+.claude/
+Learning.md
+CLAUDE.md
+docs/

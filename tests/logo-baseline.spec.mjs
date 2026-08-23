@@ -2,6 +2,14 @@ import { test, expect } from '@playwright/test';
 import { fontsSettled } from './helpers.mjs';
 
 /**
+ * These run against a local fixture, so they are meaningless when the suite is
+ * pointed at production with TARGET_URL — the deployed site has no reason to
+ * serve a test file, and asserting that it does was checking the wrong thing.
+ * What matters on production is the real page, which the other specs cover.
+ */
+test.skip(!!process.env.TARGET_URL, 'fixture-based; not applicable to a deployed URL');
+
+/**
  * PIXEL BASELINES for the two brand lockups.
  *
  * WHY THIS RUNS AGAINST A FIXTURE AND NOT THE LIVE PAGE
