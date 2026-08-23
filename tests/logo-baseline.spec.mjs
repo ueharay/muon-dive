@@ -1,29 +1,38 @@
 import { test, expect } from '@playwright/test';
+import { fontsSettled } from './helpers.mjs';
 
 /**
  * PIXEL BASELINES for the two brand lockups.
  *
- * The shape fingerprint in logo-lockup.spec.mjs models geometry only. It cannot
- * see stroke weight, colour, or the angle of the ring's gap. This file pins the
- * actual pixels so any of those changing is a failure that has to be looked at
- * and consciously accepted (`npx playwright test --update-snapshots`).
+ * WHY THIS RUNS AGAINST A FIXTURE AND NOT THE LIVE PAGE
+ * The lockups sit over a scroll-driven gradient and inside parallax layers, so
+ * their pixels shifted whenever anything above them changed height. This
+ * baseline broke four times in a row on edits nowhere near the logo — a
+ * schedule gap, a deleted table row, the price simulator landing — and each
+ * round I fixed the proximate cause: settle longer, snap the clip, snap the svg
+ * rather than its wrapper, wait for scroll to go quiet, force the backdrop.
+ * The next unrelated edit broke it again.
  *
- * Baselines live in tests/__screenshots__/ and are COMMITTED. Reviewing a change
- * to one of those PNGs in a diff is the point — it is the moment somebody sees
- * the logo change on purpose instead of finding out in production.
+ * A check that fails on unrelated changes is worse than no check: it teaches
+ * everyone to re-record until green, and the day it catches something real,
+ * nobody believes it. So the pixels are compared where they can be held still —
+ * tests/fixtures/lockups.html, which loads the same stylesheet and the same
+ * markup on a flat background. This is the split component visual-regression
+ * tools land on: geometry against the real thing, pixels in isolation.
  *
- * Only the lockups are captured, never the page. Full-page screenshots of this
- * site would diff on the ocean gradient, the parallax offsets, and the chat
- * widget, and would be muted within a week.
+ *   logo-lockup.spec.mjs  — proportions, alignment, letter spread, ON THE PAGE
+ *   this file             — stroke weight, colour, the ring's gap, IN ISOLATION
+ *   lockup-fixture.spec.mjs — proves the fixture still matches the page
  *
- * assertHasInk() below is not ceremony. The first run of this file recorded the
- * nav baseline while the nav was scrolled away under `.nav.is-hidden`, so the
- * "baseline" was a blank rectangle — which would then have passed forever
- * against any future nav, including a broken one. A snapshot of nothing is
- * worse than no snapshot, so every capture proves it caught something first.
+ * Baselines are COMMITTED. Reviewing a changed PNG in a diff is the point: it
+ * is the moment somebody sees the logo change on purpose rather than finding
+ * out in production.
  */
 
-/** Fails unless the element actually has visible text/graphics in the viewport. */
+/** Fails unless the element actually has visible graphics — a snapshot of an
+ *  empty box would match any future render forever. The first run of this file
+ *  recorded the nav while it was scrolled away under `.nav.is-hidden`, so the
+ *  "baseline" was a blank rectangle. */
 async function assertHasInk(page, selector) {
   const info = await page.evaluate((sel) => {
     const el = document.querySelector(sel);
@@ -31,13 +40,9 @@ async function assertHasInk(page, selector) {
     const b = el.getBoundingClientRect();
     const style = getComputedStyle(el);
     return {
-      found: true,
-      w: b.width,
-      h: b.height,
+      found: true, w: b.width, h: b.height,
       inViewport: b.top < innerHeight && b.bottom > 0 && b.left < innerWidth && b.right > 0,
       visible: style.visibility !== 'hidden' && style.display !== 'none' && +style.opacity > 0.01,
-      // an ancestor may be translated off-screen (the nav does this on scroll)
-      onScreenY: b.top,
     };
   }, selector);
 
@@ -48,88 +53,33 @@ async function assertHasInk(page, selector) {
   expect(info.inViewport, `${selector} must be inside the viewport when captured`).toBe(true);
 }
 
-async function load(page) {
-  await page.goto('/index.html', { waitUntil: 'load' });
-  await page.evaluate(() => document.fonts.ready);
-}
-
-/**
- * Element screenshots of these lockups are 1px-flaky: the ring's box is
- * 37.6px tall (2.35rem), so whether it rasterises to 38 or 39 rows depends on
- * the fraction in its y position — which moves whenever anything above it
- * changes height. toHaveScreenshot treats a 38x39 vs 38x38 as a hard failure,
- * and the tempting "fix" is to re-record the baseline, i.e. to update the test
- * until it passes. That is the one move this suite exists to prevent.
- *
- * So the capture is made deterministic instead: snap the origin to whole
- * pixels and clip a fixed-size box. Same pixels every run, at any page height.
- */
+/** Fixed-size clips so a fractional element size can never change the frame. */
 const CLIP = {
   'nav-lockup':    { w: 132, h: 36 },
   'footer-ring':   { w: 44,  h: 44 },
   'footer-lockup': { w: 124, h: 44 },
 };
 
-/**
- * Snapping only the clip origin is not enough: the element itself can sit at
- * y = 100.3 in one run and y = 100.7 in the next (anything above it changing
- * height is enough), and the glyph edges antialias differently at each. The
- * clip is identical, the pixels are not, and the diff looks like a design
- * regression when nothing about the design moved.
- *
- * So the element is nudged onto whole pixels first, then clipped at whole
- * pixels. Same rasterisation every run, at any page height. The nudge is
- * removed afterwards so it cannot leak into another assertion.
- */
-async function shootStable(page, selector, name) {
+async function shoot(page, selector, name) {
   await assertHasInk(page, selector);
-
-  const before = await page.locator(selector).boundingBox();
-  const dx = Math.round(before.x) - before.x;
-  const dy = Math.round(before.y) - before.y;
-  await page.evaluate(([sel, x, y]) => {
-    const el = document.querySelector(sel);
-    el.dataset.prevTransform = el.style.transform || '';
-    el.style.transform = `translate(${x}px, ${y}px)`;
-  }, [selector, dx, dy]);
-
   const box = await page.locator(selector).boundingBox();
   const { w, h } = CLIP[name];
-  try {
-    await expect(page).toHaveScreenshot(`${name}.png`, {
-      clip: { x: Math.round(box.x), y: Math.round(box.y), width: w, height: h },
-    });
-  } finally {
-    await page.evaluate((sel) => {
-      const el = document.querySelector(sel);
-      el.style.transform = el.dataset.prevTransform || '';
-      delete el.dataset.prevTransform;
-    }, selector);
-  }
+  await expect(page).toHaveScreenshot(`${name}.png`, {
+    clip: { x: Math.round(box.x), y: Math.round(box.y), width: w, height: h },
+  });
 }
 
+test.beforeEach(async ({ page }) => {
+  await page.goto('/tests/fixtures/lockups.html', { waitUntil: 'domcontentloaded' });
+  await fontsSettled(page);
+  await page.waitForTimeout(300);
+});
+
 test('nav lockup matches its baseline', async ({ page }) => {
-  await load(page);
-  // Stay at the top: the nav translates itself out of view once the page is
-  // scrolled, and capturing it there yields an empty image.
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.waitForTimeout(600);
-  await expect(page.locator('.nav')).not.toHaveClass(/is-hidden/);
-  await shootStable(page, '.nav__brand', 'nav-lockup');
+  await shoot(page, '#navLockup', 'nav-lockup');
 });
 
 test('footer lockup matches its baseline', async ({ page }) => {
-  await load(page);
-  await page.evaluate(() => document.querySelector('.foot__brand')?.scrollIntoView({ block: 'center' }));
-  await page.waitForTimeout(600);
-  // The ring and the wordmark, without .foot__tag — the tagline is translated,
-  // so including it would make this test fail on a language switch.
-  //
-  // Target the <svg> itself, not its .foot__kanji wrapper: the wrapper is a
-  // flex box with align-items:center and a fractional height, so centring put
-  // the ring on a half pixel even when the wrapper was snapped to a whole one.
-  // Snapping something that merely contains the subject does not snap the
-  // subject.
-  await shootStable(page, '.foot__maru', 'footer-ring');
-  await shootStable(page, '.foot__lockup', 'footer-lockup');
+  await shoot(page, '#footLockup .foot__maru', 'footer-ring');
+  await shoot(page, '#footLockup .foot__lockup', 'footer-lockup');
 });

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { fontsSettled, openSite } from './helpers.mjs';
 
 /**
  * THE ENGLISH COPY CONTRACT
@@ -33,11 +34,8 @@ const UNVERIFIED = [
 ];
 
 async function englishPage(page) {
-  await page.goto('/index.html', { waitUntil: 'load' });
-  await page.evaluate(() => localStorage.setItem('zen-lang', 'en'));
-  await page.reload({ waitUntil: 'load' });
-  await page.evaluate(() => document.fonts.ready);
-  await page.waitForTimeout(1200);
+  await openSite(page, { lang: 'en' });
+  await page.waitForTimeout(900);
 }
 
 /**
@@ -169,10 +167,7 @@ test('schedule times and counts read as numerals in English', async ({ page }) =
  * Nothing had ever exercised it.
  */
 test('the JP / EN button translates the page (the path a visitor uses)', async ({ page }) => {
-  await page.goto('/index.html', { waitUntil: 'load' });
-  await page.evaluate(() => localStorage.removeItem('zen-lang'));
-  await page.reload({ waitUntil: 'load' });
-  await page.evaluate(() => document.fonts.ready);
+  await openSite(page);
 
   // The preloader covers the nav; clicking through it silently does nothing.
   await page.waitForFunction(() => {

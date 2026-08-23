@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { fontsSettled } from './helpers.mjs';
 
 /**
  * THE BRAND LOCKUP CONTRACT
@@ -102,8 +103,8 @@ const NAV  = { ring: '.nav__maru',  word: '.nav__word',  city: '.nav__city',  le
 const FOOT = { ring: '.foot__maru', word: '.foot__word', city: '.foot__city', letters: '.foot__city i' };
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/index.html', { waitUntil: 'load' });
-  await page.evaluate(() => document.fonts.ready);
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+  await fontsSettled(page);
   // The footer only lays out correctly once it has been reached; scrolling also
   // settles any reveal-on-scroll transforms before anything is measured.
   await page.evaluate(() => document.querySelector('.foot__brand')?.scrollIntoView({ block: 'center' }));

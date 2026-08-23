@@ -4,11 +4,31 @@
   "goal": "./scripts/verify.sh が PASS し、ブラウザで index.html を開いた時に console error 0、チャットウィジェットが /api/chat から応答を返すこと。見た目/配線の修正では、これは『ローカルで正しい』の完了条件であって『ユーザーに見える』の完了条件ではない — 後者は ./scripts/check-live.sh が in sync を返すまで満たされない",
   "verify": {
     "commands": [
-      { "name": "syntax", "run": "node --check api/chat.js && node --check js/chat.js && node --check js/main.js", "required": true },
-      { "name": "smoke", "run": "bash scripts/verify.sh", "required": true },
-      { "name": "self-test", "run": "bash scripts/self-test.sh", "required": true },
-      { "name": "live-sync", "run": "bash scripts/check-live.sh", "required": false },
-      { "name": "visual-prod", "run": "TARGET_URL=https://zen-dive-manila.vercel.app npx playwright test", "required": false }
+      {
+        "name": "syntax",
+        "run": "node --check api/chat.js && node --check js/chat.js && node --check js/main.js && node --check js/price.js && node --check js/sim.js",
+        "required": true
+      },
+      {
+        "name": "smoke",
+        "run": "bash scripts/verify.sh",
+        "required": true
+      },
+      {
+        "name": "self-test",
+        "run": "bash scripts/self-test.sh",
+        "required": true
+      },
+      {
+        "name": "live-sync",
+        "run": "bash scripts/check-live.sh",
+        "required": false
+      },
+      {
+        "name": "visual-prod",
+        "run": "TARGET_URL=https://zen-dive-manila.vercel.app npx playwright test",
+        "required": false
+      }
     ]
   },
   "limits": {

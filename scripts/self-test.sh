@@ -22,11 +22,16 @@ BACKUP=$(mktemp -d)
 trap 'restore; rm -rf "$BACKUP"' EXIT
 
 snapshot() { cp css/style.css "$BACKUP/style.css"; cp js/chat.js "$BACKUP/chat.js"
-             cp index.html "$BACKUP/index.html"; cp js/i18n.js "$BACKUP/i18n.js"; }
+             cp index.html "$BACKUP/index.html"; cp js/i18n.js "$BACKUP/i18n.js"
+             cp js/price.js "$BACKUP/price.js"; cp js/sim.js "$BACKUP/sim.js"
+             cp tests/fixtures/lockups.html "$BACKUP/lockups.html"; }
 restore()  { [ -f "$BACKUP/style.css" ] && cp "$BACKUP/style.css" css/style.css
              [ -f "$BACKUP/chat.js" ]  && cp "$BACKUP/chat.js"  js/chat.js
              [ -f "$BACKUP/index.html" ] && cp "$BACKUP/index.html" index.html
-             [ -f "$BACKUP/i18n.js" ] && cp "$BACKUP/i18n.js" js/i18n.js; return 0; }
+             [ -f "$BACKUP/i18n.js" ] && cp "$BACKUP/i18n.js" js/i18n.js
+             [ -f "$BACKUP/price.js" ] && cp "$BACKUP/price.js" js/price.js
+             [ -f "$BACKUP/sim.js" ] && cp "$BACKUP/sim.js" js/sim.js
+             [ -f "$BACKUP/lockups.html" ] && cp "$BACKUP/lockups.html" tests/fixtures/lockups.html; return 0; }
 
 snapshot
 fail=0
@@ -44,9 +49,9 @@ mutate() {
   printf '\n[%d] %s\n' "$n" "$name"
   restore
   local sig_before sig_after
-  sig_before=$(cat css/style.css js/chat.js index.html js/i18n.js | shasum | cut -d' ' -f1)
+  sig_before=$(cat css/style.css js/chat.js index.html js/i18n.js js/price.js js/sim.js tests/fixtures/lockups.html | shasum | cut -d' ' -f1)
   eval "$cmd"
-  sig_after=$(cat css/style.css js/chat.js index.html js/i18n.js | shasum | cut -d' ' -f1)
+  sig_after=$(cat css/style.css js/chat.js index.html js/i18n.js js/price.js js/sim.js tests/fixtures/lockups.html | shasum | cut -d' ' -f1)
 
   if [ "$sig_before" = "$sig_after" ]; then
     printf '  STALE     the mutation changed nothing — it references text that no longer exists.\n'
@@ -99,6 +104,18 @@ mutate "untranslated Japanese leaks onto the English page (the 5:00頃 bug)" \
 
 mutate "schedule counts revert to spelled-out English numbers" \
   "perl -0pi -e 's/\"en\":\"3 dives\"/\"en\":\"Three dives\"/' js/i18n.js"
+
+mutate "the room charge becomes per-person instead of per-room" \
+  "perl -0pi -e 's/\\* PRICING\\.nights \\+ PRICING\\.earlyCheckIn\\) \\* sel\\.rooms;/* PRICING.nights + PRICING.earlyCheckIn) * sel.divers;/' js/price.js"
+
+mutate "an unneeded room stays in the price after switching to a bigger grade" \
+  "perl -0pi -e 's/state\\.rooms = roomsPinned \\? Math\\.max\\(state\\.rooms, needed\\) : needed;/if (state.rooms < needed) state.rooms = needed;/' js/sim.js"
+
+# The pixel baselines are taken in tests/fixtures/lockups.html because the live
+# page cannot hold the mark still. That only stays honest while the fixture
+# matches the page, so drifting them apart must be caught.
+mutate "the lockup fixture drifts away from the page" \
+  "perl -0pi -e 's/<span class=\"nav__word\">ZEN DIVE<\\/span>/<span class=\"nav__word\">ZEN DIVE X<\\/span>/' tests/fixtures/lockups.html"
 
 restore
 echo

@@ -341,7 +341,7 @@ html[data-lang="en"] .glow{font-style:italic}
    text-wrap:pretty additionally keeps a lone character off the last line. */
 p,li,dd,dt,em,b,figcaption,summary,
 .hero__lead,.offer__hook,.offers__lead,
-.course__hook,.course__why,.course__meta,.course__ul li,.incl__list li,
+.course__hook,.course__why,.course__meta,.course__ul li,
 .sched b,.stay__note,.trust__body p,.cta__lead{
   word-break:auto-phrase;text-wrap:pretty}
 
@@ -579,21 +579,233 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 /* the four conditions read as a spec table: ruled box, one cell each */
 @media (max-width:720px){
 }
+   /* the facts table already closes with a rule */
 
-.incl{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(1.6rem,3.4vw,3.4rem);
-  margin-top:clamp(2.2rem,3.6vw,3rem)}   /* the facts table already closes with a rule */
-.incl__ttl{font:500 .7rem/1 var(--label);letter-spacing:.2em;color:var(--cyan);margin-bottom:1rem}
-.incl__ttl--alt{color:var(--ink-faint)}
-.incl__list li{position:relative;padding:.5rem 0 .5rem 1.6rem;font-size:.86rem;line-height:1.85;color:var(--ink-dim)}
-.incl__list--yes li::before{content:"✓";position:absolute;left:0;top:.5rem;
-  font-size:.82rem;line-height:1.85;color:var(--cyan)}
-.incl__list--no li{color:var(--ink-faint)}
-.incl__list--no li::before{content:"✕";position:absolute;left:0;top:.5rem;
-  font-size:.76rem;line-height:1.9;color:var(--ink-faint)}
+/* --- the two facts, straight after the hero -----------------------------
+   A thin band, not a section: it should read as a footnote to the headline
+   rather than compete with it, and the visitor should pass through it on the
+   way down without being asked to stop. */
+.creds{padding:clamp(2.2rem,4vh,3.4rem) 0;position:relative;z-index:1}
+.creds__list{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(1.4rem,4vw,3.4rem)}
+.creds__item{display:grid;gap:.4rem;padding-top:1rem;border-top:1px solid var(--line)}
+.creds__key{font-family:var(--marc);font-weight:400;font-size:clamp(1.25rem,2.3vw,1.7rem);
+  line-height:1.15;color:var(--sand);letter-spacing:.02em}
+.creds__note{font-family:var(--mincho);font-size:.82rem;line-height:1.85;color:var(--ink-dim);
+  max-width:34ch}
+@media (max-width:720px){
+  .creds__list{grid-template-columns:1fr;gap:1.3rem}
+  .creds__note{font-size:.78rem}
+}
+
+/* --- price simulator ---------------------------------------------------
+   Two columns on desktop: the things you change on the left, the number they
+   add up to pinned on the right. Every booking site converged on this shape
+   for the same reason — a total that scrolls away while you are configuring
+   makes you guess, and guessing is what the simulator exists to stop. */
+/* Spacing scale. Measured before this existed: 0, 7, 11, 13, 21, 22, 30, 37px
+   between neighbouring things — every gap decided on its own, and a <legend>
+   left touching its control because the reset had stripped its margin and
+   nothing replaced it. Four steps, used everywhere, so the next addition
+   inherits the rhythm instead of inventing another number. */
+.sim{
+  --sim-label: .625rem;   /* a label to the control it names */
+  --sim-block: 1.75rem;   /* one control block to the next */
+  --sim-group: 2.5rem;    /* the controls to the next group of content */
+  --sim-row:   .75rem;    /* rows inside the summary card */
+
+  margin-top:clamp(2.4rem,4.5vw,3.2rem);display:grid;gap:clamp(1.8rem,3.5vw,3rem);
+  grid-template-columns:minmax(0,1fr) minmax(300px,25rem);align-items:start}
+
+.sim__choices{display:grid;gap:var(--sim-block);min-width:0}
+.sim__field{display:grid;gap:var(--sim-label)}
+/* fieldset children do not inherit the parent grid, so the legend needs the
+   gap applied directly — this is the one that was sitting at 0. */
+.sim__seggroup .sim__legend{display:block;margin-bottom:var(--sim-label)}
+.sim__legend{font:500 .66rem/1 var(--label);letter-spacing:.16em;color:var(--ink-faint)}
+/* Segmented control for the headcount.
+   Apple HIG names the bug this replaces: "it doesn't look good if content fills
+   some segments but not others" — the discount label was sizing each segment,
+   so "1" collapsed to a narrow egg beside three wide pills. Fixed by making the
+   grid decide the width (Carbon: match every tab to the widest) and by giving
+   every segment both lines, with the base option saying what it is instead of
+   sitting empty.
+
+   Selected state is a FILL, not a border. On a dark surface a border-only
+   indicator reduces "selected" to a hue shift on a 1px line — nearly no area,
+   and it has to clear WCAG 1.4.11's 3:1 on a stroke that anti-aliasing eats.
+   Fill + brighter label + heavier weight gives three redundant cues. */
+.sim__seggroup{border:0;padding:0;margin:0;min-width:0}
+.seg__row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg{position:relative;display:grid;align-content:center;justify-items:center;gap:.1rem;
+  min-height:52px;padding:.5rem .35rem;cursor:pointer;text-align:center;
+  transition:background .3s,color .3s}
+.seg + .seg{border-left:1px solid var(--line)}
+.seg input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+.seg__n{font:500 .95rem/1.1 var(--label);letter-spacing:.04em;color:var(--ink-dim);
+  font-variant-numeric:tabular-nums}
+.seg__sub{font-family:var(--label);font-size:.6rem;letter-spacing:.06em;color:var(--ink-faint);
+  line-height:1.2}
+.seg:hover{background:rgba(191,227,224,.05)}
+.seg:hover .seg__n{color:var(--sand)}
+.seg.is-on{background:rgba(229,182,103,.16)}
+.seg.is-on .seg__n{color:var(--gold);font-weight:600}
+.seg.is-on .seg__sub{color:var(--gold);opacity:.85}
+/* Keyboard focus has to be visible even though the input itself is hidden. */
+.seg:focus-within{outline:2px solid var(--cyan);outline-offset:-2px}
+
+.sim__chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.sim__chip{appearance:none;background:none;cursor:pointer;
+  border:1px solid var(--line);border-radius:100px;padding:.5rem 1.05rem;
+  font:500 .8rem/1.35 var(--label);letter-spacing:.05em;color:var(--ink-dim);
+  display:flex;flex-direction:column;align-items:center;gap:.12rem;
+  transition:border-color .35s,color .35s,background .35s}
+.sim__chip i{font-style:normal;font-size:.6rem;letter-spacing:.06em;color:var(--ink-faint)}
+.sim__chip:hover{border-color:var(--cyan);color:var(--sand)}
+.sim__chip.is-on{border-color:var(--gold);color:var(--gold);background:rgba(229,182,103,.09)}
+.sim__chip.is-on i{color:var(--gold);opacity:.8}
+.sim__chip.is-off{opacity:.3;cursor:not-allowed;border-style:dashed}
+.sim__chip.is-off:hover{border-color:var(--line);color:var(--ink-dim)}
+
+/* Rooms get the photograph. Choosing where you sleep from three words is a
+   worse decision than choosing it from three pictures, and the pictures were
+   already in the repo. */
+/* The room you chose, shown large. 16:9 rather than the near-square the image
+   defaults to: a configurator preview is wide so the choices stay above the
+   fold beneath it, and this one was pushing the swatches off screen. */
+/* 21:9 and capped. At 16:9 across the full column the room photo dominated a
+   section whose subject is a price — it is the evidence for a choice, not the
+   hero. The swatches below carry name, capacity and rate, so the preview only
+   has to confirm which room is selected. */
+.sim__preview{margin:0 0 var(--sim-label);position:relative;border-radius:4px;overflow:hidden;
+  border:1px solid var(--line);max-height:220px}
+.sim__previewart{display:block;width:100%;aspect-ratio:21/9;object-fit:cover}
+.sim__previewcap{position:absolute;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap;
+  align-items:baseline;gap:.2rem .7rem;padding:1.2rem .8rem .6rem;
+  background:linear-gradient(to top,rgba(3,20,30,.86),rgba(3,20,30,0))}
+.sim__previewname{font:500 .88rem/1.25 var(--label);letter-spacing:.04em;color:var(--sand)}
+.sim__previewmeta{font-family:var(--label);font-size:.68rem;letter-spacing:.08em;color:var(--ink-faint)}
+.sim__previewrate{margin-left:auto;font-family:var(--label);font-size:.78rem;
+  letter-spacing:.03em;color:var(--sand)}
+
+/* Swatches: small, because the preview is doing the showing. */
+.sim__rooms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+.sim__room{appearance:none;background:none;cursor:pointer;text-align:left;padding:0;
+  border:1px solid var(--line);border-radius:4px;overflow:hidden;
+  display:grid;gap:.1rem;transition:border-color .35s,background .35s}
+.sim__room:hover{border-color:var(--cyan)}
+.sim__room.is-on{border-color:var(--gold);background:rgba(229,182,103,.07)}
+.sim__roomart{width:100%;height:clamp(52px,6vw,68px);object-fit:cover;display:block;
+  filter:saturate(.85) brightness(.9);transition:filter .5s}
+.sim__room.is-on .sim__roomart{filter:none}
+.sim__roomname{font:500 .74rem/1.3 var(--label);letter-spacing:.03em;color:var(--sand);
+  padding:.45rem .6rem 0}
+.sim__roommeta{font-family:var(--label);font-size:.6rem;letter-spacing:.06em;
+  color:var(--ink-faint);padding:0 .6rem}
+.sim__roomdelta{font-family:var(--label);font-size:.66rem;letter-spacing:.03em;
+  color:var(--ink-dim);padding:.1rem .6rem .55rem}
+.sim__room.is-on .sim__roomdelta{color:var(--sand)}
+
+.sim__warn{font-family:var(--label);font-size:.74rem;letter-spacing:.04em;color:var(--gold)}
+
+/* The summary sticks while the choices scroll past it. */
+.sim__summary{position:sticky;top:clamp(5rem,9vh,7rem)}
+.sim__card{border:1px solid var(--line);border-radius:4px;
+  padding:clamp(1.2rem,2.2vw,1.6rem);background:rgba(4,26,38,.42);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sim__label{display:block;font:500 .66rem/1 var(--label);letter-spacing:.14em;
+  color:var(--ink-faint);margin-bottom:var(--sim-row)}
+.sim__total{display:block;font-family:var(--marc);font-weight:500;
+  font-size:clamp(1.35rem,1.9vw,1.6rem);line-height:1.1;color:var(--gold);letter-spacing:.01em}
+/* A brief lift on change, so a click reads as cause and effect. */
+@keyframes simBump{0%{transform:translateY(.18em);opacity:.35}100%{transform:none;opacity:1}}
+.sim__total.is-changed{animation:simBump .42s var(--e-drift)}
+@media (prefers-reduced-motion:reduce){.sim__total.is-changed{animation:none}}
+.sim__per{display:block;margin-top:var(--sim-row);font-family:var(--label);font-size:.76rem;
+  letter-spacing:.05em;color:var(--ink-dim)}
+
+/* The saving, stated in money next to the total — the discount on the chips
+   says the rate is lower, this says what that came to. */
+/* [hidden] loses to an explicit display value, so a solo booking rendered an
+   empty coloured pill. */
+.sim__saved[hidden]{display:none}
+.sim__saved{display:inline-block;margin-top:.5rem;padding:.2rem .55rem;border-radius:100px;
+  background:rgba(83,212,205,.14);color:var(--cyan);
+  font-family:var(--label);font-size:.68rem;letter-spacing:.05em}
+.sim__lines{list-style:none;margin-top:var(--sim-block);padding-top:var(--sim-row);border-top:1px solid var(--line)}
+.sim__lines li{display:grid;grid-template-columns:1fr auto;gap:.1rem .8rem;align-items:baseline;
+  padding:.5rem 0;font-family:var(--label);font-size:.74rem;letter-spacing:.02em;color:var(--ink-dim)}
+.sim__lines i{grid-column:1;font-style:normal;font-size:.64rem;color:var(--ink-faint)}
+.sim__lines b{grid-row:1;grid-column:2;font-weight:500;color:var(--sand);white-space:nowrap}
+
+.sim__cta{width:100%;justify-content:center;margin-top:var(--sim-block)}
+.sim__short,.sim__ctashort{display:none}
+
+/* What the visitor is buying, listed without a price against each line. The
+   completeness is the argument; the individual amounts are not the visitor's
+   problem and putting them here would invite line-by-line haggling. */
+/* Both lists side by side. An all-in claim needs its edge drawn — without the
+   exclusions, "everything is included" gets disproved at the bar and takes the
+   rest of the page's credibility with it. */
+.sim__whats{margin-top:var(--sim-group);display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);
+  gap:1rem clamp(1.2rem,3vw,2.4rem);align-items:start}
+@media (max-width:560px){.sim__whats{grid-template-columns:1fr;gap:1.1rem}}
+.sim__incl,.sim__excl{list-style:none;display:grid;gap:.34rem}
+.sim__incl li,.sim__excl li{position:relative;padding-left:1.25rem;font-family:var(--label);
+  font-size:.74rem;line-height:1.6;letter-spacing:.02em;color:var(--ink-dim)}
+.sim__incl li::before{content:"✓";position:absolute;left:0;top:0;color:var(--cyan);
+  font-size:.72rem;opacity:.8}
+.sim__excl li{color:var(--ink-faint)}
+.sim__excl li::before{content:"−";position:absolute;left:0;top:0;color:var(--ink-faint);
+  font-size:.72rem;opacity:.7}
+.sim__incltitle{padding-left:0!important;margin-bottom:.15rem;
+  font-size:.66rem!important;letter-spacing:.16em!important;color:var(--ink-faint)!important}
+.sim__incltitle::before{content:""!important}
+.sim__note{margin-top:var(--sim-row);font-family:var(--mincho);font-size:.74rem;line-height:1.85;
+  color:var(--ink-faint)}
+
+@media (max-width:900px){
+  .sim{grid-template-columns:1fr}
+  /* Pinned to the bottom instead of the side, and stripped to a bar: the full
+     card covered most of a phone screen, hiding the very rooms it was asking
+     the visitor to choose between. Price and button stay; the breakdown moves
+     below the fold where it can be read once, not fought with. */
+  /* A booking bar, not a shrunken card: one line of price, one short line of
+     context, one short button. The full-length label wrapped onto two lines
+     and the per-person line onto two more, which turned a summary into a
+     paragraph sitting on top of the choices. */
+  .sim__summary{position:sticky;top:auto;bottom:0;z-index:2;margin:0 calc(var(--pad) * -1)}
+  /* Grid, not flex: the price and its caption belong stacked on the left, and
+     as flex siblings they lined up beside each other instead. */
+  .sim__card{background:rgba(4,26,38,.94);border-radius:0;border-left:0;border-right:0;border-bottom:0;
+    padding:.7rem var(--pad) calc(.7rem + env(safe-area-inset-bottom));
+    display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 1rem}
+  .sim__total{grid-column:1;grid-row:1}
+  .sim__short{grid-column:1;grid-row:2}
+  .sim__cta{grid-column:2;grid-row:1/3}
+  .sim__label,.sim__per,.sim__saved,.sim__lines,.sim__note,.sim__ctalong{display:none}
+  .sim__total{font-size:1.5rem;line-height:1.05}
+  .sim__short{display:block;margin-top:.1rem;font-family:var(--label);font-size:.6rem;
+    letter-spacing:.1em;color:var(--ink-faint);white-space:nowrap}
+  .sim__ctashort{display:inline}
+  /* The chat bubble is fixed to the same corner the booking button occupies, so
+     while the bar is up it is a tap conflict rather than an option. It comes
+     back the moment the bar goes away. */
+  html.sim-bar-up .chatw__toggle{opacity:0;pointer-events:none;transform:translateY(1rem)}
+  .sim__cta{width:auto;margin:0;flex:none;white-space:nowrap;padding:.72rem 1.3rem;font-size:.82rem}
+}
+@media (max-width:560px){
+  .sim__rooms{grid-template-columns:1fr;gap:.5rem}
+  .sim__room{grid-template-columns:88px 1fr;grid-template-rows:auto auto auto;align-items:center}
+  .sim__roomart{grid-row:1/4;height:100%;min-height:70px}
+  .sim__roomname{padding:.55rem .7rem 0 .1rem}
+  .sim__roommeta,.sim__roomdelta{padding-left:.1rem}
+}
+}
 /* the single-occupancy line is a price, so it lives with the price */
 .course__price-alt{color:var(--gold);opacity:.85;margin-top:.25rem}
 @media (max-width:820px){
-  .incl{grid-template-columns:1fr;gap:1.8rem}
 }
 
 
@@ -640,7 +852,9 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 /* Course facts as a spec sheet: label and value, always the same four rows, so
    two courses can be compared by running your eye down the same lines. Prose
    lists made the reader parse sentences to find the one number they wanted. */
-.spec{display:grid;grid-template-columns:repeat(2,1fr);gap:0 clamp(1.6rem,4vw,4rem);
+/* One row per card. Two fixed columns left three specs as 2 + 1, with a hole
+   beside the last one; auto-flow fits however many there are onto one line. */
+.spec{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0 clamp(1.6rem,4vw,4rem);
   margin-bottom:clamp(1.8rem,3vw,2.4rem)}
 .spec__row{display:grid;grid-template-columns:4.6rem 1fr;gap:1rem;align-items:baseline;
   padding:.9rem 0;border-top:1px solid rgba(191,227,224,.12)}
@@ -861,10 +1075,10 @@ html[data-lang="en"] .hero__lead{max-width:52ch}
 /* the claim ("a Japanese PADI instructor") and its proof (the two of them in
    kit, under the PADI flag) sit side by side — copy alone was asking to be
    taken on faith */
-.trust__cols{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(2rem,5vw,4.5rem);
+.trust__cols{display:grid;grid-template-columns:.82fr 1fr;gap:clamp(2rem,5vw,4.5rem);
   align-items:center;max-width:74em}
 .trust__shot{margin:0;overflow:hidden;border-radius:4px;position:relative}
-.trust__shot img{display:block;width:100%;height:clamp(260px,30vw,420px);object-fit:cover;
+.trust__shot img{display:block;width:100%;height:clamp(220px,24vw,330px);object-fit:cover;
   object-position:50% 30%;filter:saturate(1.02) contrast(1.01) brightness(1.03)}
 /* The cool wash ties the photo to the water, but multiply over the whole frame
    was dulling the faces. Keep it to the lower half, where there are no faces. */
@@ -881,8 +1095,10 @@ html[data-lang="en"] .hero__lead{max-width:52ch}
 .padi__mark{display:block;width:clamp(96px,11vw,132px);height:auto;flex:none;
   /* the PNG is flat white; dimming it keeps the mark from out-shouting the wordmark */
   opacity:.72}
+/* 24em cut the second sentence mid-way and made a two-sentence note three
+   lines long. Wide enough that each .sent gets its own line. */
 .padi__note{font-family:var(--mincho);font-size:.8rem;line-height:1.9;color:var(--ink-faint);
-  max-width:24em;margin:0}
+  max-width:32em;margin:0}
 @media (max-width:720px){
   .padi{gap:.9rem}
   .padi__note{font-size:.76rem}
@@ -1131,8 +1347,8 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
   .course__hook{margin-bottom:2rem}
   .course__cols{gap:2.4rem}
   .course__ul li{padding-top:.66rem;padding-bottom:.66rem}
-  .incl{gap:2.2rem;margin-top:2.2rem;padding-top:2rem}
 
+  .spec{grid-auto-flow:row;grid-auto-columns:auto}
   .sched{--gutter:2rem}
   .sched__list{gap:1.1rem}
   .sched__list li{grid-template-columns:3rem 1fr;gap:.9rem}

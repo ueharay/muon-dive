@@ -124,6 +124,26 @@
     </div>
   </section>
 
+  <!-- The two facts that decide it for someone working in Manila. They were
+       buried in the schedule section, five screens down, where a visitor who
+       had already concluded "I can't take the time off" would never reach them.
+       Not prose and not inside the hero — the hero's job is to hit, this one's
+       job is to remove the objection immediately after. -->
+  <section class="creds" aria-label="この2日間について">
+    <div class="wrap">
+      <ul class="creds__list">
+        <li class="creds__item" data-reveal="fade">
+          <b class="creds__key">有給 0日</b>
+          <span class="creds__note">土曜の朝に出て、日曜の夜に帰ります。</span>
+        </li>
+        <li class="creds__item" data-reveal="fade">
+          <b class="creds__key">学科はスマホで</b>
+          <span class="creds__note">マニラにいるうちに終わります。現地ですることは、潜ることだけ。</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
   <!-- ============ WHAT YOU BRING — the whole pitch is the asymmetry ============ -->
   <section class="gear section" id="gear" data-depth="0.22">
     <div class="wrap">
@@ -284,7 +304,6 @@
               <b class="course__jp">オープンウォーター・ダイバー</b>
               <em class="course__why">はじめて潜る人が取る、世界共通のライセンス</em>
             </span>
-            <span class="course__price">₱30,000<i>お一人あたり・講習料</i></span>
           </div>
           <div class="course__panel course__panel--static">
             <div class="course__inner">
@@ -295,29 +314,75 @@
                   <div class="spec__row"><dt>年齢</dt><dd>10歳以上</dd></div>
               </dl>
 
-              <div class="incl">
-                <div class="incl__col">
-                  <h4 class="incl__ttl">料金にふくまれるもの</h4>
-                  <ul class="incl__list incl__list--yes">
-                    <li>講習料・教材・認定申請料</li>
-                    <li>マニラ⇄アニラオの往復送迎</li>
-                    <li>朝・昼・晩の食事</li>
-                  </ul>
+              <!-- The booking bills in two units — the course per person, the room
+                   per room — so no single figure is right for everybody. Letting
+                   the visitor set the combination is what makes one honest
+                   all-in number possible. Labels are rendered by js/sim.js. -->
+              <!-- The booking bills in two units — the course per person, the room
+                   per room — so no single figure is right for everybody. Letting
+                   the visitor set the combination is what makes one honest
+                   all-in number possible.
+
+                   Two columns on desktop, following the pattern every booking
+                   site converged on: choices on the left, the price and the CTA
+                   pinned on the right so the number never scrolls out of sight
+                   while you are changing what it depends on. Labels and prices
+                   are written by js/sim.js. -->
+              <div class="sim" id="sim">
+                <div class="sim__choices">
+                  <div class="sim__field">
+                    <fieldset class="sim__seggroup">
+                      <legend class="sim__legend">講習を受ける人数</legend>
+                      <div class="seg__row" id="simDivers"></div>
+                    </fieldset>
+                  </div>
+                  <div class="sim__field">
+                    <span class="sim__legend">部屋</span>
+                    <!-- One large view of the room you chose, with small
+                         swatches to change it — the configurator move. Three
+                         equal cards showed every option and confirmed none;
+                         this shows the decision. -->
+                    <figure class="sim__preview">
+                      <img class="sim__previewart" alt="" decoding="async" />
+                      <figcaption class="sim__previewcap">
+                        <b class="sim__previewname"></b>
+                        <span class="sim__previewmeta"></span>
+                        <span class="sim__previewrate"></span>
+                      </figcaption>
+                    </figure>
+                    <div class="sim__rooms" id="simRoom"></div>
+                  </div>
+                  <div class="sim__field">
+                    <fieldset class="sim__seggroup">
+                      <legend class="sim__legend">借りる部屋の数</legend>
+                      <div class="seg__row" id="simRooms"></div>
+                    </fieldset>
+                  </div>
+                  <p class="sim__warn" hidden></p>
+                  <!-- What is inside the number, with no prices against it.
+                       The completeness is what makes an all-in figure credible;
+                       splitting the money out would put the tuition on its own
+                       for haggling and publish the cost structure. -->
+                  <div class="sim__whats">
+                    <ul class="sim__incl"></ul>
+                    <ul class="sim__excl"></ul>
+                  </div>
                 </div>
-                <div class="incl__col">
-                  <!-- every figure is for the whole 1泊2日, so they can be added up -->
-                  <h4 class="incl__ttl incl__ttl--alt">ふくまれないもの（1泊2日ぶん）</h4>
-                  <ul class="incl__list incl__list--no">
-                    <li>器材一式のレンタルとタンク（₱5,000前後）</li>
-                    <li>ボート・燃料・ダイブパス（海に入るための地元の料金／₱2,000〜3,000）</li>
-                    <li>宿泊（1室 ₱8,000前後／予約はこちらで取ります）</li>
-                  </ul>
-                </div>
+
+                <aside class="sim__summary">
+                  <div class="sim__card">
+                    <span class="sim__label">合計（1泊2日・すべて込み）</span>
+                    <strong class="sim__total">₱0</strong>
+                    <span class="sim__per"></span>
+                    <span class="sim__saved" hidden></span>
+                    <span class="sim__short"></span>
+                    <ul class="sim__lines"></ul>
+                    <a href="#cta" class="btn btn--gold sim__cta"><span class="sim__ctalong">このコースを予約する</span><span class="sim__ctashort">予約する</span></a>
+                    <p class="sim__note"></p>
+                  </div>
+                </aside>
               </div>
 
-              <div class="course__cta">
-                <a href="#cta" class="btn btn--gold" data-magnetic data-hold>このコースを予約する</a>
-              </div>
             </div>
           </div>
         </article>
@@ -349,24 +414,13 @@
                   <div class="spec__row"><dt>前提</dt><dd>オープンウォーター</dd></div>
               </dl>
 
-              <div class="incl">
-                <div class="incl__col">
-                  <h4 class="incl__ttl">料金にふくまれるもの</h4>
-                  <ul class="incl__list incl__list--yes">
-                    <li>講習料・教材・認定申請料</li>
-                    <li>マニラ⇄アニラオの往復送迎</li>
-                    <li>朝・昼・晩の食事</li>
-                  </ul>
-                </div>
-                <div class="incl__col">
-                  <h4 class="incl__ttl incl__ttl--alt">ふくまれないもの（1泊2日ぶん）</h4>
-                  <ul class="incl__list incl__list--no">
-                    <li>器材一式のレンタルとタンク（₱5,000前後）</li>
-                    <li>ボート・燃料・ダイブパス（海に入るための地元の料金／₱2,000〜3,000）</li>
-                    <li>宿泊（1室 ₱8,000前後／予約はこちらで取ります）</li>
-                  </ul>
-                </div>
-              </div>
+              <!-- Deliberately no included/not-included split here. The Open
+                   Water card above now quotes one all-in figure, and a second
+                   card listing gear and lodging as extras read as a different
+                   pricing model on the same page. Advanced is quoted the same
+                   way; the figure is the tuition and the rest follows the
+                   simulator's structure. -->
+              <p class="course__note">宿泊・器材・ボート・送迎・食事は、オープンウォーターと同じくすべて込みでご案内します。人数と部屋は上のシミュレーターと同じ考え方です。</p>
             </div>
           </div>
         </details>
@@ -389,19 +443,7 @@
       <p class="kicker">WHERE YOU STAY</p>
       <h3 class="stay__ttl lines"><span class="nw">潜ったあとは、</span><span class="nw"><span class="glow">海のそば</span>で。</span></h3>
       <div class="stay__shots">
-        <figure>
-          <img loading="lazy" decoding="async" src="assets/img/stay-standard.jpg" alt="間接照明のきいた、ベッドが一台の落ち着いた客室" />
-          <figcaption>スタンダード</figcaption>
-        </figure>
-        <figure>
-          <img loading="lazy" decoding="async" src="assets/img/stay-room.jpg" alt="海に面したバルコニー付きの、ベッドが二台並んだ客室" />
-          <figcaption>デラックス（海側）</figcaption>
-        </figure>
-        <figure>
-          <img loading="lazy" decoding="async" src="assets/img/stay-suite.jpg" alt="大きな窓の向こうに海とヤシの木が見える、広めの客室" />
-          <figcaption>スイート（海側）</figcaption>
-        </figure>
-        <figure>
+                                <figure>
           <img loading="lazy" decoding="async" src="assets/img/stay-poolside.jpg" alt="海に面したプールサイドと、木陰のデッキチェア" />
           <figcaption>海の見えるプールサイド</figcaption>
         </figure>
@@ -594,6 +636,7 @@
 <script src="js/i18n.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/main.js"></script>
+<script type="module" src="js/sim.js"></script>
 <script src="js/courses.js"></script>
 <script src="js/gallery.js"></script>
 <script src="js/chat.js"></script>
