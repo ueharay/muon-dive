@@ -711,7 +711,19 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .sim__label{display:block;font:500 .66rem/1 var(--label);letter-spacing:.14em;
   color:var(--ink-faint);margin-bottom:var(--sim-row)}
-.sim__total{display:block;font-family:var(--marc);font-weight:500;
+/* The one figure on this card that has to be read, not admired.
+   It was set in Marcellus at weight 500. Marcellus ships 400 and nothing else,
+   so the browser was manufacturing the 500 — the same outline mechanically
+   fattened, measured at 257.6px against the real 400's 250.3px, identical to
+   what it produces for 700. Fake weight thickens strokes evenly and blunts the
+   joins, which is what made the digits look swollen.
+   Marcellus is also an inscriptional Roman face: its numerals are wide and
+   circular, drawn to be carved rather than scanned. And it was the only price
+   on the page not set in --label — the room rates, the breakdown and the
+   per-person line all use it already. tabular-nums so the total does not
+   reflow its own digits every time a choice changes it. */
+.sim__total{display:block;font-family:var(--label);font-weight:500;
+  font-variant-numeric:tabular-nums;
   font-size:clamp(1.35rem,1.9vw,1.6rem);line-height:1.1;color:var(--gold);letter-spacing:.01em}
 /* A brief lift on change, so a click reads as cause and effect. */
 @keyframes simBump{0%{transform:translateY(.18em);opacity:.35}100%{transform:none;opacity:1}}

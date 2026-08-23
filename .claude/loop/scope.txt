@@ -1,7 +1,3 @@
-js/sim.js
 css/style.css
-tests/sim-ui.spec.mjs
+tests/type.spec.mjs
 index.html
-js/i18n.js
-scripts/scope-check.sh
-.claude/loop/scope.txt
