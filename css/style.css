@@ -619,7 +619,11 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
    and it has to clear WCAG 1.4.11's 3:1 on a stroke that anti-aliasing eats.
    Fill + brighter label + heavier weight gives three redundant cues. */
 .sim__seggroup{border:0;padding:0;margin:0;min-width:0}
-.seg__row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+/* Columns follow the number of options, not a hardcoded 4. The people row has
+   four and the rooms row three; a fixed repeat(4) left the rooms row with an
+   empty fourth column, so "3" read as twice the width of "1". Carbon's
+   equal-width rule only holds if the track count matches the child count. */
+.seg__row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);
   border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .seg{position:relative;display:grid;align-content:center;justify-items:center;gap:.1rem;
   min-height:52px;padding:.5rem .35rem;cursor:pointer;text-align:center;
@@ -635,6 +639,14 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .seg.is-on{background:rgba(229,182,103,.16)}
 .seg.is-on .seg__n{color:var(--gold);font-weight:600}
 .seg.is-on .seg__sub{color:var(--gold);opacity:.85}
+/* A count the party physically cannot use. Booking and Expedia both grey out at
+   the bound rather than removing the option, so the row keeps its shape and the
+   limit is legible instead of mysterious. Until this existed the disabled "1室"
+   was pixel-identical to the selectable "3室" — the control claimed a choice it
+   would not honour. */
+.seg.is-off{opacity:.32;cursor:not-allowed}
+.seg.is-off:hover{background:none}
+.seg.is-off:hover .seg__n{color:var(--ink-dim)}
 /* Keyboard focus has to be visible even though the input itself is hidden. */
 .seg:focus-within{outline:2px solid var(--cyan);outline-offset:-2px}
 
@@ -723,7 +735,12 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .sim__lines b{grid-row:1;grid-column:2;font-weight:500;color:var(--sand);white-space:nowrap}
 
 .sim__cta{width:100%;justify-content:center;margin-top:var(--sim-block)}
-.sim__short,.sim__ctashort{display:none}
+.sim__ctashort{display:none}
+/* What is currently configured, in one line — the shape Booking.com puts in its
+   occupancy trigger ("大人2名 · 子供0名 · 1部屋"). This is where the party-to-room
+   spread is stated, now that the room segments no longer carry a second line. */
+.sim__short{display:block;margin-top:.35rem;font-family:var(--label);font-size:.68rem;
+  letter-spacing:.08em;color:var(--ink-faint)}
 
 /* What the visitor is buying, listed without a price against each line. The
    completeness is the argument; the individual amounts are not the visitor's

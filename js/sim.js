@@ -40,7 +40,6 @@ const L = {
     fromAllIn: '1名・スタンダード1室から・すべて込み',
     off: (pct) => `${pct}%OFF`,
     baseRate: '基本料金',
-    perRoom: (parts) => parts.join('+'),
     saved: (n) => `${money(n)} おトク`,
     inclTitle: '潜るのに必要なものは、すべて込み',
     exclTitle: '含まれないもの',
@@ -79,7 +78,6 @@ const L = {
     fromAllIn: 'from — one diver, Standard room, all in',
     off: (pct) => `${pct}% off`,
     baseRate: 'Base rate',
-    perRoom: (parts) => parts.join('+'),
     saved: (n) => `${money(n)} saved`,
     inclTitle: 'Everything the diving needs — included',
     exclTitle: 'Not included',
@@ -215,36 +213,29 @@ function render(root) {
     return b;
   }));
 
-  // Counts that cannot hold the party are disabled rather than left clickable
-  // and then scolded — the same thing a hotel site does with a sold-out room.
-  // Only counts that actually work are offered. Showing "2" and "3" greyed out
-  // with a dash under them told the visitor nothing — a dash is not a reason —
-  // and for a solo diver it meant two of the three options were dead. If only
-  // one count is possible the choice does not exist, so the control does not
-  // appear; the summary already states how many rooms are being booked.
+  // Every count is always offered. An earlier version hid the ones that would
+  // leave a room empty — but wanting a spare room is the customer's call, not
+  // ours, and a solo diver who wants two rooms is a bigger booking, not a
+  // mistake to be prevented. The only thing that can disable a count is
+  // physics: four people do not fit in one room that sleeps two. Disabled, not
+  // hidden — Booking and Expedia both grey out at the bound.
+  //
+  // No second line. It described how the party would spread, and called an
+  // unused room "1室あまり" — a phrase that appears in no booking product
+  // anywhere, because the state it names is one they all prevent. Carbon is
+  // explicit that the slot under a number input is for constraints, not for
+  // derived values. The spread now reads once, in the summary, in Booking's
+  // own shape: "1名・スタンダード2室".
   const maxOcc = PRICING.rooms.find(r => r.id === state.roomId).maxOccupancy;
-  const options = [1, 2, 3].map((n) => {
-    const base = Math.floor(state.divers / n), rem = state.divers % n;
-    const parts = Array.from({ length: n }, (_, i) => base + (i < rem ? 1 : 0));
-    return { n, parts, ok: state.divers <= maxOcc * n && parts.every((x) => x > 0) };
-  }).filter((o) => o.ok);
-
-  if (state.rooms > options[options.length - 1].n) state.rooms = options[options.length - 1].n;
-  if (!options.some((o) => o.n === state.rooms)) state.rooms = options[0].n;
-
-  const roomsGroup = root.querySelector('.sim__roomsgroup');
-  roomsGroup.hidden = options.length < 2;
-  fill('#simRooms', options.map(({ n, parts }) => {
+  fill('#simRooms', [1, 2, 3].map((n) => {
+    const tooSmall = state.divers > maxOcc * n;
     const on = state.rooms === n;
     const label = document.createElement('label');
-    label.className = 'seg' + (on ? ' is-on' : '');
+    label.className = 'seg' + (on ? ' is-on' : '') + (tooSmall ? ' is-off' : '');
     label.innerHTML =
-      `<input type="radio" name="simRooms" value="${n}"${on ? ' checked' : ''}>` +
-      `<span class="seg__n">${t.roomCount(n)}</span>` +
-      // Only worth saying once there is something to divide. "1" under "1" is
-      // the same fact twice.
-      (n > 1 ? `<span class="seg__sub">${t.perRoom(parts)}</span>` : '');
-    label.querySelector('input').addEventListener('change', () => {
+      `<input type="radio" name="simRooms" value="${n}"${on ? ' checked' : ''}${tooSmall ? ' disabled' : ''}>` +
+      `<span class="seg__n">${t.roomCount(n)}</span>`;
+    if (!tooSmall) label.querySelector('input').addEventListener('change', () => {
       state.rooms = n; roomsPinned = true; render(root);
     });
     return label;

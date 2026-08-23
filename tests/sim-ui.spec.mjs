@@ -136,28 +136,41 @@ test('adding a diver raises the total; the per-head price falls after the first'
   expect(twoPer, 'sharing the boat must show up as a lower per-head price').toBeLessThan(onePer);
 });
 
-test('impossible room counts are not offered at all', async ({ page }) => {
+test('a count the party cannot use is disabled, never removed', async ({ page }) => {
   await openSim(page);
   await page.locator('#simDivers .seg').nth(2).click();   // 3 divers, Standard sleeps 2
   await page.waitForTimeout(300);
 
-  // Greyed-out options with a dash under them told the visitor nothing. Three
-  // people cannot use one Standard room, so that count is simply absent.
+  // An earlier version deleted the counts it judged unusable, and the row
+  // silently changed length under the visitor. Booking.com and Expedia both
+  // grey out at the bound instead; the row keeps its shape and the limit is
+  // legible. Every count is always present.
   const counts = await page.locator('#simRooms .seg__n').allInnerTexts();
-  expect(counts.map((c) => c.replace(/\D/g, '')), 'only counts that work').toEqual(['2', '3']);
-  await expect(page.locator('#simRooms .seg.is-off')).toHaveCount(0);
+  expect(counts.map((c) => c.replace(/\D/g, '')), 'all three counts stay').toEqual(['1', '2', '3']);
+  await expect(roomSeg(page, 1), 'one Standard room cannot hold three').toHaveClass(/is-off/);
+  await expect(roomSeg(page, 1).locator('input')).toBeDisabled();
   await expect(page.locator('#sim .sim__warn')).toBeHidden();
+
+  // Disabled has to be visible, not just semantic. Until this was checked the
+  // dead "1室" was pixel-identical to the live "3室".
+  const dim = (n) => roomSeg(page, n).evaluate((el) => parseFloat(getComputedStyle(el).opacity));
+  expect(await dim(1), 'the dead count must read as dead').toBeLessThan(await dim(3) - 0.3);
 });
 
-test('a choice with one answer is not presented as a choice', async ({ page }) => {
+test('a solo diver may still book more than one room', async ({ page }) => {
   await openSim(page);
-  // One diver can only take one room. Showing a control with a single live
-  // option and two dead ones asked a question that had no alternatives.
-  await expect(page.locator('.sim__roomsgroup')).toBeHidden();
-
-  await page.locator('#simDivers .seg').nth(1).click();   // 2 divers — 1 or 2 rooms
-  await page.waitForTimeout(300);
+  // Hiding this control for one diver was a judgement about what the customer
+  // ought to want. Wanting a room to yourself is the customer's call, and a
+  // solo booking with two rooms is a larger booking, not a mistake.
   await expect(page.locator('.sim__roomsgroup')).toBeVisible();
+  await expect(page.locator('#simRooms .seg')).toHaveCount(3);
+  await expect(page.locator('#simRooms .seg.is-off'), 'one person fits anywhere').toHaveCount(0);
+
+  const oneRoom = await total(page);
+  await pickRooms(page, 2);
+  await page.waitForTimeout(300);
+  await expect(roomSeg(page, 2)).toHaveClass(/is-on/);
+  expect(await total(page), 'the second room must be charged for').toBeGreaterThan(oneRoom);
 });
 
 test('the room count follows the party until it is chosen by hand', async ({ page }) => {
@@ -260,23 +273,27 @@ test('the selected segment is filled, not merely outlined', async ({ page }) => 
   expect(alpha(await bg(1)), 'unselected segments must not be').toBeLessThan(0.05);
 });
 
-test('each room count shows how the party actually splits', async ({ page }) => {
+test('the room segments carry a number and nothing else', async ({ page }) => {
   await openSim(page);
   await page.locator('#simDivers .seg').nth(2).click();   // 3 divers
   await page.waitForTimeout(300);
 
-  // This replaced a two-line sentence explaining that a couple takes one room
-  // and three friends might want three. Three people over two rooms is 2+1 —
-  // showable, and it survives translation.
-  // Only 2 and 3 can hold three people, and each states its own split.
-  await expect(roomSeg(page, 2).locator('.seg__sub')).toHaveText('2+1');
-  await expect(roomSeg(page, 3).locator('.seg__sub')).toHaveText('1+1+1');
+  // The second line here used to hold a derived value — the party split, and
+  // for an unoccupied room the invented phrase "1室あまり". No booking product
+  // anywhere annotates an empty room, because they all prevent the state
+  // instead; and Carbon reserves the slot under a number input for constraints,
+  // not for derived data. The slot is gone. The line below asserts that, and it
+  // is the one thing that stops the label coming back.
+  await expect(page.locator('#simRooms .seg__sub')).toHaveCount(0);
+  for (const n of [1, 2, 3]) {
+    await expect(roomSeg(page, n).locator('span')).toHaveCount(1);
+  }
 
-  // And a room nobody sleeps in is never offered.
-  await page.locator('#simDivers .seg').nth(1).click();   // 2 divers
-  await page.waitForTimeout(300);
-  await expect(page.locator('#simRooms .seg'),
-    'two people cannot fill three rooms, so only 1 and 2 appear').toHaveCount(2);
+  // The spread is still stated — once, in the summary, in the shape Booking.com
+  // uses for its occupancy trigger ("大人2名 · 子供0名 · 1部屋").
+  const short = page.locator('#sim .sim__short');
+  await expect(short).toBeVisible();
+  await expect(short, 'the summary states the party and the rooms').toHaveText(/3.*2/s);
 });
 
 test('both controls speak the same visual language', async ({ page }) => {
@@ -287,10 +304,22 @@ test('both controls speak the same visual language', async ({ page }) => {
   // the giveaway that the pair had never been designed together.
   const shape = (sel) => page.locator(sel).first().evaluate((el) => {
     const cs = getComputedStyle(el.closest('.seg__row'));
-    return { cols: cs.gridTemplateColumns.split(' ').length, radius: cs.borderRadius };
+    return { cols: cs.gridTemplateColumns.split(' ').map(parseFloat), radius: cs.borderRadius };
   });
   const a = await shape('#simDivers .seg');
   const b = await shape('#simRooms .seg');
   expect(b.radius, 'same corner treatment').toBe(a.radius);
-  expect(await page.locator('#simRooms .seg').count(), 'rooms render as segments too').toBe(2);
+
+  // Each row must have exactly as many tracks as it has options. The rule was
+  // hardcoded to repeat(4), so the three-option rooms row rendered a fourth,
+  // empty track — which read as "3" being twice the width of "1". A row that
+  // silently grows a phantom column is the same defect class as a control that
+  // silently drops an option.
+  for (const [sel, row] of [['#simDivers .seg', '#simDivers'], ['#simRooms .seg', '#simRooms']]) {
+    const n = await page.locator(sel).count();
+    const cols = (await shape(sel)).cols;
+    expect(cols.length, `${row}: one track per option`).toBe(n);
+    // Equal width, to within a rounding pixel — Carbon's rule for segmented rows.
+    expect(Math.max(...cols) - Math.min(...cols), `${row}: tracks are equal`).toBeLessThan(1.5);
+  }
 });
