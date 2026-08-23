@@ -124,26 +124,6 @@
     </div>
   </section>
 
-  <!-- The two facts that decide it for someone working in Manila. They were
-       buried in the schedule section, five screens down, where a visitor who
-       had already concluded "I can't take the time off" would never reach them.
-       Not prose and not inside the hero — the hero's job is to hit, this one's
-       job is to remove the objection immediately after. -->
-  <section class="creds" aria-label="この2日間について">
-    <div class="wrap">
-      <ul class="creds__list">
-        <li class="creds__item" data-reveal="fade">
-          <b class="creds__key">有給 0日</b>
-          <span class="creds__note">土曜の朝に出て、日曜の夜に帰ります。</span>
-        </li>
-        <li class="creds__item" data-reveal="fade">
-          <b class="creds__key">学科はスマホで</b>
-          <span class="creds__note">マニラにいるうちに終わります。現地ですることは、潜ることだけ。</span>
-        </li>
-      </ul>
-    </div>
-  </section>
-
   <!-- ============ WHAT YOU BRING — the whole pitch is the asymmetry ============ -->
   <section class="gear section" id="gear" data-depth="0.22">
     <div class="wrap">
@@ -353,7 +333,7 @@
                     <div class="sim__rooms" id="simRoom"></div>
                   </div>
                   <div class="sim__field">
-                    <fieldset class="sim__seggroup">
+                    <fieldset class="sim__seggroup sim__roomsgroup">
                       <legend class="sim__legend">借りる部屋の数</legend>
                       <div class="seg__row" id="simRooms"></div>
                     </fieldset>
@@ -402,7 +382,11 @@
               <b class="course__jp">アドバンス・オープンウォーター</b>
               <em class="course__why">沈没船も、30mの地形も</em>
             </span>
-            <span class="course__price">₱28,000<i>お一人あたり・講習料</i></span>
+            <!-- Written by js/sim.js from the same quote() the simulator uses. A
+                 hard-coded figure here drifted the moment the room rates changed,
+                 and quoting tuition-only next to an all-in price on the card above
+                 put two pricing models on one page. -->
+            <span class="course__price" id="aowPrice"></span>
             <span class="course__mark" aria-hidden="true"></span>
           </summary>
           <div class="course__panel">

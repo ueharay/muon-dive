@@ -581,23 +581,6 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 }
    /* the facts table already closes with a rule */
 
-/* --- the two facts, straight after the hero -----------------------------
-   A thin band, not a section: it should read as a footnote to the headline
-   rather than compete with it, and the visitor should pass through it on the
-   way down without being asked to stop. */
-.creds{padding:clamp(2.2rem,4vh,3.4rem) 0;position:relative;z-index:1}
-.creds__list{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:clamp(1.4rem,4vw,3.4rem)}
-.creds__item{display:grid;gap:.4rem;padding-top:1rem;border-top:1px solid var(--line)}
-.creds__key{font-family:var(--marc);font-weight:400;font-size:clamp(1.25rem,2.3vw,1.7rem);
-  line-height:1.15;color:var(--sand);letter-spacing:.02em}
-.creds__note{font-family:var(--mincho);font-size:.82rem;line-height:1.85;color:var(--ink-dim);
-  max-width:34ch}
-@media (max-width:720px){
-  .creds__list{grid-template-columns:1fr;gap:1.3rem}
-  .creds__note{font-size:.78rem}
-}
-
 /* --- price simulator ---------------------------------------------------
    Two columns on desktop: the things you change on the left, the number they
    add up to pinned on the right. Every booking site converged on this shape
@@ -748,7 +731,9 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 /* Both lists side by side. An all-in claim needs its edge drawn — without the
    exclusions, "everything is included" gets disproved at the bar and takes the
    rest of the page's credibility with it. */
-.sim__whats{margin-top:var(--sim-group);display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);
+/* No margin here: .sim__choices already spaces its children with a grid gap,
+   and adding one on top produced 68px where 28px was intended. */
+.sim__whats{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);
   gap:1rem clamp(1.2rem,3vw,2.4rem);align-items:start}
 @media (max-width:560px){.sim__whats{grid-template-columns:1fr;gap:1.1rem}}
 .sim__incl,.sim__excl{list-style:none;display:grid;gap:.34rem}

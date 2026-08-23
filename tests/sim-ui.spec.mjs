@@ -28,6 +28,12 @@ async function openSim(page, lang = 'ja') {
 
 const total = (page) => page.locator('#sim .sim__total').innerText().then(money);
 
+/** Target a room count by its value. Indexes broke the moment impossible
+ *  counts stopped rendering — with three divers the first segment is "2". */
+const roomSeg = (page, n) => page.locator(`#simRooms .seg:has(input[value="${n}"])`);
+const pickRooms = (page, n) => roomSeg(page, n).click();
+
+
 test('the simulator renders a real total, not the placeholder', async ({ page }) => {
   await openSim(page);
   expect(await total(page)).toBeGreaterThan(10000);
@@ -130,38 +136,52 @@ test('adding a diver raises the total; the per-head price falls after the first'
   expect(twoPer, 'sharing the boat must show up as a lower per-head price').toBeLessThan(onePer);
 });
 
-test('room counts that cannot hold the party are disabled, not merely scolded', async ({ page }) => {
+test('impossible room counts are not offered at all', async ({ page }) => {
   await openSim(page);
-  await page.locator('#simDivers .seg').nth(2).click();  // 3 divers, Standard sleeps 2
-  await page.waitForTimeout(250);
-  await expect(page.locator('#simRooms .seg').nth(0), '1 room cannot hold 3').toHaveClass(/is-off/);
-  await expect(page.locator('#simRooms input[name=simRooms]').nth(0)).toBeDisabled();
-  await expect(page.locator('#simRooms input[name=simRooms]').nth(1)).toBeEnabled();
+  await page.locator('#simDivers .seg').nth(2).click();   // 3 divers, Standard sleeps 2
+  await page.waitForTimeout(300);
+
+  // Greyed-out options with a dash under them told the visitor nothing. Three
+  // people cannot use one Standard room, so that count is simply absent.
+  const counts = await page.locator('#simRooms .seg__n').allInnerTexts();
+  expect(counts.map((c) => c.replace(/\D/g, '')), 'only counts that work').toEqual(['2', '3']);
+  await expect(page.locator('#simRooms .seg.is-off')).toHaveCount(0);
   await expect(page.locator('#sim .sim__warn')).toBeHidden();
+});
+
+test('a choice with one answer is not presented as a choice', async ({ page }) => {
+  await openSim(page);
+  // One diver can only take one room. Showing a control with a single live
+  // option and two dead ones asked a question that had no alternatives.
+  await expect(page.locator('.sim__roomsgroup')).toBeHidden();
+
+  await page.locator('#simDivers .seg').nth(1).click();   // 2 divers — 1 or 2 rooms
+  await page.waitForTimeout(300);
+  await expect(page.locator('.sim__roomsgroup')).toBeVisible();
 });
 
 test('the room count follows the party until it is chosen by hand', async ({ page }) => {
   await openSim(page);
 
-  await page.locator('#simDivers .seg').nth(2).click();  // 3 divers -> Standard needs 2 rooms
+  await page.locator('#simDivers .seg').nth(2).click();   // 3 divers -> Standard needs 2 rooms
   await page.waitForTimeout(250);
-  await expect(page.locator('#simRooms .seg').nth(1)).toHaveClass(/is-on/);
+  await expect(roomSeg(page, 2)).toHaveClass(/is-on/);
   const twoStandardRooms = await total(page);
 
-  await page.locator('#simRoom .sim__room').nth(1).click();    // Deluxe sleeps 4 — one room is enough
+  await page.locator('#simRoom .sim__room').nth(1).click();   // Deluxe sleeps 4 — one room is enough
   await page.waitForTimeout(250);
   await expect(
-    page.locator('#simRooms .seg').nth(0),
+    roomSeg(page, 1),
     'a room that is no longer needed must not stay in the price'
   ).toHaveClass(/is-on/);
   expect(await total(page)).toBeLessThan(twoStandardRooms);
 
   // But a count the visitor picked themselves is theirs to keep.
-  await page.locator('#simRooms .seg').nth(1).click();   // pin 2 rooms
+  await pickRooms(page, 2);
   await page.waitForTimeout(250);
-  await page.locator('#simDivers .seg').nth(0).click();  // back to 1 diver
+  await page.locator('#simDivers .seg').nth(1).click();   // 2 divers
   await page.waitForTimeout(250);
-  await expect(page.locator('#simRooms .seg').nth(1)).toHaveClass(/is-on/);
+  await expect(roomSeg(page, 2)).toHaveClass(/is-on/);
 });
 
 test('the breakdown adds up to the total shown', async ({ page }) => {
@@ -248,20 +268,21 @@ test('each room count shows how the party actually splits', async ({ page }) => 
   // This replaced a two-line sentence explaining that a couple takes one room
   // and three friends might want three. Three people over two rooms is 2+1 —
   // showable, and it survives translation.
-  const subs = await page.locator('#simRooms .seg__sub').allInnerTexts();
-  expect(subs).toHaveLength(3);
-  expect(subs[1].trim(), 'three people over two rooms').toBe('2+1');
-  expect(subs[2].trim(), 'three people over three rooms').toBe('1+1+1');
+  // Only 2 and 3 can hold three people, and each states its own split.
+  await expect(roomSeg(page, 2).locator('.seg__sub')).toHaveText('2+1');
+  await expect(roomSeg(page, 3).locator('.seg__sub')).toHaveText('1+1+1');
 
   // And a room nobody sleeps in is never offered.
   await page.locator('#simDivers .seg').nth(1).click();   // 2 divers
   await page.waitForTimeout(300);
-  await expect(page.locator('#simRooms .seg').nth(2),
-    'two people cannot fill three rooms').toHaveClass(/is-off/);
+  await expect(page.locator('#simRooms .seg'),
+    'two people cannot fill three rooms, so only 1 and 2 appear').toHaveCount(2);
 });
 
 test('both controls speak the same visual language', async ({ page }) => {
   await openSim(page);
+  await page.locator('#simDivers .seg').nth(1).click();   // 2 divers, so rooms is a real choice
+  await page.waitForTimeout(300);
   // They ask the same kind of question. Two different treatments for that was
   // the giveaway that the pair had never been designed together.
   const shape = (sel) => page.locator(sel).first().evaluate((el) => {
@@ -271,5 +292,5 @@ test('both controls speak the same visual language', async ({ page }) => {
   const a = await shape('#simDivers .seg');
   const b = await shape('#simRooms .seg');
   expect(b.radius, 'same corner treatment').toBe(a.radius);
-  expect(await page.locator('#simRooms .seg').count(), 'rooms render as segments too').toBe(3);
+  expect(await page.locator('#simRooms .seg').count(), 'rooms render as segments too').toBe(2);
 });

@@ -24,7 +24,9 @@ const L = {
     rooms: '借りる部屋の数',
     people: (n) => `${n}名`,
     roomCount: (n) => `${n}室`,
-    caps: { standard: 'スタンダード', deluxe: 'デラックス', suite: 'スイート 海側' },
+    caps: { standard: 'スタンダード', deluxe: 'デラックス', suite: 'スイート' },
+    view: { standard: '', deluxe: '海側', suite: '海側' },
+    meta: (cap, view) => view ? `${cap}・${view}` : cap,
     capacity: (n) => `定員${n}名`,
     perNight: '／泊',
     each: (n) => `${money(n)}／人`,
@@ -35,6 +37,7 @@ const L = {
     },
     unitEach: (q, u) => `${q} × ${money(u)}`,
     summary: (d, r, n) => `${d}名・${r}${n}室・すべて込み`,
+    fromAllIn: '1名・スタンダード1室から・すべて込み',
     off: (pct) => `${pct}%OFF`,
     baseRate: '基本料金',
     perRoom: (parts) => parts.join('+'),
@@ -60,7 +63,9 @@ const L = {
     rooms: 'Number of rooms',
     people: (n) => `${n}`,
     roomCount: (n) => `${n}`,
-    caps: { standard: 'Standard', deluxe: 'Deluxe', suite: 'Suite, sea view' },
+    caps: { standard: 'Standard', deluxe: 'Deluxe', suite: 'Suite' },
+    view: { standard: '', deluxe: 'sea view', suite: 'sea view' },
+    meta: (cap, view) => view ? `${cap} · ${view}` : cap,
     capacity: (n) => `Up to ${n} people`,
     perNight: '/night',
     each: (n) => `${money(n)} each`,
@@ -71,6 +76,7 @@ const L = {
     },
     unitEach: (q, u) => `${q} × ${money(u)}`,
     summary: (d, r, n) => `${d} · ${r} x${n} · all in`,
+    fromAllIn: 'from — one diver, Standard room, all in',
     off: (pct) => `${pct}% off`,
     baseRate: 'Base rate',
     perRoom: (parts) => parts.join('+'),
@@ -139,9 +145,30 @@ function render(root) {
   legends[1].textContent = t.room;
   legends[2].textContent = t.rooms;
 
+  // Reuse the existing nodes when the option set is unchanged. replaceChildren
+  // destroyed the element the pointer was on, which made clicks race the
+  // re-render and the row flicker on every選択.
   const fill = (sel, nodes) => {
     const box = root.querySelector(sel);
-    box.replaceChildren(...nodes);
+    const old = Array.from(box.children);
+    const sameShape = old.length === nodes.length &&
+      old.every((el, i) => el.tagName === nodes[i].tagName);
+    if (!sameShape) { box.replaceChildren(...nodes); return; }
+    old.forEach((el, i) => {
+      const next = nodes[i];
+      if (el.className !== next.className) el.className = next.className;
+      const a = el.querySelector('input'), b = next.querySelector('input');
+      if (a && b) {
+        if (a.value !== b.value) { box.replaceChildren(...nodes); return; }
+        a.checked = b.checked;
+        a.disabled = b.disabled;
+      }
+      // text spans only — leaving the input element itself in place
+      el.querySelectorAll('span').forEach((span, j) => {
+        const src = next.querySelectorAll('span')[j];
+        if (src && span.textContent !== src.textContent) span.textContent = src.textContent;
+      });
+    });
   };
 
   // Just the number. Per-head prices on these chips read as errors: three
@@ -182,7 +209,7 @@ function render(root) {
     b.innerHTML =
       `<img class="sim__roomart" src="${art.src}" alt="${art.alt[lang()]}" loading="lazy" decoding="async">` +
       `<span class="sim__roomname">${t.caps[r.id]}</span>` +
-      `<span class="sim__roommeta">${t.capacity(r.maxOccupancy)}</span>` +
+      `<span class="sim__roommeta">${t.meta(t.capacity(r.maxOccupancy), t.view[r.id])}</span>` +
       `<span class="sim__roomdelta">${money(r.nightly)}${t.perNight}</span>`;
     b.addEventListener('click', () => { state.roomId = r.id; autoRooms(); render(root); });
     return b;
@@ -190,25 +217,34 @@ function render(root) {
 
   // Counts that cannot hold the party are disabled rather than left clickable
   // and then scolded — the same thing a hotel site does with a sold-out room.
+  // Only counts that actually work are offered. Showing "2" and "3" greyed out
+  // with a dash under them told the visitor nothing — a dash is not a reason —
+  // and for a solo diver it meant two of the three options were dead. If only
+  // one count is possible the choice does not exist, so the control does not
+  // appear; the summary already states how many rooms are being booked.
   const maxOcc = PRICING.rooms.find(r => r.id === state.roomId).maxOccupancy;
-  const minRooms = Math.ceil(state.divers / maxOcc);
-  fill('#simRooms', [1, 2, 3].map(n => {
-    // Spread the party the way the price already assumes: evenly, remainder to
-    // the earlier rooms. A room nobody sleeps in is not an option worth paying
-    // for, so those combinations are disabled rather than priced.
+  const options = [1, 2, 3].map((n) => {
     const base = Math.floor(state.divers / n), rem = state.divers % n;
     const parts = Array.from({ length: n }, (_, i) => base + (i < rem ? 1 : 0));
-    const empty = parts.some((x) => x === 0);
-    const off = n < minRooms || empty;
+    return { n, parts, ok: state.divers <= maxOcc * n && parts.every((x) => x > 0) };
+  }).filter((o) => o.ok);
 
+  if (state.rooms > options[options.length - 1].n) state.rooms = options[options.length - 1].n;
+  if (!options.some((o) => o.n === state.rooms)) state.rooms = options[0].n;
+
+  const roomsGroup = root.querySelector('.sim__roomsgroup');
+  roomsGroup.hidden = options.length < 2;
+  fill('#simRooms', options.map(({ n, parts }) => {
     const on = state.rooms === n;
     const label = document.createElement('label');
-    label.className = 'seg' + (on ? ' is-on' : '') + (off ? ' is-off' : '');
+    label.className = 'seg' + (on ? ' is-on' : '');
     label.innerHTML =
-      `<input type="radio" name="simRooms" value="${n}"${on ? ' checked' : ''}${off ? ' disabled' : ''}>` +
+      `<input type="radio" name="simRooms" value="${n}"${on ? ' checked' : ''}>` +
       `<span class="seg__n">${t.roomCount(n)}</span>` +
-      `<span class="seg__sub">${off ? '—' : t.perRoom(parts)}</span>`;
-    if (!off) label.querySelector('input').addEventListener('change', () => {
+      // Only worth saying once there is something to divide. "1" under "1" is
+      // the same fact twice.
+      (n > 1 ? `<span class="seg__sub">${t.perRoom(parts)}</span>` : '');
+    label.querySelector('input').addEventListener('change', () => {
       state.rooms = n; roomsPinned = true; render(root);
     });
     return label;
@@ -232,7 +268,8 @@ function render(root) {
   if (pv.getAttribute('src') !== art.src) pv.setAttribute('src', art.src);
   pv.setAttribute('alt', art.alt[lang()]);
   root.querySelector('.sim__previewname').textContent = t.caps[room.id];
-  root.querySelector('.sim__previewmeta').textContent = t.capacity(room.maxOccupancy);
+  root.querySelector('.sim__previewmeta').textContent =
+    t.meta(t.capacity(room.maxOccupancy), t.view[room.id]);
   root.querySelector('.sim__previewrate').textContent = money(room.nightly) + t.perNight;
 
   const incl = root.querySelector('.sim__incl');
@@ -262,10 +299,20 @@ function autoRooms() {
   state.rooms = roomsPinned ? Math.max(state.rooms, needed) : needed;
 }
 
+/** The Advanced card quotes the same way the simulator does — one source. */
+function renderAowPrice() {
+  const el = document.getElementById('aowPrice');
+  if (!el) return;
+  const t = L[lang()];
+  const q = quote({ divers: 1, roomId: 'standard', rooms: 1, course: 'aow' });
+  el.innerHTML = `${money(q.total)}<i>${t.fromAllIn}</i>`;
+}
+
 function init() {
   const root = document.getElementById('sim');
   if (!root) return;
   render(root);
+  renderAowPrice();
 
   // On a phone the summary becomes a bar pinned to the bottom edge — the same
   // corner the chat bubble is fixed to. Flag the document while it is showing
@@ -279,7 +326,7 @@ function init() {
 
   // main.js swaps the language by setting data-lang on <html>; there is no
   // event, so watch the attribute rather than reaching into its internals.
-  new MutationObserver(() => render(root))
+  new MutationObserver(() => { render(root); renderAowPrice(); })
     .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
 }
 
