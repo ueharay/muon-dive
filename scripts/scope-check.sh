@@ -52,8 +52,14 @@ fi
 PATTERNS=(); CHANGED=()
 while IFS= read -r line; do PATTERNS+=("$line"); done < <(
   grep -v '^[[:space:]]*$' "$DECL" | grep -v '^[[:space:]]*#')
+# The loop's own bookkeeping is not the work under review. The declaration file
+# changes on every batch by definition, and observations.md is appended by the
+# observer hook on a timer, so both showed up as "out of scope" on every single
+# run — noise that trains you to skim the one list that has to be read.
 while IFS= read -r line; do CHANGED+=("$line"); done < <(
-  git status --porcelain | sed 's/^...//' | sed 's/.* -> //')
+  git status --porcelain | sed 's/^...//' | sed 's/.* -> //' \
+    | grep -v '^\.claude/loop/scope\.txt$' \
+    | grep -v '^\.claude/loop/observations\.md$')
 
 if [ "${#CHANGED[@]}" -eq 0 ]; then echo "scope-check: no changes."; exit 0; fi
 

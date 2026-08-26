@@ -1,3 +1,6 @@
 css/style.css
-tests/type.spec.mjs
+js/*.js
 index.html
+tests/*.mjs
+scripts/scope-check.sh
+Learning.md
