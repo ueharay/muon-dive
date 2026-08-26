@@ -277,23 +277,24 @@
     <div class="courses" id="courses">
       <div class="courses__list">
 
-        <!-- LEVEL 1 — Open Water (always open) -->
+        <!-- One card for both courses. Advanced used to be a collapsed row with
+             a single figure beside it, which quoted a different pricing model
+             from the all-in simulator directly above it. The course is now the
+             simulator's first choice, so both are priced the same way and the
+             card's title, tagline and spec follow the selection (js/sim.js). -->
         <article class="course course--lead" data-reveal="fade">
           <div class="course__head course__head--static">
-            <span class="course__step">はじめての人へ</span>
+            <span class="course__step" id="simStep">はじめての人へ</span>
             <span class="course__names">
-              <b class="course__jp">オープンウォーター・ダイバー</b>
-              <em class="course__why">はじめて潜る人が取る、世界共通のライセンス</em>
+              <b class="course__jp" id="simCourseName">オープンウォーター・ダイバー</b>
+              <em class="course__why" id="simCourseWhy">はじめて潜る人が取る、世界共通のライセンス</em>
             </span>
           </div>
           <div class="course__panel course__panel--static">
             <div class="course__inner">
-              <!-- What the course IS, before what it costs. -->
-              <dl class="spec">
-                  <div class="spec__row"><dt>日程</dt><dd>1泊2日</dd></div>
-                  <div class="spec__row"><dt>深さ</dt><dd>18mまで</dd></div>
-                  <div class="spec__row"><dt>年齢</dt><dd>10歳以上</dd></div>
-              </dl>
+              <!-- What the course IS, before what it costs. Rewritten per course
+                   so the depth and the age never contradict the price. -->
+              <dl class="spec" id="simSpec"></dl>
 
               <!-- The booking bills in two units — the course per person, the room
                    per room — so no single figure is right for everybody. Letting
@@ -311,6 +312,12 @@
                    are written by js/sim.js. -->
               <div class="sim" id="sim">
                 <div class="sim__choices">
+                  <div class="sim__field">
+                    <fieldset class="sim__seggroup">
+                      <legend class="sim__legend">コース</legend>
+                      <div class="seg__row" id="simCourse"></div>
+                    </fieldset>
+                  </div>
                   <div class="sim__field">
                     <fieldset class="sim__seggroup">
                       <legend class="sim__legend">講習を受ける人数</legend>
@@ -368,50 +375,10 @@
           </div>
         </article>
 
-        <!-- The ladder, grouped: what each band of courses is FOR, before the
-             course names. "アドバンス" means nothing to someone who just learned
-             what Open Water is. -->
-        <div class="courses__band" data-reveal="fade">
-          <p class="kicker">INTERMEDIATE &amp; ADVANCED</p>
-          <p class="courses__lead">オープンウォーターの次。潜れる深さも、行ける場所も増えます。</p>
-        </div>
-
-        <details class="course course--card" data-reveal="fade">
-          <summary class="course__head" data-cursor="explore">
-            <span class="course__step">LEVEL 2</span>
-            <span class="course__names">
-              <b class="course__jp">アドバンス・オープンウォーター</b>
-              <em class="course__why">沈没船も、30mの地形も</em>
-            </span>
-            <!-- Written by js/sim.js from the same quote() the simulator uses. A
-                 hard-coded figure here drifted the moment the room rates changed,
-                 and quoting tuition-only next to an all-in price on the card above
-                 put two pricing models on one page. -->
-            <span class="course__price" id="aowPrice"></span>
-            <span class="course__mark" aria-hidden="true"></span>
-          </summary>
-          <div class="course__panel">
-            <div class="course__inner">
-              <dl class="spec">
-                  <div class="spec__row"><dt>日程</dt><dd>1泊2日</dd></div>
-                  <div class="spec__row"><dt>深さ</dt><dd>30mまで</dd></div>
-                  <div class="spec__row"><dt>年齢</dt><dd>12歳以上</dd></div>
-                  <div class="spec__row"><dt>前提</dt><dd>オープンウォーター</dd></div>
-              </dl>
-
-              <!-- Deliberately no included/not-included split here. The Open
-                   Water card above now quotes one all-in figure, and a second
-                   card listing gear and lodging as extras read as a different
-                   pricing model on the same page. Advanced is quoted the same
-                   way; the figure is the tuition and the rest follows the
-                   simulator's structure. -->
-              <p class="course__note">宿泊・器材・ボート・送迎・食事は、オープンウォーターと同じくすべて込みでご案内します。人数と部屋は上のシミュレーターと同じ考え方です。</p>
-            </div>
-          </div>
-        </details>
-
-        <!-- Rescue and Divemaster are named on the depth profile above, so here
-             they only need to exist — one line, not a row each. -->
+        <!-- Advanced used to live here as its own collapsed card. It is the
+             simulator's first choice now, so this band no longer introduces
+             anything. Rescue and Divemaster are named on the depth profile
+             above; here they only need to exist — one line, not a row each. -->
         <div class="courses__band courses__band--tight" data-reveal="fade">
           <p class="kicker">OTHER COURSES</p>
         </div>

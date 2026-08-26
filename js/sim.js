@@ -14,9 +14,30 @@ const ROOM_ART = {
   suite:    { src: 'assets/img/stay-suite.jpg',    alt: { ja: '大きな窓の向こうに海とヤシの木が見える、広めの客室', en: 'A larger room, sea and palms beyond a wide window' } },
 };
 
+/* The two courses, and everything on the card that has to agree with the one
+   being priced. Advanced was a separate card quoting tuition only; folding it
+   into the simulator means the title, the tagline and the spec sheet all have
+   to follow the choice, or the page ends up promising 18m beside an Advanced
+   price. */
+const COURSES = [
+  { id: 'ow',  ja: { seg: 'オープンウォーター', step: 'はじめての人へ', name: 'オープンウォーター・ダイバー',
+                     why: 'はじめて潜る人が取る、世界共通のライセンス',
+                     spec: [['日程', '1泊2日'], ['深さ', '18mまで'], ['年齢', '10歳以上']] },
+               en: { seg: 'Open Water', step: 'START HERE', name: 'Open Water Diver',
+                     why: 'The licence divers everywhere start with',
+                     spec: [['Length', '2 days'], ['Depth', 'to 18m'], ['Age', '10+']] } },
+  { id: 'aow', ja: { seg: 'アドバンス', step: 'つぎの一歩', name: 'アドバンス・オープンウォーター',
+                     why: '沈没船も、30mの地形も',
+                     spec: [['日程', '1泊2日'], ['深さ', '30mまで'], ['年齢', '12歳以上'], ['前提', 'オープンウォーター']] },
+               en: { seg: 'Advanced', step: 'NEXT STEP', name: 'Advanced Open Water',
+                     why: 'Wrecks, and the shape of the reef at 30m',
+                     spec: [['Length', '2 days'], ['Depth', 'to 30m'], ['Age', '12+'], ['Needs', 'Open Water']] } },
+];
+
 const L = {
   ja: {
     heading: '料金シミュレーター',
+    course: 'コース',
     total: '合計（1泊2日・すべて込み）',
     per: (n) => `お一人あたり ${money(n)}`,
     divers: '講習を受ける人数',
@@ -37,13 +58,12 @@ const L = {
     },
     unitEach: (q, u) => `${q} × ${money(u)}`,
     summary: (d, r, n) => `${d}名・${r}${n}室・すべて込み`,
-    fromAllIn: '1名・スタンダード1室から・すべて込み',
     off: (pct) => `${pct}%OFF`,
     baseRate: '基本料金',
-    saved: (n) => `${money(n)} おトク`,
+    saved: (n) => `${money(n)} お得`,
     inclTitle: '潜るのに必要なものは、すべて込み',
     exclTitle: '含まれないもの',
-    excl: ['お酒などのドリンク', '個人的なお買い物'],
+    excl: ['お酒、お菓子、ソフトドリンク', '個人的なお買い物'],
     incl: ['PADI講習料・教材・認定申請料',
            '器材一式のレンタル',
            'タンク',
@@ -55,6 +75,7 @@ const L = {
   },
   en: {
     heading: 'Price simulator',
+    course: 'Course',
     total: 'Total — two days, everything in',
     per: (n) => `${money(n)} each`,
     divers: 'People taking the course',
@@ -75,7 +96,6 @@ const L = {
     },
     unitEach: (q, u) => `${q} × ${money(u)}`,
     summary: (d, r, n) => `${d} · ${r} x${n} · all in`,
-    fromAllIn: 'from — one diver, Standard room, all in',
     off: (pct) => `${pct}% off`,
     baseRate: 'Base rate',
     saved: (n) => `${money(n)} saved`,
@@ -139,9 +159,26 @@ function render(root) {
     t.summary(state.divers, t.caps[state.roomId], state.rooms);
 
   const legends = root.querySelectorAll('.sim__legend');
-  legends[0].textContent = t.divers;
-  legends[1].textContent = t.room;
-  legends[2].textContent = t.rooms;
+  legends[0].textContent = t.course;
+  legends[1].textContent = t.divers;
+  legends[2].textContent = t.room;
+  legends[3].textContent = t.rooms;
+
+  // The card around the simulator describes whichever course is selected. Left
+  // static it would have offered an Advanced price under an Open Water title,
+  // promising 18m and age 10 to someone buying the 30m course.
+  const c = COURSES.find((x) => x.id === state.course)[lang()];
+  const put = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  put('simStep', c.step);
+  put('simCourseName', c.name);
+  put('simCourseWhy', c.why);
+  const spec = document.getElementById('simSpec');
+  if (spec) spec.replaceChildren(...c.spec.map(([k, v]) => {
+    const row = document.createElement('div');
+    row.className = 'spec__row';
+    row.innerHTML = `<dt>${k}</dt><dd>${v}</dd>`;
+    return row;
+  }));
 
   // Reuse the existing nodes when the option set is unchanged. replaceChildren
   // destroyed the element the pointer was on, which made clicks race the
@@ -179,6 +216,21 @@ function render(root) {
   // not others" — the discount label was deciding each segment's width, so "1"
   // collapsed to an egg beside three wide pills. Every segment now renders both
   // lines and the base option says what it is rather than sitting empty.
+  // Course first: it is the largest thing being chosen, and everything below it
+  // — the discount ladder, the room, the total — is a modifier on it.
+  fill('#simCourse', COURSES.map((c2) => {
+    const on = state.course === c2.id;
+    const label = document.createElement('label');
+    label.className = 'seg' + (on ? ' is-on' : '');
+    label.innerHTML =
+      `<input type="radio" name="simCourse" value="${c2.id}"${on ? ' checked' : ''}>` +
+      `<span class="seg__n">${c2[lang()].seg}</span>`;
+    label.querySelector('input').addEventListener('change', () => {
+      state.course = c2.id; render(root);
+    });
+    return label;
+  }));
+
   fill('#simDivers', [1, 2, 3, 4].map(n => {
     const pct = Math.round(groupDiscount(n) * 100);
     const on = state.divers === n;
@@ -290,20 +342,10 @@ function autoRooms() {
   state.rooms = roomsPinned ? Math.max(state.rooms, needed) : needed;
 }
 
-/** The Advanced card quotes the same way the simulator does — one source. */
-function renderAowPrice() {
-  const el = document.getElementById('aowPrice');
-  if (!el) return;
-  const t = L[lang()];
-  const q = quote({ divers: 1, roomId: 'standard', rooms: 1, course: 'aow' });
-  el.innerHTML = `${money(q.total)}<i>${t.fromAllIn}</i>`;
-}
-
 function init() {
   const root = document.getElementById('sim');
   if (!root) return;
   render(root);
-  renderAowPrice();
 
   // On a phone the summary becomes a bar pinned to the bottom edge — the same
   // corner the chat bubble is fixed to. Flag the document while it is showing
@@ -317,7 +359,7 @@ function init() {
 
   // main.js swaps the language by setting data-lang on <html>; there is no
   // event, so watch the attribute rather than reaching into its internals.
-  new MutationObserver(() => { render(root); renderAowPrice(); })
+  new MutationObserver(() => render(root))
     .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
 }
 

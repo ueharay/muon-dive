@@ -246,10 +246,20 @@ test('the headcount control is a radio group, not a row of buttons', async ({ pa
 
   // It sets a value, so W3C APG says radio group — native inputs give arrow-key
   // roving and "selected, 2 of 4" announcements for free.
-  // Both controls are fieldsets now, so this must not assume a single legend.
+  // The count is deliberately not pinned: this test has now been broken twice by
+  // adding a control, which says nothing about accessibility. What matters is
+  // that every group has a label, however many groups there are.
   const legends = page.locator('#sim fieldset legend');
-  await expect(legends).toHaveCount(2);
-  for (let i = 0; i < 2; i++) await expect(legends.nth(i)).toHaveText(/\S/);
+  const n = await legends.count();
+  expect(n, 'the simulator asks at least one labelled question').toBeGreaterThan(0);
+  for (let i = 0; i < n; i++) await expect(legends.nth(i)).toHaveText(/\S/);
+  // Every radio group must be reachable as a group, not a loose row of inputs.
+  for (const id of ['#simCourse', '#simDivers', '#simRooms']) {
+    await expect(page.locator(`${id} input[type=radio]`).first(),
+      `${id} is a radio group`).toHaveCount(1);
+    await expect(page.locator(`${id}`).locator('xpath=ancestor::fieldset[1]/legend'),
+      `${id} carries a legend`).toHaveText(/\S/);
+  }
   const radios = page.locator('#simDivers input[type=radio]');
   await expect(radios).toHaveCount(4);
   await expect(radios.nth(0)).toBeChecked();
@@ -322,4 +332,53 @@ test('both controls speak the same visual language', async ({ page }) => {
     // Equal width, to within a rounding pixel — Carbon's rule for segmented rows.
     expect(Math.max(...cols) - Math.min(...cols), `${row}: tracks are equal`).toBeLessThan(1.5);
   }
+});
+
+test('the card describes the course it is quoting', async ({ page }) => {
+  await openSim(page);
+
+  // Advanced used to be a separate collapsed card. Folding it into the
+  // simulator means the title, the tagline and the spec sheet are no longer
+  // fixed text — and the failure that buys is silent and expensive: an
+  // Advanced price sitting under "18mまで / 10歳以上", promising a shallower,
+  // younger-eligible course than the one being sold.
+  const course = (id) => page.locator(`#simCourse .seg:has(input[value="${id}"])`);
+  await expect(course('ow'), 'Open Water is the default').toHaveClass(/is-on/);
+
+  const spec = () => page.locator('#simSpec').innerText();
+  const name = () => page.locator('#simCourseName').innerText();
+
+  expect(await spec()).toContain('18m');
+  expect(await name()).toContain('オープンウォーター');
+  const owTotal = await total(page);
+
+  await course('aow').click();
+  await page.waitForTimeout(300);
+  await expect(course('aow')).toHaveClass(/is-on/);
+
+  const aowSpec = await spec();
+  expect(aowSpec, 'the depth follows the course').toContain('30m');
+  expect(aowSpec, 'the old depth must not linger').not.toContain('18m');
+  expect(aowSpec, 'Advanced states its prerequisite').toContain('オープンウォーター');
+  expect(await name()).toContain('アドバンス');
+  expect(await total(page), 'Advanced is priced differently').not.toBe(owTotal);
+
+  // And back, so the card is not a one-way door.
+  await course('ow').click();
+  await page.waitForTimeout(300);
+  expect(await spec()).toContain('18m');
+  expect(await total(page)).toBe(owTotal);
+});
+
+test('the group discount applies to Advanced too', async ({ page }) => {
+  await openSim(page);
+  await page.locator('#simCourse .seg:has(input[value="aow"])').click();
+  await page.waitForTimeout(300);
+  const one = await total(page);
+  await page.locator('#simDivers .seg').nth(1).click();   // 2 divers
+  await page.waitForTimeout(300);
+  const two = await total(page);
+  expect(two, 'two divers cost more in total').toBeGreaterThan(one);
+  // The whole promise of the ladder: the second diver is cheaper than the first.
+  expect(two - one, 'the second diver pays less than the first').toBeLessThan(one);
 });
