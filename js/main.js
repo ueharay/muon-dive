@@ -766,7 +766,9 @@
         const dd = d - lastDescent;                       // > 0 while going down
         lastDescent = d;
         ocean.setDescent(d);
-        ocean.setBubble(Math.min(1, Math.abs(dd) * 26) * (dd > 0 ? 1 : 0.25));
+        // 26 saturated at roughly a third of a viewport per frame, so ordinary
+        // scrolling sat pinned at full drive and the field never looked calm.
+        ocean.setBubble(Math.min(1, Math.abs(dd) * 15) * (dd > 0 ? 1 : 0.25));
       }
       for (const st of marqRows) {
         if (!st.half) { st.half = st.row.scrollWidth / 2 || 0; continue; }

@@ -76,8 +76,8 @@ const Ocean = (() => {
         float scale = 15.0 + fi * 9.0;                       // small cells = small bubbles
         float speed = 0.30 - fi * 0.07;
         vec2 gp = suv * scale;
-        gp.y -= t * speed * (0.7 + drive * 0.9);             // they rise on their own
-        gp.y -= descent * (0.35 - fi * 0.08);                // and drift as you sink
+        gp.y -= t * speed * (0.78 + drive * 0.30);           // they rise on their own
+        gp.y -= descent * (0.12 - fi * 0.03);                // and drift as you sink
         gp.x += sin(t * (0.9 + fi * 0.3) + gp.y * 1.3) * 0.05;
         vec2 gi = floor(gp);
         vec2 gf = fract(gp) - 0.5;
@@ -156,7 +156,7 @@ const Ocean = (() => {
         float fi = float(i);
         vec2 gp = suv * (18.0 + fi * 11.0);
         gp.y += t * (0.12 + fi * 0.06);          // motes drift down on their own …
-        gp.y -= uDescent * (0.55 + fi * 0.3);    // … but stream upward as you sink past them
+        gp.y -= uDescent * (0.19 + fi * 0.10);   // … but stream upward as you sink past them
         gp.x += sin(t * 0.2 + fi) * 0.3;
         vec2 gi = floor(gp);
         float h = hash(gi + fi * 33.0);
@@ -313,7 +313,9 @@ const Ocean = (() => {
       state.px += (state.pxT - state.px) * 0.05;
       state.py += (state.pyT - state.py) * 0.05;
       state.flow += (state.flowTarget - state.flow) * 0.08;
-      state.bubble += (state.bubbleTarget - state.bubble) * 0.1;
+      // Eased rather than snapped: at 0.1 the column reached full speed in about
+      // a sixth of a second, so a flick of the wheel read as the water lurching.
+      state.bubble += (state.bubbleTarget - state.bubble) * 0.055;
       state.descent += (state.descentTarget - state.descent) * 0.05;
       gl.uniform1f(U.uTime, state.t);
       gl.uniform1f(U.uDepth, state.depth);
