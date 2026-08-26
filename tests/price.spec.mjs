@@ -31,10 +31,10 @@ test('diving alone costs more per head, and says so in the rate, not a mystery l
 
   const rate = (q) => q.lines.find(l => l.key === 'course').unit;
   expect(rate(solo), 'the solo rate carries the whole boat').toBe(42500);
-  expect(rate(pair), 'two divers split it, less the 5% group discount').toBe(35625);
+  expect(rate(pair), 'two divers split it, less the ₱2,000 group discount').toBe(35500);
 
-  // 35,625 x2 + (5,500 room + 2,750 early check-in)
-  expect(pair.total).toBe(79500);
+  // 35,500 x2 + (5,500 room + 2,750 early check-in)
+  expect(pair.total).toBe(79250);
   expect(pair.perPerson).toBeLessThan(solo.perPerson);
 });
 
@@ -69,7 +69,7 @@ test('third and fourth heads in a room cost the resort surcharge', () => {
   const three = quote({ divers: 3, roomId: 'deluxe', rooms: 1, course: 'ow' });
   const four  = quote({ divers: 4, roomId: 'deluxe', rooms: 1, course: 'ow' });
 
-  const rate = (n) => Math.round(PER * (1 - groupDiscount(n)));
+  const rate = (n) => PER - groupDiscount(n);
   const room = (extraHeads) => 8750 + 900 * extraHeads + PRICING.earlyCheckIn;
   expect(two.total).toBe(rate(2) * 2 + room(0));
   expect(three.total).toBe(rate(3) * 3 + room(1));   // one head above double
@@ -117,20 +117,53 @@ test('the price never goes down when you add a person or a room', () => {
   }
 });
 
-test('the group discount grows with the party and stops at the cap', () => {
+test('the group discount is money, not a percentage', () => {
+  // Percent was replaced by pesos so the two courses stop printing two amounts
+  // for one promise: 5% of the Open Water rate is ₱1,875 and of Advanced
+  // ₱1,775, and the amount is what the page now shows.
   expect(groupDiscount(1), 'a solo diver has nobody to share with').toBe(0);
-  expect(groupDiscount(2)).toBeCloseTo(0.05, 5);
-  expect(groupDiscount(3)).toBeCloseTo(0.10, 5);
-  expect(groupDiscount(4)).toBeCloseTo(0.15, 5);
-  expect(groupDiscount(20), 'must not run away past the cap').toBe(PRICING.maxGroupDiscount);
+  expect(groupDiscount(2)).toBe(2000);
+  expect(groupDiscount(3)).toBe(6000);
+  expect(groupDiscount(4)).toBe(8000);
+  expect(groupDiscount(9), 'past the largest party it goes flat, never further').toBe(8000);
+
+  // Same money off whichever course is selected.
+  const off = (course, divers) => {
+    const q = quote({ divers, roomId: 'deluxe', rooms: 1, course });
+    return PRICING.course[course] + PRICING.perDiver.gear + PRICING.perDiver.boatAndPass
+         - q.lines.find((l) => l.key === 'course').unit;
+  };
+  for (const n of [2, 3, 4]) expect(off('aow', n), `₱ off is the same on both courses at ${n}`)
+    .toBe(off('ow', n));
+});
+
+test('recruiting one more friend never costs the group more than the last one did', () => {
+  // The defect this exists for shipped and was found by hand, not by a test.
+  // Under a flat 5%-per-head ladder the THIRD diver was the most expensive one
+  // to add — ₱30,000 against ₱28,750 for the second — because the solo loading
+  // falls away at two and hands the second head a boost the third never gets.
+  // A ladder that makes each additional friend dearer than the last is arguing
+  // against the thing it was built to encourage, and nothing was watching.
+  const groupPays = (n) => quote({ divers: n, roomId: 'deluxe', rooms: 1, course: 'ow' })
+    .lines.find((l) => l.key === 'course').amount;
+
+  let previous = Infinity;
+  for (const n of [2, 3, 4]) {
+    const marginal = groupPays(n) - groupPays(n - 1);
+    expect(marginal, `adding diver ${n} must not cost more than adding ${n - 1}`)
+      .toBeLessThanOrEqual(previous);
+    previous = marginal;
+  }
 });
 
 test('every extra diver still earns money at the real costs', () => {
-  // From the Casa Escondida statement plus the PADI e-learning fee and fuel:
-  // ₱9,710 follows each diver, ₱12,000 is charged once per booking however
+  // From the Casa Escondida statement, corrected by the owner on 2026-08-26:
+  // the Anilao transfer is ₱6,000 return rather than ₱3,000 of fuel, and every
+  // meal sits inside the room rate rather than being charged per head.
+  // ₱9,050 follows each diver, ₱15,000 is charged once per booking however
   // many go. A discount that outruns those is a discount that loses money.
-  const PER_DIVER_COST = 9710;
-  const PER_BOOKING_COST = 12000;
+  const PER_DIVER_COST = 9050;
+  const PER_BOOKING_COST = 15000;
 
   let prevMargin = -Infinity;
   for (const divers of [1, 2, 3, 4]) {

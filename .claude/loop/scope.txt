@@ -1,6 +1,6 @@
+index.html
 css/style.css
 js/*.js
-index.html
 tests/*.mjs
-scripts/scope-check.sh
 Learning.md
+scripts/scope-check.sh

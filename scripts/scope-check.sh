@@ -26,6 +26,22 @@ ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
 cd "$ROOT"
 DECL=".claude/loop/scope.txt"
 
+# self-test.sh seeds a defect, runs verify.sh, then restores the file from its
+# own backup. Anything edited while it is running is silently reverted — a whole
+# section was written and lost that way, and the run's own STALE/caught verdicts
+# were meaningless because the search strings moved underneath it. Both
+# directions are destructive, so the answer is not to work at all while it runs.
+if pgrep -f 'self-test\.sh' >/dev/null 2>&1; then
+  cat >&2 <<'EOF'
+scope-check: self-test.sh is RUNNING. Stop.
+
+It mutates and restores files from its own backup, so any edit made now is
+discarded without a word, and its verdict on this run is void anyway because
+the tree moved under it. Wait for it to finish, then re-run it on a quiet tree.
+EOF
+  exit 3
+fi
+
 if [ "${1:-}" = "declare" ]; then
   shift
   [ $# -gt 0 ] || { echo "usage: scope-check.sh declare <glob> [glob...]" >&2; exit 2; }

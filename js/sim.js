@@ -20,13 +20,15 @@ const ROOM_ART = {
    to follow the choice, or the page ends up promising 18m beside an Advanced
    price. */
 const COURSES = [
-  { id: 'ow',  ja: { seg: 'オープンウォーター', step: 'はじめての人へ', name: 'オープンウォーター・ダイバー',
+  { id: 'ow',  level: 'LEVEL 1',
+               ja: { seg: 'オープンウォーター', step: 'はじめての人へ', name: 'オープンウォーター・ダイバー',
                      why: 'はじめて潜る人が取る、世界共通のライセンス',
                      spec: [['日程', '1泊2日'], ['深さ', '18mまで'], ['年齢', '10歳以上']] },
                en: { seg: 'Open Water', step: 'START HERE', name: 'Open Water Diver',
                      why: 'The licence divers everywhere start with',
                      spec: [['Length', '2 days'], ['Depth', 'to 18m'], ['Age', '10+']] } },
-  { id: 'aow', ja: { seg: 'アドバンス', step: 'つぎの一歩', name: 'アドバンス・オープンウォーター',
+  { id: 'aow', level: 'LEVEL 2',
+               ja: { seg: 'アドバンス', step: 'つぎの一歩', name: 'アドバンス・オープンウォーター',
                      why: '沈没船も、30mの地形も',
                      spec: [['日程', '1泊2日'], ['深さ', '30mまで'], ['年齢', '12歳以上'], ['前提', 'オープンウォーター']] },
                en: { seg: 'Advanced', step: 'NEXT STEP', name: 'Advanced Open Water',
@@ -49,7 +51,8 @@ const L = {
     view: { standard: '', deluxe: '海側', suite: '海側' },
     meta: (cap, view) => view ? `${cap}・${view}` : cap,
     capacity: (n) => `定員${n}名`,
-    perNight: '／泊',
+    baseRoom: '基本',
+    upgrade: (n) => `+${money(n)}`,
     each: (n) => `${money(n)}／人`,
     overCapacity: (cap) => `この組み合わせでは${cap}名までです。部屋数を増やしてください。`,
     lines: {
@@ -58,7 +61,7 @@ const L = {
     },
     unitEach: (q, u) => `${q} × ${money(u)}`,
     summary: (d, r, n) => `${d}名・${r}${n}室・すべて込み`,
-    off: (pct) => `${pct}%OFF`,
+    off: (n) => `${money(n)} OFF`,
     baseRate: '基本料金',
     saved: (n) => `${money(n)} お得`,
     inclTitle: '潜るのに必要なものは、すべて込み',
@@ -87,7 +90,8 @@ const L = {
     view: { standard: '', deluxe: 'sea view', suite: 'sea view' },
     meta: (cap, view) => view ? `${cap} · ${view}` : cap,
     capacity: (n) => `Up to ${n} people`,
-    perNight: '/night',
+    baseRoom: 'Base',
+    upgrade: (n) => `+${money(n)}`,
     each: (n) => `${money(n)} each`,
     overCapacity: (cap) => `That combination sleeps ${cap}. Add a room.`,
     lines: {
@@ -96,7 +100,7 @@ const L = {
     },
     unitEach: (q, u) => `${q} × ${money(u)}`,
     summary: (d, r, n) => `${d} · ${r} x${n} · all in`,
-    off: (pct) => `${pct}% off`,
+    off: (n) => `${money(n)} off`,
     baseRate: 'Base rate',
     saved: (n) => `${money(n)} saved`,
     inclTitle: 'Everything the diving needs — included',
@@ -224,7 +228,8 @@ function render(root) {
     label.className = 'seg' + (on ? ' is-on' : '');
     label.innerHTML =
       `<input type="radio" name="simCourse" value="${c2.id}"${on ? ' checked' : ''}>` +
-      `<span class="seg__n">${c2[lang()].seg}</span>`;
+      `<span class="seg__n">${c2[lang()].seg}</span>` +
+      `<span class="seg__sub">${c2.level}</span>`;
     label.querySelector('input').addEventListener('change', () => {
       state.course = c2.id; render(root);
     });
@@ -232,23 +237,38 @@ function render(root) {
   }));
 
   fill('#simDivers', [1, 2, 3, 4].map(n => {
-    const pct = Math.round(groupDiscount(n) * 100);
+    // The money, not the percentage. "5%OFF" and "₱2,000 OFF" are the same
+    // discount; only one of them is a number the reader can feel. It also
+    // stops the two courses printing two different amounts for one rate.
+    const off = groupDiscount(n);
     const on = state.divers === n;
     const label = document.createElement('label');
     label.className = 'seg' + (on ? ' is-on' : '');
     label.innerHTML =
       `<input type="radio" name="simDivers" value="${n}"${on ? ' checked' : ''}>` +
       `<span class="seg__n">${t.people(n)}</span>` +
-      `<span class="seg__sub">${pct ? t.off(pct) : t.baseRate}</span>`;
+      `<span class="seg__sub">${off ? t.off(off) : t.baseRate}</span>`;
     label.querySelector('input').addEventListener('change', () => {
       state.divers = n; autoRooms(); render(root);
     });
     return label;
   }));
 
-  // Rooms are cards with the actual photograph and their own nightly rate.
-  // Absolute prices, the way a hotel list shows them: a delta reads fine on the
-  // upgrades but forces the cheapest card to describe itself as an absence.
+  // Rooms are cards with the actual photograph and what the upgrade costs —
+  // NOT a nightly rate. This is a package, and a package that prints the hotel's
+  // per-night price hands the reader something to look up on Agoda and a reason
+  // to wonder whether booking the room themselves would be cheaper. The one
+  // advantage of an all-in price is that it has no comparable; publishing the
+  // components throws it away. Two of the three rates are estimates besides, and
+  // an estimate printed as a hotel's rate is a claim about somebody else's
+  // business.
+  //
+  // A delta is a price we set for an upgrade inside our own package, which is
+  // both safer and the configurator convention — Tesla prices a wheel at
+  // "+₱120,000", not at what the wheel is worth. The cheapest card says 基本
+  // rather than "—" or "₱0": an em dash told the reader nothing, and the same
+  // word already labels the base option in the headcount row.
+  const baseNightly = Math.min(...PRICING.rooms.map((r) => r.nightly));
   fill('#simRoom', PRICING.rooms.map(r => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -260,7 +280,7 @@ function render(root) {
       `<img class="sim__roomart" src="${art.src}" alt="${art.alt[lang()]}" loading="lazy" decoding="async">` +
       `<span class="sim__roomname">${t.caps[r.id]}</span>` +
       `<span class="sim__roommeta">${t.meta(t.capacity(r.maxOccupancy), t.view[r.id])}</span>` +
-      `<span class="sim__roomdelta">${money(r.nightly)}${t.perNight}</span>`;
+      `<span class="sim__roomdelta">${r.nightly === baseNightly ? t.baseRoom : t.upgrade(r.nightly - baseNightly)}</span>`;
     b.addEventListener('click', () => { state.roomId = r.id; autoRooms(); render(root); });
     return b;
   }));
@@ -279,7 +299,10 @@ function render(root) {
   // derived values. The spread now reads once, in the summary, in Booking's
   // own shape: "1名・スタンダード2室".
   const maxOcc = PRICING.rooms.find(r => r.id === state.roomId).maxOccupancy;
-  fill('#simRooms', [1, 2, 3].map((n) => {
+  // Up to four, because four is the largest party and four rooms is the only
+  // way four people each get their own. Capping at three quietly refused the
+  // most valuable booking on the page.
+  fill('#simRooms', [1, 2, 3, 4].map((n) => {
     const tooSmall = state.divers > maxOcc * n;
     const on = state.rooms === n;
     const label = document.createElement('label');
@@ -313,7 +336,8 @@ function render(root) {
   root.querySelector('.sim__previewname').textContent = t.caps[room.id];
   root.querySelector('.sim__previewmeta').textContent =
     t.meta(t.capacity(room.maxOccupancy), t.view[room.id]);
-  root.querySelector('.sim__previewrate').textContent = money(room.nightly) + t.perNight;
+  const prate = root.querySelector('.sim__previewrate');
+  prate.textContent = room.nightly === baseNightly ? '' : t.upgrade(room.nightly - baseNightly);
 
   const incl = root.querySelector('.sim__incl');
   incl.replaceChildren(...[
@@ -336,7 +360,7 @@ function render(root) {
 /** Keep the room count viable when the party grows, so the total is never a lie. */
 function autoRooms() {
   const room = PRICING.rooms.find(r => r.id === state.roomId);
-  const needed = Math.min(Math.ceil(state.divers / room.maxOccupancy), 3);
+  const needed = Math.min(Math.ceil(state.divers / room.maxOccupancy), 4);
   // Pinned: only ever raise it, so a deliberate choice is never overwritten by
   // a smaller requirement. Unpinned: track the requirement exactly.
   state.rooms = roomsPinned ? Math.max(state.rooms, needed) : needed;

@@ -158,7 +158,7 @@
       <div class="access__text">
         <p class="kicker" data-reveal="fade">OPEN WATER · MODEL SCHEDULE</p>
         <h2 class="h-md lines">土曜の朝に出て、<br><span class="nw">日曜の夜には</span><span class="nw"><span class="glow">ダイバー</span>。</span></h2>
-        <p data-reveal="fade"><span class="sent">事前学習は、マニラからスマホで完結。</span><span class="sent">有給は、1日もいりません。</span></p>
+        <p data-reveal="fade"><span class="sent">事前学習は、マニラからスマホで完結。</span><span class="sent">土日で完結するため、有給は1日もいりません。</span></p>
       </div>
 
       <div class="sched">
@@ -414,8 +414,8 @@
   <!-- ============ GALLERY ============ -->
   <section class="gallery section" id="gallery" data-depth="0.52">
     <div class="wrap">
-      <p class="kicker" data-reveal="fade">THE WORLD THAT WAITS</p>
-      <h2 class="h-md lines">この青の果てに、<br><span class="glow">帰る場所</span>がある。</h2>
+      <p class="kicker" data-reveal="fade">ANILAO, BATANGAS</p>
+      <h2 class="h-md lines">世界が潜りにくる海で、<br><span class="glow">はじめる</span>。</h2>
     </div>
     <div class="gallery__marquee">
       <div class="gallery__track">
@@ -462,6 +462,69 @@
         </figure>
       </div>
     </div>
+
+    <!-- Where the diving happens, and how close it is. The photographs above
+         establish the place; this delivers the part that is hard to believe —
+         that it is a morning's drive from the city the reader is sitting in.
+         The coastlines are projected from real coordinates (lon 120.30-121.50
+         to x 40-680, lat 13.30-14.90 to y 440-40) and traced, not sketched:
+         someone who lives in Manila knows the shape of that bay, and a made-up
+         one would be the first thing they noticed. Land runs past the viewBox
+         on purpose so the coast reads as continuing rather than as a tile.
+         Inline SVG because a strict CSP blocks every external request, and
+         because the strokes have to take the page's own line colour. -->
+    <div class="wrap anilao" data-reveal="fade">
+      <figure class="anilao__map">
+        <svg viewBox="0 0 720 480" role="img" aria-labelledby="mapTitle mapDesc" class="anilao__svg">
+          <title id="mapTitle">マニラからアニラオまでの地図</title>
+          <desc id="mapDesc">ルソン島南部の地図。マニラから南へ約120km、車で約2時間の位置にアニラオがあり、その沖はベルデ島海峡。</desc>
+
+          <!-- Southern Luzon: down the Bataan peninsula, around Manila Bay and
+               the Cavite hook, down the Batangas coast, into Balayan Bay, out
+               along the Calumpan peninsula that Anilao sits on, then Batangas
+               Bay and away east. -->
+          <path class="anilao__land" d="M104 -10 L93.3 52.5 L82.7 110 L120 147.5 L157.3 155
+            L189.3 140 L200 110 L232 75 L264 52.5 L333.3 50 L392 80 L402.7 115 L370.7 142.5
+            L322.7 152.5 L264 170 L226.7 190 L216 220 L210.7 247.5 L200 277.5 L205.3 300
+            L221.3 315 L253.3 305 L274.7 277.5 L312 270 L349.3 282.5 L360 302.5 L349.3 322.5
+            L344 340 L360 350 L384 335 L397.3 315 L424 305 L450.7 317.5 L466.7 335 L520 340
+            L600 332.5 L653.3 302.5 L712 240 L712 -10 Z" />
+          <!-- Mindoro, the far side of the passage -->
+          <path class="anilao__land" d="M93.3 465 L173.3 405 L264 395 L333.3 400 L386.7 387.5
+            L440 397.5 L509.3 412.5 L600 427.5 L712 465 Z" />
+          <!-- Verde Island itself, sitting in the middle of it -->
+          <ellipse class="anilao__land" cx="451" cy="379" rx="25" ry="6.5" />
+
+          <!-- the drive -->
+          <path class="anilao__route" d="M403 115 Q468 205 361 340" />
+          <circle class="anilao__dot anilao__dot--from" cx="403" cy="115" r="4.5" />
+          <text class="anilao__city" x="419" y="112">マニラ</text>
+          <circle class="anilao__halo" cx="360" cy="344" r="17" />
+          <circle class="anilao__dot anilao__dot--to" cx="360" cy="344" r="6" />
+          <text class="anilao__city anilao__city--to" x="338" y="332" text-anchor="end">アニラオ</text>
+          <text class="anilao__drive" x="474" y="222">車で約2時間</text>
+          <text class="anilao__km" x="474" y="243">南へ約120km</text>
+          <text class="anilao__sea" x="451" y="440" text-anchor="middle">VERDE ISLAND PASSAGE</text>
+        </svg>
+      </figure>
+
+      <!-- Numbers, not adjectives. None of this is ours to claim, which is
+           exactly why it is worth printing. Sources are in Learning.md. -->
+      <dl class="anilao__facts">
+        <div>
+          <dt>1,736種</dt>
+          <dd>10km四方に重なる魚種。世界でもっとも生きものが濃い海として「中心の中心」と呼ばれます。</dd>
+        </div>
+        <div>
+          <dt>1966年</dt>
+          <dd>フィリピン最初のダイブセンターがここに。この国のダイビングは、アニラオから始まりました。</dd>
+        </div>
+        <div>
+          <dt>600種</dt>
+          <dd>記録されたウミウシ。その数を撮りに、世界中の水中写真家が通ってきます。</dd>
+        </div>
+      </dl>
+    </div>
   </section>
 
   <!-- ============ INSTRUCTOR — the thing an Instagram visitor came for ============ -->
@@ -475,14 +538,14 @@
                alt="器材の準備をしながら現地スタッフと話す、日本人のPADIインストラクター" />
         </figure>
         <div class="trust__body">
-          <p><span class="sent">教わるのも、質問するのも日本語です。</span><span class="sent">「耳が抜けない」も「怖い」も、そのまま。</span></p>
-          <p><span class="sent">安全の確認から、器材の点検まで。</span><span class="sent">ぜんぶ、こちらでやります。</span></p>
           <figure class="padi">
             <img class="padi__mark" loading="lazy" decoding="async"
                  src="assets/img/padi-mark.png" width="344" height="116"
                  alt="PADI" />
             <figcaption class="padi__note"><span class="sent">世界最大のダイビング教育機関。</span><span class="sent">PADIの認定ライセンスは世界中どこでも通用します。</span></figcaption>
           </figure>
+          <p><span class="sent">教わるのも、質問するのも日本語です。</span><span class="sent">「耳が抜けない」も「怖い」も、そのまま。</span></p>
+          <p><span class="sent">安全の確認から、器材の点検まで。</span><span class="sent">ぜんぶ、こちらでやります。</span></p>
         </div>
       </div>
     </div>

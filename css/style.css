@@ -1104,7 +1104,11 @@ html[data-lang="en"] .hero__lead{max-width:52ch}
    a card or a badge — the mark is already a strong shape, and boxing it would
    turn a fact into an advertisement. Held to 132px so it reads as a footnote
    beside the copy, never as a second logo competing with the ZEN DIVE lockup. */
-.padi{margin:0;padding-top:clamp(1.2rem,2.2vw,1.7rem);border-top:1px solid var(--line);
+/* The rule sits BELOW the mark, not above it. This block used to close the
+   column, where a border-top separated it from the copy; it now opens the
+   column, and a line above it would have been drawn against nothing. */
+.padi{margin:0 0 clamp(1.4rem,2.6vw,2rem);padding-bottom:clamp(1.2rem,2.2vw,1.7rem);
+  border-bottom:1px solid var(--line);
   display:flex;align-items:center;gap:clamp(.9rem,2vw,1.4rem);flex-wrap:wrap}
 .padi__mark{display:block;width:clamp(96px,11vw,132px);height:auto;flex:none;
   /* the PNG is flat white; dimming it keeps the mark from out-shouting the wordmark */
@@ -1484,3 +1488,49 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
   .chatw__toggle,.chatw__panel,.chatw__ic{transition:none!important}
   .chatw__dot,.chatw__msg--pending i{animation:none!important}
 }
+
+/* ---------------------------------------------------------------------------
+   ANILAO — where the diving happens, and how close it is.
+
+   The section's argument is proximity, so the map has to read at a glance: two
+   dots and a line. Everything else is set back far enough to be scenery. Land
+   is a wash rather than a filled continent — solid landmasses on this palette
+   turn the page into a chart, and it is not a chart.
+   --------------------------------------------------------------------------- */
+.anilao{margin-top:clamp(3rem,7vw,6rem);display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+  gap:clamp(2rem,5vw,4.5rem);align-items:center}
+@media (max-width:860px){.anilao{grid-template-columns:1fr;gap:2.2rem}}
+
+.anilao__map{margin:0}
+.anilao__svg{display:block;width:100%;height:auto}
+/* Land has to be unmistakably land. At .055 the wash was within a shade of the
+   water and the map read as abstract shapes — which defeats the whole point,
+   because the one thing that sells this section is a Manila reader recognising
+   their own bay. */
+.anilao__land{fill:rgba(214,238,236,.13);stroke:rgba(191,227,224,.34);stroke-width:1;
+  vector-effect:non-scaling-stroke}
+/* Dashed, because it is a drive and not a border. */
+.anilao__route{fill:none;stroke:var(--gold);stroke-width:1.4;stroke-dasharray:5 6;
+  stroke-linecap:round;opacity:.85;vector-effect:non-scaling-stroke}
+.anilao__dot--from{fill:none;stroke:var(--ink-dim);stroke-width:1.4;vector-effect:non-scaling-stroke}
+.anilao__dot--to{fill:var(--gold)}
+/* One soft ring on the destination and none on the origin: the eye should land
+   on where you are going, not where you already are. */
+.anilao__halo{fill:rgba(229,182,103,.10);stroke:rgba(229,182,103,.34);stroke-width:1;
+  vector-effect:non-scaling-stroke}
+.anilao__city{font-family:var(--label);font-size:15px;letter-spacing:.08em;fill:var(--ink-dim)}
+.anilao__city--to{fill:var(--gold);font-weight:500;font-size:17px}
+.anilao__drive{font-family:var(--label);font-size:18px;font-weight:500;letter-spacing:.06em;fill:var(--sand)}
+.anilao__km{font-family:var(--label);font-size:12.5px;letter-spacing:.08em;fill:var(--ink-faint)}
+.anilao__sea{font-family:var(--label);font-size:11px;letter-spacing:.24em;fill:var(--ink-faint);opacity:.75}
+
+/* Number first, sentence second — the figure is the argument and the line
+   underneath only says what it counts. */
+.anilao__facts{display:grid;gap:clamp(1.4rem,3vw,2.1rem);margin:0}
+.anilao__facts dt{font-family:var(--label);font-weight:500;
+  font-size:clamp(1.5rem,2.6vw,2rem);line-height:1;letter-spacing:.01em;color:var(--gold);
+  font-variant-numeric:tabular-nums}
+.anilao__facts dd{margin:.5rem 0 0;font-family:var(--mincho);font-size:.82rem;line-height:1.95;
+  letter-spacing:.02em;color:var(--ink-dim);max-width:30em}
+@media (max-width:560px){.anilao__facts dd{font-size:.78rem;line-height:1.85}}

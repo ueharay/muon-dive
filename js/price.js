@@ -56,15 +56,34 @@ export const PRICING = {
     { id: 'suite',    maxOccupancy: 4, nightly: 11650, extraPerHead: 900  },
   ],
 
-  /* Group discount: 5% off the diving rate for each diver past the first.
-     Not generosity — arithmetic. The boat, the divemaster and the fuel are
-     billed per booking (₱12,000) and do not grow with headcount, so a bigger
-     party genuinely costs less per head. This hands that saving back at
-     roughly the rate it appears, which is why the margin per diver stays flat
-     (₱19-21k) while the total climbs. Rooms are excluded: a room does not get
-     cheaper because more people came. */
-  groupDiscountPerExtraDiver: 0.05,
-  maxGroupDiscount: 0.15,
+  /* Group discount, off the diving rate only — a room does not get cheaper
+     because more people came.
+
+     The boat, the divemaster, the fuel and the transfer are billed per booking
+     (₱15,000) and do not grow with headcount, so a bigger party genuinely
+     costs less per head. Handing that back is arithmetic, not generosity.
+
+     The ladder is deliberately uneven. A flat 5% per extra head made the THIRD
+     diver the most expensive one to add — ₱30,000 against ₱28,750 for the
+     second, because the solo loading falls away at two and gives the second
+     head a boost the third never gets. That is backwards: a party of four is
+     rare, a third friend is the one recruitment that actually happens. The
+     jump is at three now, and the fourth costs the group the same as the
+     third rather than more.
+
+     Four is close to free in expectation precisely because it is rare, and it
+     buys the headline. Two stays small: couples and friend-pairs have already
+     decided to come as a pair, so a deeper cut there changes no behaviour and
+     simply gives money away on the most common booking.
+
+     Stated in pesos, not percent, for two reasons. A percentage of a rate the
+     visitor has not been shown is not a number anyone can feel — "5% OFF"
+     against "₱2,000 OFF" is the same money and reads half as loud. And the
+     two courses list at different rates, so one percentage produced two
+     different amounts (₱1,875 on Open Water, ₱1,775 on Advanced) — untidy the
+     moment the amount is what's printed. A flat peso figure is the same
+     promise on both. */
+  groupDiscountByDivers: { 1: 0, 2: 2000, 3: 6000, 4: 8000 },
 
   /* On the resort's statement every time. The Saturday itinerary leaves Manila
      before dawn and reaches the room long before check-in opens, so this is not
@@ -75,10 +94,11 @@ export const PRICING = {
   nights: 1,          // the weekend is one night, two days
 };
 
-/** 0 for a solo diver, then 5% per extra head up to the cap. */
+/** Pesos off each diver's rate. 0 for a solo diver; flat past the largest party. */
 export function groupDiscount(divers) {
-  return Math.min(Math.max(divers - 1, 0) * PRICING.groupDiscountPerExtraDiver,
-                  PRICING.maxGroupDiscount);
+  const table = PRICING.groupDiscountByDivers;
+  const largest = Math.max(...Object.keys(table).map(Number));
+  return table[Math.min(Math.max(divers, 1), largest)] ?? 0;
 }
 
 /**
@@ -95,8 +115,8 @@ export function quote(sel) {
   const capacity = room.maxOccupancy * sel.rooms;
   const listRate = PRICING.course[sel.course] + PRICING.perDiver.gear + PRICING.perDiver.boatAndPass
                  + (sel.divers === 1 ? PRICING.soloLoading : 0);
-  const discount = groupDiscount(sel.divers);
-  const perDiver = Math.round(listRate * (1 - discount));
+  const discount = groupDiscount(sel.divers);          // pesos off each diver
+  const perDiver = listRate - discount;
 
   const courseTotal = perDiver * sel.divers;
 

@@ -41,7 +41,7 @@ test('the simulator renders a real total, not the placeholder', async ({ page })
   await expect(page.locator('#simRoom .sim__room')).toHaveCount(3);
 });
 
-test('every room shows a photo and what upgrading to it costs', async ({ page }) => {
+test('the rooms show what an upgrade costs, never a hotel nightly rate', async ({ page }) => {
   await openSim(page);
 
   // The photograph is the point of the card; a broken one silently turns this
@@ -51,14 +51,23 @@ test('every room shows a photo and what upgrading to it costs', async ({ page })
   expect(loaded).toHaveLength(3);
   for (const im of loaded) expect(im.w, `image failed to load: ${im.src}`).toBeGreaterThan(0);
 
-  // Every card states its own nightly rate, ascending. Absolute rather than a
-  // difference, so the cheapest card is not left describing itself as nothing.
-  const rates = await page.locator('#simRoom .sim__roomdelta').allInnerTexts();
-  expect(rates).toHaveLength(3);
-  for (const r of rates) expect(r, `room must carry its rate: "${r}"`).toMatch(/₱[\d,]+/);
-  const nums = rates.map(money);
-  expect(nums.every((n) => n > 0), 'a room with no price is a room nobody can choose').toBe(true);
-  expect(nums).toEqual([...nums].sort((a, b) => a - b));
+  // This is a package. A per-night hotel rate on the page is a figure the
+  // reader can look up elsewhere and a reason to price the room separately —
+  // and two of the three are estimates, so printing them states someone else's
+  // rates as fact. The cards carry the cost of the upgrade instead.
+  const sim = await page.locator('#sim').innerText();
+  expect(sim, 'no nightly rate anywhere in the simulator').not.toMatch(/／泊|\/night|per night/i);
+
+  const labels = await page.locator('#simRoom .sim__roomdelta').allInnerTexts();
+  expect(labels).toHaveLength(3);
+  // The cheapest says what it is rather than "—" or "₱0", which told the
+  // reader nothing and read as a missing value.
+  expect(labels[0].trim(), 'the base room names itself').toMatch(/\S/);
+  expect(labels[0], 'and quotes no amount').not.toMatch(/₱/);
+  for (const l of labels.slice(1)) expect(l, `an upgrade must be priced: "${l}"`).toMatch(/\+₱[\d,]+/);
+  const ups = labels.slice(1).map(money);
+  expect(ups.every((n) => n > 0), 'an upgrade that costs nothing is not an upgrade').toBe(true);
+  expect(ups, 'dearer rooms cost more to upgrade to').toEqual([...ups].sort((a, b) => a - b));
 
   // Capacity decides whether a room can hold the party at all, so it is not
   // decoration to be dropped when the cards get smaller — which is how it went
@@ -76,10 +85,25 @@ test('the discount is visible before you click, and adds up on the card', async 
   const subs = await page.locator('#simDivers .seg__sub').allInnerTexts();
   expect(subs, 'every segment carries a second line, so the row cannot go ragged')
     .toHaveLength(4);
-  expect(subs[0], 'the base option says what it is rather than sitting empty').not.toMatch(/%/);
+  expect(subs[0], 'the base option says what it is rather than sitting empty').not.toMatch(/₱/);
   expect(subs[0].trim().length, 'and it is not blank').toBeGreaterThan(0);
-  const pcts = subs.slice(1).map((c) => Number(c.match(/(\d+)\s*%/)?.[1]));
-  expect(pcts, 'the discount must grow with the party').toEqual([5, 10, 15]);
+
+  // Money, not percent. "5% OFF" and "₱2,000 OFF" are the same discount and
+  // only one of them is a figure the reader can feel — and one percentage
+  // printed two different amounts across the two courses.
+  const offs = subs.slice(1).map(money);
+  expect(offs, 'the discount is stated in pesos and grows with the party')
+    .toEqual([2000, 6000, 8000]);
+  for (const sub of subs.slice(1)) expect(sub, `stated as money off: "${sub}"`).toMatch(/₱[\d,]+\s*OFF/i);
+
+  // The same promise on both courses, which is the reason it is not a percentage.
+  await page.locator('#simCourse .seg:has(input[value="aow"])').click();
+  await page.waitForTimeout(300);
+  expect((await page.locator('#simDivers .seg__sub').allInnerTexts()).slice(1).map(money),
+    'Advanced lists at a different rate but the discount is the same money')
+    .toEqual(offs);
+  await page.locator('#simCourse .seg:has(input[value="ow"])').click();
+  await page.waitForTimeout(300);
 
   // Assert the content, not CSS visibility: the phone layout deliberately drops
   // this badge from the booking bar, and testing visibility would fail there on
@@ -108,9 +132,19 @@ test('the headcount chips carry no price of their own', async ({ page }) => {
   // per-head figure than "4" and looked like a bug; the numbers also moved when
   // the room grade changed. The per-person price belongs where it is true: on
   // the card, for the combination actually selected.
+  // The rate is what must not appear. Three divers need two standard rooms, so
+  // "3" showed a higher per-head figure than "4" and looked like a bug; the
+  // numbers also moved when the room grade changed. The discount may appear —
+  // it is the same money at every room grade — but never the rate itself.
   const segs = await page.locator('#simDivers .seg').allInnerTexts();
   expect(segs).toHaveLength(4);
-  for (const c of segs) expect(c, `headcount segment must carry no price: "${c}"`).not.toMatch(/₱/);
+  const rate = money(await page.locator('#sim .sim__lines b').first().innerText());
+  expect(rate, 'sanity: the breakdown does quote a rate').toBeGreaterThan(20000);
+  for (const c of segs) {
+    for (const amt of (c.match(/₱[\d,]+/g) || []).map(money)) {
+      expect(amt, `a headcount segment must not quote the rate: "${c}"`).toBeLessThan(rate / 2);
+    }
+  }
   await expect(page.locator('.sim__card .sim__per')).toContainText('₱');
 });
 
@@ -146,7 +180,7 @@ test('a count the party cannot use is disabled, never removed', async ({ page })
   // grey out at the bound instead; the row keeps its shape and the limit is
   // legible. Every count is always present.
   const counts = await page.locator('#simRooms .seg__n').allInnerTexts();
-  expect(counts.map((c) => c.replace(/\D/g, '')), 'all three counts stay').toEqual(['1', '2', '3']);
+  expect(counts.map((c) => c.replace(/\D/g, '')), 'every count stays').toEqual(['1', '2', '3', '4']);
   await expect(roomSeg(page, 1), 'one Standard room cannot hold three').toHaveClass(/is-off/);
   await expect(roomSeg(page, 1).locator('input')).toBeDisabled();
   await expect(page.locator('#sim .sim__warn')).toBeHidden();
@@ -163,7 +197,9 @@ test('a solo diver may still book more than one room', async ({ page }) => {
   // ought to want. Wanting a room to yourself is the customer's call, and a
   // solo booking with two rooms is a larger booking, not a mistake.
   await expect(page.locator('.sim__roomsgroup')).toBeVisible();
-  await expect(page.locator('#simRooms .seg')).toHaveCount(3);
+  // Four, because four is the largest party and four rooms is the only way four
+  // people each get a room to themselves — the biggest booking on the page.
+  await expect(page.locator('#simRooms .seg')).toHaveCount(4);
   await expect(page.locator('#simRooms .seg.is-off'), 'one person fits anywhere').toHaveCount(0);
 
   const oneRoom = await total(page);
