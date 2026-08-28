@@ -117,3 +117,42 @@ test('the prompt agrees with the site on the things both state', () => {
   expect(prompt, 'the bot must know the courses cannot be combined')
     .toMatch(/同時取得はできません/);
 });
+
+/* ---------------------------------------------------------------------------
+   Truncation.
+
+   maxOutputTokens was 500, which was enough when the prompt was short. This
+   model spends part of the same budget thinking, so growing the prompt ate the
+   answer instead — and a cut answer still arrives as a normal 200. Three live
+   replies in a row ended mid-clause ("…ただし、", "…値引きや価格交渉は") and
+   nothing anywhere said so. A chat window that trails off reads as broken
+   software, on the page where a stranger is deciding whether to trust these
+   people underwater.
+   --------------------------------------------------------------------------- */
+
+test('a truncated answer is never handed over as if it finished', async () => {
+  const { tidyReply } = await import('../api/chat.js');
+
+  expect(tidyReply('完結した文です。', 'STOP'), 'a complete reply is left alone')
+    .toBe('完結した文です。');
+
+  const cut = tidyReply('一文目です。二文目が途中で切れ', 'MAX_TOKENS');
+  expect(cut, 'the dangling clause is dropped').not.toContain('途中で切れ');
+  expect(cut, 'and the reader is told where the rest is').toContain('Instagram');
+
+  // Nothing complete to keep — say so rather than returning a fragment alone.
+  expect(tidyReply('最初から切れている途中', 'MAX_TOKENS')).toContain('Instagram');
+  expect(tidyReply('', 'STOP'), 'empty stays empty so the caller can handle it').toBe('');
+});
+
+test('the token budget is large enough for the prompt it now carries', () => {
+  const js = read('api/chat.js');
+  const m = js.match(/const MAX_OUTPUT_TOKENS = (\d+);/);
+  expect(m, 'the budget is a named constant, not a literal buried in the call').toBeTruthy();
+  expect(Number(m[1]), 'raised after live replies were cut off at 500').toBeGreaterThanOrEqual(1500);
+  expect(js, 'and the call actually uses it').toMatch(/maxOutputTokens:\s*MAX_OUTPUT_TOKENS/);
+
+  // An empty candidate — a safety block returns one — used to render as a chat
+  // window that swallowed the question.
+  expect(js, 'a blocked or empty response still says something').toMatch(/うまくお答えできませんでした/);
+});

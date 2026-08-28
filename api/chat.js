@@ -148,6 +148,27 @@ const MODEL = 'gemini-3.6-flash';
 const MAX_MESSAGE_CHARS = 1000;
 const MAX_HISTORY_TURNS = 10;
 
+/* 500 was enough when the prompt was short. It is not now, and the way it fails
+   is the problem: this model spends part of the same budget thinking, so the
+   answer is what gets cut, and a cut answer still arrives as a normal 200. Live
+   replies were ending mid-clause — "ただし、" — and nothing said so.
+   2000 leaves room for both. */
+const MAX_OUTPUT_TOKENS = 2000;
+
+/** Never hand back a dangling clause.
+ *  If the model still runs out of room, cut to the last sentence that finished
+ *  and say the rest is missing, rather than trailing off and looking broken. */
+export function tidyReply(text, finishReason) {
+  const t = String(text || '').trim();
+  if (!t) return '';
+  if (finishReason !== 'MAX_TOKENS') return t;
+  const end = Math.max(t.lastIndexOf('。'), t.lastIndexOf('！'), t.lastIndexOf('？'),
+                       t.lastIndexOf('.'), t.lastIndexOf('!'), t.lastIndexOf('?'));
+  const whole = end > 0 ? t.slice(0, end + 1) : '';
+  const tail = '\n\n続きはInstagramのメッセージでお答えします。';
+  return whole ? whole + tail : t + tail;
+}
+
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
     return response.status(405).json({ error: 'method not allowed' });
@@ -185,7 +206,7 @@ export default async function handler(request, response) {
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents,
-          generationConfig: { temperature: 0.3, maxOutputTokens: 500 },
+          generationConfig: { temperature: 0.3, maxOutputTokens: MAX_OUTPUT_TOKENS },
         }),
       }
     );
@@ -200,6 +221,20 @@ export default async function handler(request, response) {
   }
 
   const data = await upstream.json();
-  const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  const candidate = data?.candidates?.[0];
+  const reply = tidyReply(candidate?.content?.parts?.[0]?.text, candidate?.finishReason);
+
+  if (!reply) {
+    // A safety block returns no candidate at all, and an empty 200 renders as a
+    // widget that swallowed the question. Say something instead.
+    console.error('Gemini returned no usable text:',
+      JSON.stringify({ finishReason: candidate?.finishReason, feedback: data?.promptFeedback }));
+    return response.status(200).json({
+      reply: 'うまくお答えできませんでした。Instagramのメッセージからお問い合わせください。',
+    });
+  }
+  if (candidate?.finishReason === 'MAX_TOKENS') {
+    console.warn('Gemini hit MAX_TOKENS — reply was trimmed to the last full sentence.');
+  }
   return response.status(200).json({ reply });
 }
