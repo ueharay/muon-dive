@@ -108,8 +108,11 @@ mutate "schedule counts revert to spelled-out English numbers" \
 mutate "the room charge becomes per-person instead of per-room" \
   "perl -0pi -e 's/\\* PRICING\\.nights \\+ PRICING\\.earlyCheckIn\\) \\* sel\\.rooms;/* PRICING.nights + PRICING.earlyCheckIn) * sel.divers;/' js/price.js"
 
+# The line this used to target lost its shape when rooms gained an upper bound
+# as well as a lower one — every room needs an occupant, so one diver cannot
+# hold four. Same defect, current expression.
 mutate "an unneeded room stays in the price after switching to a bigger grade" \
-  "perl -0pi -e 's/state\\.rooms = roomsPinned \\? Math\\.max\\(state\\.rooms, needed\\) : needed;/if (state.rooms < needed) state.rooms = needed;/' js/sim.js"
+  "perl -0pi -e 's/state\\.rooms = Math\\.min\\(roomsPinned \\? Math\\.max\\(state\\.rooms, needed\\) : needed, most\\);/if (state.rooms < needed) state.rooms = needed;/' js/sim.js"
 
 # The pixel baselines are taken in tests/fixtures/lockups.html because the live
 # page cannot hold the mark still. That only stays honest while the fixture

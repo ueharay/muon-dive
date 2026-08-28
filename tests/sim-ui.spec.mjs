@@ -91,9 +91,12 @@ test('the discount is visible before you click, and adds up on the card', async 
   // Money, not percent. "5% OFF" and "₱2,000 OFF" are the same discount and
   // only one of them is a figure the reader can feel — and one percentage
   // printed two different amounts across the two courses.
+  // What the BOOKING saves, matching the badge on the card. Per-head figures
+  // here meant "₱2,000 OFF" on the segment and "₱4,000 お得" on the card for
+  // one and the same discount, with nothing on screen to tell them apart.
   const offs = subs.slice(1).map(money);
-  expect(offs, 'the discount is stated in pesos and grows with the party')
-    .toEqual([2000, 6000, 8000]);
+  expect(offs, 'the discount is the whole party\'s, stated in pesos')
+    .toEqual([2000 * 2, 6000 * 3, 8000 * 4]);
   for (const sub of subs.slice(1)) expect(sub, `stated as money off: "${sub}"`).toMatch(/₱[\d,]+\s*OFF/i);
 
   // The same promise on both courses, which is the reason it is not a percentage.
@@ -138,12 +141,16 @@ test('the headcount chips carry no price of their own', async ({ page }) => {
   // it is the same money at every room grade — but never the rate itself.
   const segs = await page.locator('#simDivers .seg').allInnerTexts();
   expect(segs).toHaveLength(4);
-  const rate = money(await page.locator('#sim .sim__lines b').first().innerText());
-  expect(rate, 'sanity: the breakdown does quote a rate').toBeGreaterThan(20000);
+  const perDiverRate = money(await page.locator('#sim .sim__lines i').first().innerText());
+  const grandTotal = await total(page);
+  expect(perDiverRate, 'sanity: the breakdown does quote a rate').toBeGreaterThan(20000);
   for (const c of segs) {
     for (const amt of (c.match(/₱[\d,]+/g) || []).map(money)) {
-      expect(amt, `a headcount segment must not quote the rate: "${c}"`).toBeLessThan(rate / 2);
+      expect(amt, `a segment must not quote the rate: "${c}"`).not.toBe(perDiverRate);
+      expect(amt, `nor the total: "${c}"`).not.toBe(grandTotal);
     }
+    if (/₱/.test(c)) expect(c, `an amount on a segment is a saving, and says so: "${c}"`)
+      .toMatch(/OFF/i);
   }
   await expect(page.locator('.sim__card .sim__per')).toContainText('₱');
 });
@@ -191,22 +198,40 @@ test('a count the party cannot use is disabled, never removed', async ({ page })
   expect(await dim(1), 'the dead count must read as dead').toBeLessThan(await dim(3) - 0.3);
 });
 
-test('a solo diver may still book more than one room', async ({ page }) => {
+test('a room nobody would sleep in cannot be booked', async ({ page }) => {
   await openSim(page);
-  // Hiding this control for one diver was a judgement about what the customer
-  // ought to want. Wanting a room to yourself is the customer's call, and a
-  // solo booking with two rooms is a larger booking, not a mistake.
-  await expect(page.locator('.sim__roomsgroup')).toBeVisible();
-  // Four, because four is the largest party and four rooms is the only way four
-  // people each get a room to themselves — the biggest booking on the page.
-  await expect(page.locator('#simRooms .seg')).toHaveCount(4);
-  await expect(page.locator('#simRooms .seg.is-off'), 'one person fits anywhere').toHaveCount(0);
 
-  const oneRoom = await total(page);
-  await pickRooms(page, 2);
+  // Every room needs an occupant. One diver in four rooms was reachable and
+  // quoted ₱75,500 for one person to sleep in four beds — no booking product
+  // permits it: Booking clamps rooms to the party size, Expedia creates each
+  // room with a guest already in it.
+  //
+  // The control still appears, and every count is still drawn. Removing it was
+  // the earlier mistake and this is not that: the question stays on the page,
+  // the answers that cannot happen are greyed at the bound, exactly as the
+  // too-small ones already were.
+  await expect(page.locator('.sim__roomsgroup')).toBeVisible();
+  await expect(page.locator('#simRooms .seg')).toHaveCount(4);
+  await expect(roomSeg(page, 1), 'one diver, one room').toHaveClass(/is-on/);
+  for (const n of [2, 3, 4]) {
+    await expect(roomSeg(page, n), `${n} rooms for one diver is not a booking`)
+      .toHaveClass(/is-off/);
+    await expect(roomSeg(page, n).locator('input')).toBeDisabled();
+  }
+
+  // And a party that shrinks takes its room count down with it, rather than
+  // leaving rooms it chose earlier sitting in the price.
+  await page.locator('#simDivers .seg').nth(3).click();      // 4 divers
   await page.waitForTimeout(300);
-  await expect(roomSeg(page, 2)).toHaveClass(/is-on/);
-  expect(await total(page), 'the second room must be charged for').toBeGreaterThan(oneRoom);
+  await pickRooms(page, 4);
+  await page.waitForTimeout(300);
+  const four = await total(page);
+  await expect(roomSeg(page, 4)).toHaveClass(/is-on/);
+
+  await page.locator('#simDivers .seg').nth(0).click();      // back to 1
+  await page.waitForTimeout(300);
+  await expect(roomSeg(page, 1), 'the count follows the party down').toHaveClass(/is-on/);
+  expect(await total(page), 'and the rooms leave the price with it').toBeLessThan(four);
 });
 
 test('the room count follows the party until it is chosen by hand', async ({ page }) => {
@@ -335,11 +360,18 @@ test('the room segments carry a number and nothing else', async ({ page }) => {
     await expect(roomSeg(page, n).locator('span')).toHaveCount(1);
   }
 
-  // The spread is still stated — once, in the summary, in the shape Booking.com
-  // uses for its occupancy trigger ("大人2名 · 子供0名 · 1部屋").
+  // The summary line is still there, but which one depends on the viewport, and
+  // pinning the desktop element made this fail on a phone for a reason that had
+  // nothing to do with room segments. On a wide screen the card states the
+  // configuration ("3名・スタンダード2室"); on the booking bar, where there is
+  // room for one line and the reader is deciding, it states the per-head price
+  // instead. Exactly one is on screen, and it carries a figure either way.
   const short = page.locator('#sim .sim__short');
-  await expect(short).toBeVisible();
-  await expect(short, 'the summary states the party and the rooms').toHaveText(/3.*2/s);
+  const perbar = page.locator('#sim .sim__perbar');
+  const shown = (await short.isVisible()) ? short : perbar;
+  await expect(shown, 'one summary line is always on screen').toBeVisible();
+  await expect(await short.isVisible(), 'and only one of them').not.toBe(await perbar.isVisible());
+  await expect(shown, 'the summary carries a number').toHaveText(/\d/);
 });
 
 test('both controls speak the same visual language', async ({ page }) => {

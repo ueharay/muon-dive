@@ -31,7 +31,10 @@ DECL=".claude/loop/scope.txt"
 # section was written and lost that way, and the run's own STALE/caught verdicts
 # were meaningless because the search strings moved underneath it. Both
 # directions are destructive, so the answer is not to work at all while it runs.
-if pgrep -f 'self-test\.sh' >/dev/null 2>&1; then
+# Match the script being EXECUTED, not any command line that happens to name it.
+# `pgrep -f self-test.sh` also matched the wait-loop that was watching for it, so
+# the loop waited on itself and never returned.
+if pgrep -f '(bash|sh) .*scripts/self-test\.sh' >/dev/null 2>&1; then
   cat >&2 <<'EOF'
 scope-check: self-test.sh is RUNNING. Stop.
 

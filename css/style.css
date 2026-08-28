@@ -747,7 +747,8 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .sim__lines b{grid-row:1;grid-column:2;font-weight:500;color:var(--sand);white-space:nowrap}
 
 .sim__cta{width:100%;justify-content:center;margin-top:var(--sim-block)}
-.sim__ctashort{display:none}
+.sim__ctashort,.sim__perbar{display:none}
+.sim__perbar i{font-style:normal}
 /* What is currently configured, in one line — the shape Booking.com puts in its
    occupancy trigger ("大人2名 · 子供0名 · 1部屋"). This is where the party-to-room
    spread is stated, now that the room segments no longer carry a second line. */
@@ -794,14 +795,21 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
      as flex siblings they lined up beside each other instead. */
   .sim__card{background:rgba(4,26,38,.94);border-radius:0;border-left:0;border-right:0;border-bottom:0;
     padding:.7rem var(--pad) calc(.7rem + env(safe-area-inset-bottom));
-    display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 1rem}
+    /* minmax(0,…) so the price column can actually shrink. At 1fr it refused to
+       go below the nowrap width of the per-head line, and on a 320px screen the
+       booking button was squeezed until its own label spilled out of it. */
+    display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:0 .8rem}
   .sim__total{grid-column:1;grid-row:1}
-  .sim__short{grid-column:1;grid-row:2}
+  /* Per head, not the configuration. The party size and room are visible in the
+     controls a thumb-scroll above; what the bar has to carry is the number a
+     reader compares, and this is the view most of them decide in. */
+  .sim__short{display:none}
+  .sim__perbar{display:block;grid-column:1;grid-row:2;margin-top:.1rem;
+    font-family:var(--label);font-size:.62rem;letter-spacing:.08em;color:var(--ink-faint);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sim__cta{grid-column:2;grid-row:1/3}
   .sim__label,.sim__per,.sim__saved,.sim__lines,.sim__note,.sim__ctalong{display:none}
   .sim__total{font-size:1.5rem;line-height:1.05}
-  .sim__short{display:block;margin-top:.1rem;font-family:var(--label);font-size:.6rem;
-    letter-spacing:.1em;color:var(--ink-faint);white-space:nowrap}
   .sim__ctashort{display:inline}
   /* The chat bubble is fixed to the same corner the booking button occupies, so
      while the bar is up it is a tap conflict rather than an option. It comes
@@ -809,7 +817,21 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
   html.sim-bar-up .chatw__toggle{opacity:0;pointer-events:none;transform:translateY(1rem)}
   .sim__cta{width:auto;margin:0;flex:none;white-space:nowrap;padding:.72rem 1.3rem;font-size:.82rem}
 }
+@media (max-width:380px){
+  /* The narrowest phones cannot hold the amount and the claim on one line, and
+     an ellipsis through "₱37,00…" costs more than dropping "すべて込み" — which
+     the included list two thumb-scrolls up states in full anyway. */
+  .sim__perbar i{display:none}
+  .sim__total{font-size:1.3rem}
+  .sim__perbar{font-size:.58rem;letter-spacing:.05em}
+  .sim__cta{padding:.66rem 1rem;font-size:.76rem}
+}
 @media (max-width:560px){
+  /* Long course names against short ones is exactly the ragged row Apple's HIG
+     warns about. Smaller type and a break the whole word survives, rather than
+     "オープンウォー / ター". */
+  #simCourse .seg__n{font-size:.78rem;line-height:1.25;word-break:keep-all}
+  #simCourse .seg{padding:.55rem .3rem}
   .sim__rooms{grid-template-columns:1fr;gap:.5rem}
   .sim__room{grid-template-columns:88px 1fr;grid-template-rows:auto auto auto;align-items:center}
   .sim__roomart{grid-row:1/4;height:100%;min-height:70px}
@@ -1492,45 +1514,79 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
 /* ---------------------------------------------------------------------------
    ANILAO — where the diving happens, and how close it is.
 
-   The section's argument is proximity, so the map has to read at a glance: two
-   dots and a line. Everything else is set back far enough to be scenery. Land
-   is a wash rather than a filled continent — solid landmasses on this palette
-   turn the page into a chart, and it is not a chart.
+   The argument is proximity, so the map reads at a glance: two dots and a line.
+   Depth is carried by contour spacing alone, after Atlas of Design's reading of
+   `Le pertuis d'Antioche` — line pattern instead of soundings. Everything below
+   the route is scenery and is weighted to stay there.
    --------------------------------------------------------------------------- */
 .anilao{margin-top:clamp(3rem,7vw,6rem);display:grid;
-  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+  grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
   gap:clamp(2rem,5vw,4.5rem);align-items:center}
-@media (max-width:860px){.anilao{grid-template-columns:1fr;gap:2.2rem}}
+@media (max-width:860px){.anilao{grid-template-columns:1fr;gap:2rem}}
 
 .anilao__map{margin:0}
 .anilao__svg{display:block;width:100%;height:auto}
-/* Land has to be unmistakably land. At .055 the wash was within a shade of the
-   water and the map read as abstract shapes — which defeats the whole point,
-   because the one thing that sells this section is a Manila reader recognising
-   their own bay. */
-.anilao__land{fill:rgba(214,238,236,.13);stroke:rgba(191,227,224,.34);stroke-width:1;
+.anilao__land{fill:rgba(214,238,236,.10);stroke:rgba(191,227,224,.30);stroke-width:1;
   vector-effect:non-scaling-stroke}
+/* A scale bar, in the chart's own register: hairline, quiet, and the only
+   thing on the map that is a measurement rather than a place. */
+.anilao__scale line{stroke:rgba(191,227,224,.34);stroke-width:1;vector-effect:non-scaling-stroke}
+.anilao__scale text{font-family:var(--label);font-size:9.5px;letter-spacing:.12em;fill:var(--ink-faint)}
+.anilao__grid line{stroke:rgba(191,227,224,.07);stroke-width:1;vector-effect:non-scaling-stroke}
+
 /* Dashed, because it is a drive and not a border. */
-.anilao__route{fill:none;stroke:var(--gold);stroke-width:1.4;stroke-dasharray:5 6;
-  stroke-linecap:round;opacity:.85;vector-effect:non-scaling-stroke}
+.anilao__route{fill:none;stroke:var(--gold);stroke-width:1.5;stroke-dasharray:4 7;
+  stroke-linecap:round;vector-effect:non-scaling-stroke}
 .anilao__dot--from{fill:none;stroke:var(--ink-dim);stroke-width:1.4;vector-effect:non-scaling-stroke}
 .anilao__dot--to{fill:var(--gold)}
-/* One soft ring on the destination and none on the origin: the eye should land
-   on where you are going, not where you already are. */
-.anilao__halo{fill:rgba(229,182,103,.10);stroke:rgba(229,182,103,.34);stroke-width:1;
-  vector-effect:non-scaling-stroke}
-.anilao__city{font-family:var(--label);font-size:15px;letter-spacing:.08em;fill:var(--ink-dim)}
+/* Two rings on the destination, none on the origin: the eye should land on
+   where you are going, not where you already are. */
+.anilao__halo{fill:none;stroke:rgba(229,182,103,.28);stroke-width:1;vector-effect:non-scaling-stroke}
+.anilao__halo--in{fill:rgba(229,182,103,.12);stroke:rgba(229,182,103,.42)}
+.anilao__city{font-family:var(--label);font-size:14px;letter-spacing:.09em;fill:var(--ink-dim)}
 .anilao__city--to{fill:var(--gold);font-weight:500;font-size:17px}
+/* The chart convention, and the detail that says these are real coordinates and
+   not a shape somebody liked. */
+.anilao__coord{font-family:var(--label);font-size:9.5px;letter-spacing:.14em;fill:var(--ink-faint)}
 .anilao__drive{font-family:var(--label);font-size:18px;font-weight:500;letter-spacing:.06em;fill:var(--sand)}
 .anilao__km{font-family:var(--label);font-size:12.5px;letter-spacing:.08em;fill:var(--ink-faint)}
-.anilao__sea{font-family:var(--label);font-size:11px;letter-spacing:.24em;fill:var(--ink-faint);opacity:.75}
+.anilao__sea{font-family:var(--label);font-size:10.5px;letter-spacing:.26em;fill:var(--ink-faint);opacity:.7}
 
-/* Number first, sentence second — the figure is the argument and the line
-   underneath only says what it counts. */
-.anilao__facts{display:grid;gap:clamp(1.4rem,3vw,2.1rem);margin:0}
-.anilao__facts dt{font-family:var(--label);font-weight:500;
-  font-size:clamp(1.5rem,2.6vw,2rem);line-height:1;letter-spacing:.01em;color:var(--gold);
-  font-variant-numeric:tabular-nums}
-.anilao__facts dd{margin:.5rem 0 0;font-family:var(--mincho);font-size:.82rem;line-height:1.95;
-  letter-spacing:.02em;color:var(--ink-dim);max-width:30em}
-@media (max-width:560px){.anilao__facts dd{font-size:.78rem;line-height:1.85}}
+/* Two sentences and a footnote. The three stat blocks this replaces were true
+   and completely unmoving — a by-the-numbers panel proves a place is impressive
+   without ever putting the reader inside it. */
+.anilao__lead{font-family:var(--mincho);font-size:clamp(1.05rem,1.9vw,1.42rem);
+  line-height:1.95;letter-spacing:.03em;color:var(--ink-dim);margin:0}
+.anilao__lead--hit{margin-top:1.1rem;color:var(--sand)}
+.anilao__cred{margin-top:clamp(1.6rem,3.5vw,2.4rem);padding-top:clamp(1rem,2vw,1.3rem);
+  border-top:1px solid var(--line);
+  font-family:var(--label);font-size:.66rem;line-height:2;letter-spacing:.08em;
+  color:var(--ink-faint)}
+
+/* ---------------------------------------------------------------------------
+   SAFETY — the one section that is a promise rather than a pitch.
+
+   Set at reading size, not display size: the argument is that the shop will
+   cancel a day it has already been paid for, and that only lands if it is
+   stated plainly. The refund position sits in the same block, dimmer but not
+   hidden — putting it in a footer would make the promise above it worthless.
+   --------------------------------------------------------------------------- */
+.safety__body{max-width:46ch;margin-top:clamp(1.8rem,4vw,2.8rem)}
+.safety__body p{font-family:var(--mincho);font-size:clamp(.9rem,1.5vw,1.05rem);
+  line-height:2.1;letter-spacing:.03em;color:var(--ink-dim)}
+.safety__body p + p{margin-top:1.5rem}
+.safety__terms{margin-top:clamp(2rem,4vw,2.8rem)!important;
+  padding-top:clamp(1.1rem,2.2vw,1.5rem);border-top:1px solid var(--line);
+  font-size:.82rem!important;line-height:1.95!important;color:var(--ink-faint)!important}
+
+/* The terms, as a two-row definition list rather than a paragraph: there are
+   two directions (we cancel / you cancel) and a reader looking for one of them
+   should not have to read the other. Still inside the section, not a footer —
+   a promise to cancel a paid day is worth nothing if the refund position is
+   somewhere else. */
+.safety__terms{margin-top:clamp(2rem,4vw,2.8rem);padding-top:clamp(1.1rem,2.2vw,1.5rem);
+  border-top:1px solid var(--line);display:grid;gap:1.3rem}
+.safety__terms dt{font-family:var(--label);font-size:.66rem;letter-spacing:.14em;
+  color:var(--cyan);margin-bottom:.5rem}
+.safety__terms dd{margin:0;font-family:var(--mincho);font-size:.82rem;line-height:1.95;
+  letter-spacing:.02em;color:var(--ink-faint)}

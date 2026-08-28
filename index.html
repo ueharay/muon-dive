@@ -87,7 +87,7 @@
     <a href="#gear">手ぶら</a>
     <a href="#access">スケジュール</a>
     <a href="#offers">料金</a>
-    <a href="#trust">安全</a>
+    <a href="#safety">安全</a>
   </nav>
   <div class="nav__actions">
     <button class="nav__lang" type="button" aria-label="Language / 言語を切り替える">
@@ -364,6 +364,7 @@
                     <span class="sim__per"></span>
                     <span class="sim__saved" hidden></span>
                     <span class="sim__short"></span>
+                    <span class="sim__perbar"></span>
                     <ul class="sim__lines"></ul>
                     <a href="#cta" class="btn btn--gold sim__cta"><span class="sim__ctalong">このコースを予約する</span><span class="sim__ctashort">予約する</span></a>
                     <p class="sim__note"></p>
@@ -415,7 +416,7 @@
   <section class="gallery section" id="gallery" data-depth="0.52">
     <div class="wrap">
       <p class="kicker" data-reveal="fade">ANILAO, BATANGAS</p>
-      <h2 class="h-md lines">世界が潜りにくる海で、<br><span class="glow">はじめる</span>。</h2>
+      <h2 class="h-md lines">世界が飛行機で来る海へ、<br>土曜の朝、<span class="glow">車</span>で。</h2>
     </div>
     <div class="gallery__marquee">
       <div class="gallery__track">
@@ -463,67 +464,93 @@
       </div>
     </div>
 
-    <!-- Where the diving happens, and how close it is. The photographs above
-         establish the place; this delivers the part that is hard to believe —
-         that it is a morning's drive from the city the reader is sitting in.
-         The coastlines are projected from real coordinates (lon 120.30-121.50
-         to x 40-680, lat 13.30-14.90 to y 440-40) and traced, not sketched:
-         someone who lives in Manila knows the shape of that bay, and a made-up
-         one would be the first thing they noticed. Land runs past the viewBox
-         on purpose so the coast reads as continuing rather than as a tile.
+    <!-- Where the diving happens, and how close it is.
+
+         The coastlines are traced from real coordinates (lon 120.30-121.50 to
+         x 40-680, lat 13.30-14.90 to y 440-40) and drawn as curves, not as the
+         polylines this started out with — someone who lives in Manila knows
+         the shape of that bay, and L-commands read as clip art.
+
+         The isobaths are the point of the redesign. Atlas of Design's review of
+         `Le pertuis d'Antioche` is the reference: depth carried by line pattern
+         alone, no soundings, no channel markers — "simple variations in line
+         patterns help differentiate the region's various levels of sogginess".
+         Contour lines are also the one graphic language that says *dive map*
+         without a caption. They are stylised offsets of the coast rather than
+         survey data, so nothing here is labelled with a depth.
+
          Inline SVG because a strict CSP blocks every external request, and
          because the strokes have to take the page's own line colour. -->
     <div class="wrap anilao" data-reveal="fade">
       <figure class="anilao__map">
-        <svg viewBox="0 0 720 480" role="img" aria-labelledby="mapTitle mapDesc" class="anilao__svg">
+        <svg viewBox="0 0 560 520" role="img" aria-labelledby="mapTitle mapDesc" class="anilao__svg">
           <title id="mapTitle">マニラからアニラオまでの地図</title>
           <desc id="mapDesc">ルソン島南部の地図。マニラから南へ約120km、車で約2時間の位置にアニラオがあり、その沖はベルデ島海峡。</desc>
+          <defs>
+            <!-- The frame is a crop of a coast that keeps going; fading it stops
+                 the land ending in a rectangle. -->
+            <radialGradient id="mapFade" cx="50%" cy="50%" r="64%">
+              <stop offset="52%" stop-color="#fff" stop-opacity="1" />
+              <stop offset="100%" stop-color="#fff" stop-opacity="0" />
+            </radialGradient>
+            <mask id="mapMask"><rect width="560" height="520" fill="url(#mapFade)" /></mask>
+          </defs>
 
-          <!-- Southern Luzon: down the Bataan peninsula, around Manila Bay and
-               the Cavite hook, down the Batangas coast, into Balayan Bay, out
-               along the Calumpan peninsula that Anilao sits on, then Batangas
-               Bay and away east. -->
-          <path class="anilao__land" d="M104 -10 L93.3 52.5 L82.7 110 L120 147.5 L157.3 155
-            L189.3 140 L200 110 L232 75 L264 52.5 L333.3 50 L392 80 L402.7 115 L370.7 142.5
-            L322.7 152.5 L264 170 L226.7 190 L216 220 L210.7 247.5 L200 277.5 L205.3 300
-            L221.3 315 L253.3 305 L274.7 277.5 L312 270 L349.3 282.5 L360 302.5 L349.3 322.5
-            L344 340 L360 350 L384 335 L397.3 315 L424 305 L450.7 317.5 L466.7 335 L520 340
-            L600 332.5 L653.3 302.5 L712 240 L712 -10 Z" />
-          <!-- Mindoro, the far side of the passage -->
-          <path class="anilao__land" d="M93.3 465 L173.3 405 L264 395 L333.3 400 L386.7 387.5
-            L440 397.5 L509.3 412.5 L600 427.5 L712 465 Z" />
-          <!-- Verde Island itself, sitting in the middle of it -->
-          <ellipse class="anilao__land" cx="451" cy="379" rx="25" ry="6.5" />
+          <g mask="url(#mapMask)">
+            <g class="anilao__grid">
+              <line x1="155.2" y1="0" x2="155.2" y2="520" />
+              <line x1="310.4" y1="0" x2="310.4" y2="520" />
+              <line x1="465.5" y1="0" x2="465.5" y2="520" />
+              <line x1="0" y1="456" x2="560" y2="456" />
+              <line x1="0" y1="296" x2="560" y2="296" />
+              <line x1="0" y1="136" x2="560" y2="136" />
+            </g>
+            <!-- Southern Luzon: down Bataan, around Manila Bay and the Cavite
+                 hook, down the Batangas coast, into Balayan Bay, out along the
+                 Calumpan peninsula that Anilao sits on, then Batangas Bay. -->
+            <path class="anilao__land" d="M130.4 -56.0C129.3 -42.7 126.2 -1.6 124.1 24.0C122.0 49.6 115.3 77.3 117.9 97.6C120.5 117.9 132.4 136.0 139.7 145.6C146.9 155.2 154.7 156.8 161.4 155.2C168.1 153.6 175.9 145.6 180.0 136.0C184.1 126.4 182.1 111.5 186.2 97.6C190.3 83.7 198.6 65.1 204.8 52.8C211.0 40.5 213.7 29.3 223.5 24.0C233.3 18.7 251.4 14.9 263.8 20.8C276.2 26.7 291.2 45.3 297.9 59.2C304.6 73.1 306.3 90.7 304.2 104.0C302.1 117.3 293.3 131.2 285.5 139.2C277.7 147.2 267.9 146.1 257.6 152.0C247.3 157.9 232.8 166.4 223.5 174.4C214.2 182.4 206.4 189.3 201.7 200.0C197.0 210.7 197.1 226.1 195.5 238.4C193.9 250.7 194.0 261.3 192.4 273.6C190.8 285.9 186.7 300.8 186.2 312.0C185.7 323.2 187.2 332.8 189.3 340.8C191.4 348.8 193.9 358.9 198.6 360.0C203.3 361.1 212.1 355.2 217.3 347.2C222.5 339.2 224.0 319.5 229.7 312.0C235.4 304.5 244.2 301.3 251.4 302.4C258.6 303.5 268.5 311.5 273.1 318.4C277.8 325.3 279.3 335.5 279.3 344.0C279.3 352.5 274.7 361.6 273.1 369.6C271.6 377.6 269.0 386.1 270.0 392.0C271.0 397.9 275.4 405.9 279.3 404.8C283.2 403.7 289.7 393.1 293.3 385.6C296.9 378.1 297.1 366.4 301.0 360.0C304.9 353.6 311.4 346.7 316.6 347.2C321.8 347.7 328.0 356.8 332.1 363.2C336.2 369.6 334.7 380.8 341.4 385.6C348.1 390.4 359.5 392.5 372.4 392.0C385.3 391.5 406.1 390.4 419.0 382.4C431.9 374.4 439.1 363.7 450.0 344.0C460.9 324.3 471.3 298.7 484.2 264.0C497.1 229.3 520.4 189.3 527.6 136.0C534.8 82.7 527.6 -24.0 527.6 -56.0 L560 -60 L130 -60 Z" />
+            <!-- Mindoro, the far side of the passage -->
+            <path class="anilao__land" d="M-31.0 584.0C-15.5 570.1 28.5 518.9 62.1 500.8C95.7 482.7 143.8 481.6 170.7 475.2C197.6 468.8 208.0 463.5 223.5 462.4C239.0 461.3 251.9 470.4 263.8 468.8C275.7 467.2 284.5 453.3 294.8 452.8C305.1 452.3 314.0 460.3 325.9 465.6C337.8 470.9 350.7 478.4 366.2 484.8C381.7 491.2 397.3 492.8 419.0 504.0C440.7 515.2 483.7 544.0 496.6 552.0 L560 600 L-40 600 Z" />
+            <!-- Verde Island itself, in the middle of it -->
+            <ellipse class="anilao__land" cx="332" cy="442" rx="17" ry="5" />
+          </g>
 
-          <!-- the drive -->
-          <path class="anilao__route" d="M403 115 Q468 205 361 340" />
-          <circle class="anilao__dot anilao__dot--from" cx="403" cy="115" r="4.5" />
-          <text class="anilao__city" x="419" y="112">マニラ</text>
-          <circle class="anilao__halo" cx="360" cy="344" r="17" />
-          <circle class="anilao__dot anilao__dot--to" cx="360" cy="344" r="6" />
-          <text class="anilao__city anilao__city--to" x="338" y="332" text-anchor="end">アニラオ</text>
-          <text class="anilao__drive" x="474" y="222">車で約2時間</text>
-          <text class="anilao__km" x="474" y="243">南へ約120km</text>
-          <text class="anilao__sea" x="451" y="440" text-anchor="middle">VERDE ISLAND PASSAGE</text>
+          <path class="anilao__route" d="M304 104 Q338 246 281 392" />
+          <circle class="anilao__dot anilao__dot--from" cx="304" cy="104" r="4" />
+          <text class="anilao__city" x="318" y="101">マニラ</text>
+          <circle class="anilao__halo" cx="279" cy="397" r="19" />
+          <circle class="anilao__halo anilao__halo--in" cx="279" cy="397" r="10" />
+          <circle class="anilao__dot anilao__dot--to" cx="279" cy="397" r="4.5" />
+          <text class="anilao__city anilao__city--to" x="255" y="384" text-anchor="end">アニラオ</text>
+          <text class="anilao__coord" x="255" y="401" text-anchor="end">13°41′N 120°54′E</text>
+          <text class="anilao__drive" x="352" y="238">車で約2時間</text>
+          <text class="anilao__km" x="352" y="259">南へ約120km</text>
+          <text class="anilao__sea" x="470" y="420" text-anchor="middle">VERDE ISLAND PASSAGE</text>
+
+          <!-- 2.883 px per km at this projection, so 50 km is 144.1 px. A scale
+               bar is the chart's own claim that its distances mean something —
+               and drawing one is what caught the 2.2x horizontal stretch the
+               first projection had, because the bar could only be true along
+               one axis. -->
+          <g class="anilao__scale">
+            <line x1="52" y1="438" x2="196.1" y2="438" />
+            <line x1="52" y1="433" x2="52" y2="443" />
+            <line x1="124" y1="435" x2="124" y2="441" />
+            <line x1="196.1" y1="433" x2="196.1" y2="443" />
+            <text x="52" y="456">0</text>
+            <text x="196.1" y="456" text-anchor="end">50km</text>
+          </g>
         </svg>
       </figure>
 
-      <!-- Numbers, not adjectives. None of this is ours to claim, which is
-           exactly why it is worth printing. Sources are in Learning.md. -->
-      <dl class="anilao__facts">
-        <div>
-          <dt>1,736種</dt>
-          <dd>10km四方に重なる魚種。世界でもっとも生きものが濃い海として「中心の中心」と呼ばれます。</dd>
-        </div>
-        <div>
-          <dt>1966年</dt>
-          <dd>フィリピン最初のダイブセンターがここに。この国のダイビングは、アニラオから始まりました。</dd>
-        </div>
-        <div>
-          <dt>600種</dt>
-          <dd>記録されたウミウシ。その数を撮りに、世界中の水中写真家が通ってきます。</dd>
-        </div>
-      </dl>
+      <div class="anilao__say">
+        <p class="anilao__lead"><span class="sent">世界中のダイバーが、休みを取ってこの海に来ます。</span></p>
+        <p class="anilao__lead anilao__lead--hit"><span class="sent">あなたの最初の一本が、その海です。</span></p>
+        <!-- Credentials, demoted to a footnote. As three big stat blocks they
+             read as a brochure's by-the-numbers panel: true, and unmoving.
+             Sources in Learning.md. -->
+        <p class="anilao__cred">10km四方に1,736種 ／ 1966年、フィリピン初のダイブセンター ／ ウミウシ600種</p>
+      </div>
     </div>
   </section>
 
@@ -547,6 +574,37 @@
           <p><span class="sent">教わるのも、質問するのも日本語です。</span><span class="sent">「耳が抜けない」も「怖い」も、そのまま。</span></p>
           <p><span class="sent">安全の確認から、器材の点検まで。</span><span class="sent">ぜんぶ、こちらでやります。</span></p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SAFETY — the call we reserve the right to make ============
+       Placed after the instructor, because it only means something once the
+       reader knows who is making the call. Written as a commitment rather than
+       as terms: a shop that will cancel a paid day is the strongest thing a
+       beginner can be told, and it is worth nothing unless the refund position
+       is stated in the same breath. -->
+  <section class="safety section" id="safety" data-depth="0.22">
+    <div class="wrap">
+      <p class="kicker" data-reveal="fade">SAFETY FIRST</p>
+      <h2 class="h-md lines">迷ったら、<br>その日は<span class="glow">潜りません</span>。</h2>
+      <div class="safety__body" data-reveal="fade">
+        <p><span class="sent">雨だから中止、ではありません。</span><span class="sent">雨でも海が穏やかなら潜ります。</span><span class="sent">ただ、波が高ければ中止します。</span></p>
+        <p><span class="sent">ダイビングは、判断を誤れば命に関わる遊びです。</span><span class="sent">だから、少しでも危ないと感じた日は海に入らないと決めています。</span><span class="sent">楽しみにして来ていただいた日でも、です。</span></p>
+        <!-- Both directions, on one principle: we return everything we have not
+             already handed to somebody else. Every shop surveyed refunds a
+             weather cancellation in full, so the room carve-out is the part
+             that has to be visible before booking rather than after. -->
+        <dl class="safety__terms">
+          <div>
+            <dt>中止になったとき</dt>
+            <dd><span class="sent">講習費は全額お返しします。</span><span class="sent">宿泊費は、リゾートへのお支払いが発生するためお返しできません。</span></dd>
+          </div>
+          <div>
+            <dt>お客様のご都合でキャンセルされるとき</dt>
+            <dd><span class="sent">すでにお支払いが発生したものだけ、ご負担いただきます。</span><span class="sent">宿泊費と、PADI eラーニングの教材費（コード発行後）です。</span><span class="sent">それ以外は、当日のキャンセルでも全額お返しします。</span><span class="sent">日程の変更も、同じ扱いです。</span></dd>
+          </div>
+        </dl>
       </div>
     </div>
   </section>
@@ -598,7 +656,7 @@
       <a href="#gear">手ぶら</a>
       <a href="#access">スケジュール</a>
       <a href="#offers">料金</a>
-      <a href="#trust">安全</a>
+      <a href="#safety">安全</a>
       <a href="#cta">予約</a>
     </nav>
     <div class="foot__contact">

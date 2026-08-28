@@ -58,9 +58,21 @@ const L = {
     lines: {
       course: 'ダイビング（講習・器材・ボート・送迎・食事）',
       room: '宿泊',
+      // The room's unit price is the one number here a reader can look up on
+      // Agoda, which is exactly why the cards stopped printing a nightly rate.
+      // Leaving "4 × ₱8,250" in the breakdown published it anyway. The grade
+      // and the count move into the label so nothing is actually lost.
+      roomWith: (cap, n) => `宿泊（${cap}${n}室）`,
     },
     unitEach: (q, u) => `${q} × ${money(u)}`,
     summary: (d, r, n) => `${d}名・${r}${n}室・すべて込み`,
+    // The phone's booking bar is the view that decides this, and it was showing
+    // only the party total. Per head is the figure anyone compares with.
+    // Short on purpose. "お一人あたり" is the clearer phrase but at 320px it
+    // pushed the amount itself into an ellipsis — "₱37,00…" — which loses the
+    // one thing the line exists to say.
+    perBar: (d, n) => d === 1 ? '<i>すべて込み</i>'
+      : `1人 ${money(n)}<i>・すべて込み</i>`,
     off: (n) => `${money(n)} OFF`,
     baseRate: '基本料金',
     saved: (n) => `${money(n)} お得`,
@@ -97,9 +109,11 @@ const L = {
     lines: {
       course: 'Diving — tuition, gear, boat, transfers, meals',
       room: 'Room',
+      roomWith: (cap, n) => `Room (${cap} x${n})`,
     },
     unitEach: (q, u) => `${q} × ${money(u)}`,
     summary: (d, r, n) => `${d} · ${r} x${n} · all in`,
+    perBar: (d, n) => d === 1 ? '<i>all in</i>' : `${money(n)} each<i> · all in</i>`,
     off: (n) => `${money(n)} off`,
     baseRate: 'Base rate',
     saved: (n) => `${money(n)} saved`,
@@ -161,6 +175,9 @@ function render(root) {
   root.querySelector('.sim__note').textContent = t.note;
   root.querySelector('.sim__short').textContent =
     t.summary(state.divers, t.caps[state.roomId], state.rooms);
+  // innerHTML because the all-in tail is wrapped so a 320px screen can drop it.
+  // The amount is the one thing that must never be the part that gets cut.
+  root.querySelector('.sim__perbar').innerHTML = t.perBar(state.divers, q.perPerson);
 
   const legends = root.querySelectorAll('.sim__legend');
   legends[0].textContent = t.course;
@@ -237,10 +254,17 @@ function render(root) {
   }));
 
   fill('#simDivers', [1, 2, 3, 4].map(n => {
-    // The money, not the percentage. "5%OFF" and "₱2,000 OFF" are the same
+    // The money, not the percentage. "5%OFF" and "₱4,000 OFF" are the same
     // discount; only one of them is a number the reader can feel. It also
     // stops the two courses printing two different amounts for one rate.
-    const off = groupDiscount(n);
+    //
+    // The BOOKING's saving, not each diver's. Per-head here put two different
+    // figures for one discount on the same screen — "₱2,000 OFF" on the segment
+    // and "₱4,000 お得" on the card — with nothing saying which was which. The
+    // card is about the booking total, the badge sits under it, so the segment
+    // speaks in the same unit. It is also the number that argues: ₱32,000 off
+    // is a reason to bring three friends in a way that ₱8,000 is not.
+    const off = groupDiscount(n) * n;
     const on = state.divers === n;
     const label = document.createElement('label');
     label.className = 'seg' + (on ? ' is-on' : '');
@@ -285,12 +309,16 @@ function render(root) {
     return b;
   }));
 
-  // Every count is always offered. An earlier version hid the ones that would
-  // leave a room empty — but wanting a spare room is the customer's call, not
-  // ours, and a solo diver who wants two rooms is a bigger booking, not a
-  // mistake to be prevented. The only thing that can disable a count is
-  // physics: four people do not fit in one room that sleeps two. Disabled, not
-  // hidden — Booking and Expedia both grey out at the bound.
+  // Two bounds, and both of them are occupancy rather than opinion:
+  //   too small — four people do not fit in one room that sleeps two
+  //   too many  — a room has to have somebody in it. One diver cannot occupy
+  //               four rooms, and no booking product anywhere lets them try:
+  //               Booking clamps rooms to the party size on submit, Expedia
+  //               creates every room with a guest already inside so the state
+  //               is unreachable.
+  // Disabled, never hidden. The earlier mistake was removing the control, which
+  // made the question vanish; greying out at the bound is what Booking and
+  // Expedia both do and what the too-small case here already did.
   //
   // No second line. It described how the party would spread, and called an
   // unused room "1室あまり" — a phrase that appears in no booking product
@@ -303,14 +331,20 @@ function render(root) {
   // way four people each get their own. Capping at three quietly refused the
   // most valuable booking on the page.
   fill('#simRooms', [1, 2, 3, 4].map((n) => {
-    const tooSmall = state.divers > maxOcc * n;
+    const impossible = state.divers > maxOcc * n || n > state.divers;
     const on = state.rooms === n;
     const label = document.createElement('label');
-    label.className = 'seg' + (on ? ' is-on' : '') + (tooSmall ? ' is-off' : '');
+    label.className = 'seg' + (on ? ' is-on' : '') + (impossible ? ' is-off' : '');
     label.innerHTML =
-      `<input type="radio" name="simRooms" value="${n}"${on ? ' checked' : ''}${tooSmall ? ' disabled' : ''}>` +
+      `<input type="radio" name="simRooms" value="${n}"${on ? ' checked' : ''}${impossible ? ' disabled' : ''}>` +
       `<span class="seg__n">${t.roomCount(n)}</span>`;
-    if (!tooSmall) label.querySelector('input').addEventListener('change', () => {
+    // Attached whether or not this count is currently reachable. fill() reuses
+    // existing nodes when the option set keeps its shape, patching only class
+    // and disabled — so a segment created while disabled kept no listener and
+    // stayed dead after it became selectable again. A disabled input cannot
+    // fire change, so binding unconditionally costs nothing and removes the
+    // whole class of bug.
+    label.querySelector('input').addEventListener('change', () => {
       state.rooms = n; roomsPinned = true; render(root);
     });
     return label;
@@ -321,7 +355,10 @@ function render(root) {
   const lines = root.querySelector('.sim__lines');
   lines.replaceChildren(...q.lines.map(l => {
     const li = document.createElement('li');
-    li.innerHTML = `<span>${t.lines[l.key]}</span><i>${t.unitEach(l.qty, l.unit)}</i><b>${money(l.amount)}</b>`;
+    const isRoom = l.key === 'room';
+    const label = isRoom ? t.lines.roomWith(t.caps[state.roomId], l.qty) : t.lines[l.key];
+    const unit = isRoom ? '' : `<i>${t.unitEach(l.qty, l.unit)}</i>`;
+    li.innerHTML = `<span>${label}</span>${unit}<b>${money(l.amount)}</b>`;
     return li;
   }));
 
@@ -361,9 +398,13 @@ function render(root) {
 function autoRooms() {
   const room = PRICING.rooms.find(r => r.id === state.roomId);
   const needed = Math.min(Math.ceil(state.divers / room.maxOccupancy), 4);
+  // Never more rooms than divers: every room needs an occupant. Without the
+  // clamp a party that picked four rooms and then shrank to one diver kept all
+  // four, and the card quoted ₱75,500 for one person to sleep in four beds.
+  const most = state.divers;
   // Pinned: only ever raise it, so a deliberate choice is never overwritten by
   // a smaller requirement. Unpinned: track the requirement exactly.
-  state.rooms = roomsPinned ? Math.max(state.rooms, needed) : needed;
+  state.rooms = Math.min(roomsPinned ? Math.max(state.rooms, needed) : needed, most);
 }
 
 function init() {
