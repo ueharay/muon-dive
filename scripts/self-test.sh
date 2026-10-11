@@ -21,12 +21,11 @@ cd "$(dirname "$0")/.." || exit 1
 BACKUP=$(mktemp -d)
 trap 'restore; rm -rf "$BACKUP"' EXIT
 
-snapshot() { cp css/style.css "$BACKUP/style.css"; cp js/chat.js "$BACKUP/chat.js"
+snapshot() { cp css/style.css "$BACKUP/style.css"
              cp index.html "$BACKUP/index.html"; cp js/i18n.js "$BACKUP/i18n.js"
              cp js/price.js "$BACKUP/price.js"; cp js/sim.js "$BACKUP/sim.js"
              cp tests/fixtures/lockups.html "$BACKUP/lockups.html"; }
 restore()  { [ -f "$BACKUP/style.css" ] && cp "$BACKUP/style.css" css/style.css
-             [ -f "$BACKUP/chat.js" ]  && cp "$BACKUP/chat.js"  js/chat.js
              [ -f "$BACKUP/index.html" ] && cp "$BACKUP/index.html" index.html
              [ -f "$BACKUP/i18n.js" ] && cp "$BACKUP/i18n.js" js/i18n.js
              [ -f "$BACKUP/price.js" ] && cp "$BACKUP/price.js" js/price.js
@@ -49,9 +48,9 @@ mutate() {
   printf '\n[%d] %s\n' "$n" "$name"
   restore
   local sig_before sig_after
-  sig_before=$(cat css/style.css js/chat.js index.html js/i18n.js js/price.js js/sim.js tests/fixtures/lockups.html | shasum | cut -d' ' -f1)
+  sig_before=$(cat css/style.css index.html js/i18n.js js/price.js js/sim.js tests/fixtures/lockups.html | shasum | cut -d' ' -f1)
   eval "$cmd"
-  sig_after=$(cat css/style.css js/chat.js index.html js/i18n.js js/price.js js/sim.js tests/fixtures/lockups.html | shasum | cut -d' ' -f1)
+  sig_after=$(cat css/style.css index.html js/i18n.js js/price.js js/sim.js tests/fixtures/lockups.html | shasum | cut -d' ' -f1)
 
   if [ "$sig_before" = "$sig_after" ]; then
     printf '  STALE     the mutation changed nothing — it references text that no longer exists.\n'
@@ -81,14 +80,11 @@ mutate "ring size drifts off the nav's ratio" \
 mutate "MANILA font-size drifts off the nav's ratio" \
   "perl -0pi -e 's/(\.foot__city\{[^}]*font-size:)\.73rem/\${1}.4rem/' css/style.css"
 
-mutate "chat endpoint hardcoded to an absolute host" \
-  "perl -0pi -e \"s|ENDPOINT = '/api/chat'|ENDPOINT = 'https://example.com/api/chat'|\" js/chat.js"
-
 mutate "referenced image is missing" \
   "perl -0pi -e 's|<body|<img src=\"assets/img/does-not-exist.jpg\"><body|' index.html"
 
 mutate "JS syntax error" \
-  "printf '\nfunction(' >> js/chat.js"
+  "printf '\nfunction(' >> js/sim.js"
 
 mutate "English copy reverts to selling the Japanese language" \
   "perl -0pi -e 's/\"en\":\"Everything is run to a Japanese standard\.\"/\"en\":\"You are taught in Japanese, and ask in Japanese.\"/' js/i18n.js"
@@ -106,7 +102,7 @@ mutate "schedule counts revert to spelled-out English numbers" \
   "perl -0pi -e 's/\"en\":\"3 dives\"/\"en\":\"Three dives\"/' js/i18n.js"
 
 mutate "the room charge becomes per-person instead of per-room" \
-  "perl -0pi -e 's/\\* PRICING\\.nights \\+ PRICING\\.earlyCheckIn\\) \\* sel\\.rooms;/* PRICING.nights + PRICING.earlyCheckIn) * sel.divers;/' js/price.js"
+  "perl -0pi -e 's/\\* PRICING\\.nights \\+ PRICING\\.earlyCheckIn\\) \\* roomsCount;/* PRICING.nights + PRICING.earlyCheckIn) * sel.divers;/' js/price.js"
 
 # The line this used to target lost its shape when rooms gained an upper bound
 # as well as a lower one — every room needs an occupant, so one diver cannot

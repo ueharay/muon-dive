@@ -53,10 +53,6 @@ done
 
 # --- 4. Wiring that has silently broken before -----------------------------
 echo "[4/5] wiring"
-grep -q 'id="chatWidget"' index.html && pass "chat widget mounted" || bad "chat widget missing from index.html"
-grep -q "ENDPOINT = '/api/chat'" js/chat.js \
-  && pass "chat endpoint is same-origin relative" \
-  || bad "js/chat.js must call the relative '/api/chat' (an absolute host breaks on preview deploys)"
 grep -q 'REPLACE_ME' index.html css/style.css js/*.js 2>/dev/null \
   && bad "REPLACE_ME placeholder left in shipped files" \
   || pass "no leftover placeholders"

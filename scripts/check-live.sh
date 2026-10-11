@@ -15,7 +15,7 @@ cd "$(dirname "$0")/.." || exit 1
 PROD_URL="${1:-https://zen-dive-manila.vercel.app}"
 
 drift=0
-for f in css/style.css js/main.js js/chat.js js/menu.js index.html; do
+for f in css/style.css js/main.js js/menu.js index.html; do
   [ -f "$f" ] || continue
   remote=$(curl -s --max-time 8 "$PROD_URL/$f") || { echo "  ERROR    $f (could not fetch $PROD_URL)"; drift=1; continue; }
   local_content=$(cat "$f")

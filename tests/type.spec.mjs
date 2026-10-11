@@ -22,7 +22,7 @@ import { openSite } from './helpers.mjs';
 /** Selectors whose typeface is load-bearing enough to be worth pinning. */
 const WATCHED = [
   '.sim__total', '.sim__per', '.sim__label', '.sim__lines b',
-  '.seg__n', '.seg__sub', '.sim__roomdelta',
+  '.seg__n', '.seg__sub', '.course__price',
   '.nav__word', '.foot__word', '.btn',
 ];
 
@@ -78,7 +78,7 @@ test('the total is set like the other prices, and its digits do not reflow', asy
   const fam = (sel) => page.locator(sel).first()
     .evaluate((el) => getComputedStyle(el).fontFamily);
   expect(await fam('.sim__total'), 'the total matches the other prices')
-    .toBe(await fam('.sim__roomdelta'));
+    .toBe(await fam('.course__price'));
 
   // Proportional digits make the total twitch sideways on every click, which
   // reads as the figure being unstable rather than the choice being applied.

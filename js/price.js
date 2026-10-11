@@ -15,7 +15,7 @@ export const PRICING = {
   /* Course fee, per person. Published on this site today. */
   course: {
     ow:  30000,   // Open Water
-    aow: 28000,   // Advanced Open Water
+    aow: 30000,   // Advanced Open Water
   },
 
   /* Per person, for the whole two days. Published on this site today as
@@ -109,10 +109,12 @@ export function groupDiscount(divers) {
  * @param {string} sel.course      'ow' | 'aow'
  */
 export function quote(sel) {
-  const room = PRICING.rooms.find(r => r.id === sel.roomId);
-  if (!room) throw new Error(`unknown room: ${sel.roomId}`);
+  const roomId = sel.roomId || 'standard';
+  const roomsCount = sel.rooms || 1;
+  const room = PRICING.rooms.find(r => r.id === roomId);
+  if (!room) throw new Error(`unknown room: ${roomId}`);
 
-  const capacity = room.maxOccupancy * sel.rooms;
+  const capacity = room.maxOccupancy * roomsCount;
   const listRate = PRICING.course[sel.course] + PRICING.perDiver.gear + PRICING.perDiver.boatAndPass
                  + (sel.divers === 1 ? PRICING.soloLoading : 0);
   const discount = groupDiscount(sel.divers);          // pesos off each diver
@@ -123,19 +125,34 @@ export function quote(sel) {
   // Heads above two in a room cost extra at the resort. Spread the divers as
   // evenly as the rooms allow, then charge for whoever is the third or fourth
   // in a room — matching how the resort prices occupancy, not per body.
-  const perRoom = Math.ceil(sel.divers / sel.rooms);
+  const perRoom = Math.ceil(sel.divers / roomsCount);
   const extraHeadsPerRoom = Math.max(0, Math.min(perRoom, room.maxOccupancy) - 2);
   const roomNightly = room.nightly + room.extraPerHead * extraHeadsPerRoom;
-  const roomTotal = (roomNightly * PRICING.nights + PRICING.earlyCheckIn) * sel.rooms;
+  const roomTotal = (roomNightly * PRICING.nights + PRICING.earlyCheckIn) * roomsCount;
 
   const total = courseTotal + roomTotal;
+
+  const otherUnit = PRICING.perDiver.gear + PRICING.perDiver.boatAndPass
+                  + (sel.divers === 1 ? PRICING.soloLoading : 0);
+  const tuitionUnit = perDiver - otherUnit;
+  const tuitionTotal = tuitionUnit * sel.divers;
+  const otherTotal = otherUnit * sel.divers;
 
   return {
     fitsCapacity: sel.divers <= capacity,
     capacity,
+    tuitionUnit,
+    tuitionTotal,
+    otherUnit,
+    otherTotal,
     lines: [
       { key: 'course', qty: sel.divers, unit: perDiver,       amount: courseTotal },
-      { key: 'room',   qty: sel.rooms,  unit: roomNightly + PRICING.earlyCheckIn, amount: roomTotal },
+      { key: 'room',   qty: roomsCount, unit: roomNightly + PRICING.earlyCheckIn, amount: roomTotal },
+    ],
+    breakdown: [
+      { key: 'tuition', qty: sel.divers, unit: tuitionUnit, amount: tuitionTotal },
+      { key: 'other',   qty: sel.divers, unit: otherUnit,   amount: otherTotal },
+      { key: 'room',    qty: roomsCount, unit: roomNightly + PRICING.earlyCheckIn, amount: roomTotal },
     ],
     discount,
     listRate,

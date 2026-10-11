@@ -115,7 +115,6 @@ const INTENTIONAL_JP = [
   { sel: '.preloader',        why: 'loading screen — main.js excludes it from translation by design' },
   { sel: '.hero__scroll-jp',  why: '潜降 is a graphic element, not copy' },
   { sel: '.gallery figcaption', why: 'captions are bilingual on purpose: "Sea Turtle · 静寂の住人"' },
-  { sel: '#chatWidget',       why: 'the assistant answers in Japanese; its UI stays Japanese' },
   { sel: 'meta',              why: 'one HTML document, one set of meta tags — JP is the primary market' },
   { sel: 'title',             why: 'as above' },
 ];
