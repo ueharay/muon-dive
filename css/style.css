@@ -1075,8 +1075,8 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .sched::before{
   content:"";position:absolute;left:var(--rail);top:.9rem;bottom:.9rem;width:1px;
   background:linear-gradient(180deg,
-    rgba(83,212,205,.15) 0%, var(--cyan) 6%, var(--cyan) 46%,
-    var(--gold) 58%, var(--gold) 94%, rgba(229,182,103,.15) 100%);
+    rgba(83,212,205,.15) 0%, var(--cyan) 6%, var(--cyan) 50%,
+    var(--gold) 54%, var(--gold) 94%, rgba(229,182,103,.15) 100%);
 }
 .sched__day{position:relative;padding:0;border:none}
 .sched__day + .sched__day{margin-top:clamp(2.4rem,4vw,3.4rem)}
@@ -1096,9 +1096,8 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
    separate three-line rows that carried a description underneath; at one line
    it left the timeline stretched out with nothing in the gaps. */
 .sched__list{display:grid;gap:clamp(1.1rem,1.7vw,1.4rem)}
-/* 4.8rem, not 3.6rem: "8:00〜15:00" measures exactly 3.6rem at this size, so the
-   old column had zero slack and the range ran straight into the step title. */
-.sched__list li{position:relative;display:grid;grid-template-columns:4.8rem 1fr;
+/* 5rem gives comfortable room for ranges like "8:30〜14:00" */
+.sched__list li{position:relative;display:grid;grid-template-columns:5rem 1fr;
   gap:1.2rem;align-items:baseline}
 .sched__list li::before{
   content:"";position:absolute;left:calc(var(--rail) - var(--gutter) - 2.5px);
@@ -1523,7 +1522,7 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
   .spec{grid-auto-flow:row;grid-auto-columns:auto}
   .sched{--gutter:2rem}
   .sched__list{gap:1.1rem}
-  .sched__list li{grid-template-columns:3rem 1fr;gap:.9rem}
+  .sched__list li{grid-template-columns:5.2rem 1fr;gap:.9rem}
   html[data-lang="en"] .sched__list li{grid-template-columns:1fr;gap:.3rem}
 
   /* name over line, never beside it — "ダイブマスター" is short enough to fit next
