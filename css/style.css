@@ -409,7 +409,7 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .hero__title{font-family:var(--mincho);font-weight:600;color:var(--sand);
   font-size:clamp(1.72rem,5.2vw,4.8rem);line-height:1.32;letter-spacing:.015em;
   margin:1.2rem 0 2rem;text-shadow:0 6px 40px rgba(3,15,30,.85),0 2px 12px rgba(3,15,30,.7)}
-.hero__lead{max-width:34em;font-family:var(--sans);font-weight:500;color:var(--sand);
+.hero__lead{max-width:34em;font-family:var(--mincho);font-weight:500;color:var(--sand);
   font-size:clamp(.88rem,1.45vw,1.18rem);line-height:1.95;letter-spacing:.04em;
   padding-left:clamp(.85rem,1.6vw,1.25rem);border-left:2px solid var(--cyan);
   text-shadow:0 2px 20px rgba(3,15,30,1),0 1px 6px rgba(3,15,30,.98),0 0 32px rgba(3,15,30,.9)}
