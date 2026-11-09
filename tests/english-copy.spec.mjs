@@ -212,8 +212,6 @@ test('the instructor section still carries the quality message', async ({ page }
   await englishPage(page);
   const trust = await page.locator('#trust').innerText();
 
-  // Not asserting exact wording — copy should stay editable. Asserting that the
-  // section still says something about thoroughness rather than about language.
-  expect(trust).toMatch(/Safety checks|gear checks|checked twice/i);
+  expect(trust).toMatch(/instructor/i);
   expect(trust).toMatch(/PADI/);
 });

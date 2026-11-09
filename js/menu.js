@@ -15,10 +15,11 @@
 
   // section → poster preview (posters already ship for the background videos)
   const ITEMS = [
+    { href: '#why',     jp: 'ライセンス',   en: 'Licence',       poster: 'assets/img/surface-light.jpg' },
     { href: '#gear',    jp: '手ぶら',       en: 'Bring nothing', poster: 'assets/img/reef-wall.jpg' },
     { href: '#access',  jp: 'スケジュール', en: 'Schedule',      poster: 'assets/video/hero-montage.jpg' },
     { href: '#offers',  jp: '料金',         en: 'Price',         poster: 'assets/video/table-coral.jpg' },
-    { href: '#trust',   jp: '安全',         en: 'Safety',        poster: 'assets/video/reef-orange.jpg' },
+    { href: '#faq',     jp: 'FAQ',          en: 'FAQ',           poster: 'assets/video/reef-orange.jpg' },
     { href: '#cta',     jp: '予約する',     en: 'Book',          poster: 'assets/video/reef-teal.jpg' },
   ];
 
@@ -41,7 +42,7 @@
         '</a>'
       ).join('') +
       '</nav>' +
-      '<div class="immersive__foot"><span>ZEN DIVE — MANILA</span><span>MANILA ↝ THE OTHER SIDE</span></div>';
+      '<div class="immersive__foot"><span>ZEN DIVE — MANILA</span><span>MANILA ↝ ANILAO, BATANGAS</span></div>';
     document.body.appendChild(overlay);
     bg = $('#immBg', overlay);
 
