@@ -49,7 +49,7 @@ const L = {
     perBar: (d, n) => d === 1 ? '1名' : `1人 ${money(n)}`,
     exclTitle: '講習費用に含まれないもの（当日リゾートにて直接精算・実費目安）',
     excl: [
-      'マニラ⇄アニラオの往復送迎（1人 ₱1,000〜4,000前後／4名なら約₱2,000）',
+      'マニラ⇄アニラオの往復送迎（1人 ₱1,000〜4,000前後／参加人数で割ります）',
       '朝・昼・晩の食事（1日 ₱1,000〜1,500前後）',
       '器材一式のレンタルとタンク（₱5,000前後）',
       'ボート・燃料・ダイブパス（₱2,000〜3,000）',
@@ -80,7 +80,7 @@ const L = {
     perBar: (d, n) => d === 1 ? '1 diver' : `${money(n)} each`,
     exclTitle: 'Not included in course tuition (paid directly on site)',
     excl: [
-      'Manila ⇄ Anilao round-trip transfers (approx. ₱1,000–4,000/person; ~₱2,000 for 4)',
+      'Manila ⇄ Anilao round-trip transfers (approx. ₱1,000–4,000/person, split by number of participants)',
       'Breakfast, lunch & dinner (approx. ₱1,000–1,500/day)',
       'Full gear rental & tanks (approx. ₱5,000)',
       'Boat, fuel and dive pass (approx. ₱2,000–3,000)',
