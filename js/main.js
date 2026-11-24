@@ -107,10 +107,10 @@
     };
 
     if (hasGSAP) {
-      gsap.to(state, { v: 1, duration: 1.7, ease: 'power2.inOut', onUpdate: paint });
+      gsap.to(state, { v: 1, duration: 0.45, ease: 'power2.inOut', onUpdate: paint });
     } else {
       const t0 = performance.now();
-      const tick = (t) => { state.v = clamp((t - t0) / 1700); paint(); if (state.v < 1) requestAnimationFrame(tick); };
+      const tick = (t) => { state.v = clamp((t - t0) / 450); paint(); if (state.v < 1) requestAnimationFrame(tick); };
       requestAnimationFrame(tick);
     }
 
@@ -122,9 +122,9 @@
     });
     const fonts = document.fonts ? document.fonts.ready.catch(() => {}) : Promise.resolve();
 
-    // never let a slow CDN image hold the gate: cap asset wait, keep a min "descent" time
+    // never let a slow CDN image hold the gate: cap asset wait, keep a snappy "descent"
     const assets = Promise.all([decode, fonts]);
-    Promise.all([Promise.race([assets, wait(2600)]), wait(1650)]).then(exit);
+    Promise.all([Promise.race([assets, wait(950)]), wait(420)]).then(exit);
 
     let exited = false;
     function exit() {
@@ -138,13 +138,12 @@
           pre.style.display = 'none';
           if (window.ScrollTrigger) window.ScrollTrigger.refresh();
         }});
-        tl.to('#preloader .preloader__hint', { opacity: 0, y: -8, duration: .5, ease: 'power2.in' })
-          .to('#preloader .preloader__inner', { y: -30, opacity: 0, duration: .9, ease: 'power2.inOut' }, '-=.2')
-          .to(pre, { clipPath: 'inset(0 0 100% 0)', duration: 1.15, ease: 'power3.inOut' }, '-=.6');
+        tl.to('#preloader .preloader__inner', { y: -18, opacity: 0, duration: .32, ease: 'power2.inOut' })
+          .to(pre, { clipPath: 'inset(0 0 100% 0)', duration: .48, ease: 'power3.inOut' }, '-=.18');
       } else {
-        pre.style.transition = 'opacity .8s ease';
+        pre.style.transition = 'opacity .35s ease';
         pre.style.opacity = '0';
-        setTimeout(() => { pre.style.display = 'none'; }, 850);
+        setTimeout(() => { pre.style.display = 'none'; }, 380);
       }
     }
   }
