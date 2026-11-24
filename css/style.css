@@ -1674,7 +1674,15 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
   .stay__shots{gap:.9rem}
 
 
-  .hero__lead{line-height:2.1}
+  #hero .kicker{font-size:.75rem;letter-spacing:.16em;gap:.6rem;margin-bottom:1.1rem}
+  #hero .kicker::before{width:22px;flex:none}
+  .hero__title{font-size:clamp(1.58rem,6.7vw,2.2rem);margin:1rem 0 1.6rem}
+  .hero__lead{line-height:1.85}
+  .hero__media::after{
+    background:
+      linear-gradient(90deg,rgba(4,24,34,.84) 0%,rgba(4,24,34,.64) 55%,rgba(4,24,34,.42) 100%),
+      linear-gradient(180deg,rgba(4,24,34,.62) 0%,rgba(4,24,34,.22) 38%,rgba(7,42,56,.82) 100%);
+  }
 
   /* portrait crops ~74% of a 16:9 frame away horizontally. The montage's subject
      (the turtle) sits left of centre, so the window has to move left with it. */
