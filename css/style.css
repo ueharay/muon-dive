@@ -1076,10 +1076,59 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 
 /* the first door is already open */
 .course--lead{
-  border:1px solid rgba(229,182,103,.42);border-radius:6px;
+  border:1px solid rgba(229,182,103,.42);border-radius:6px;overflow:hidden;
   background:linear-gradient(165deg,rgba(229,182,103,.13),rgba(3,13,26,.66));
   padding:0 clamp(1.5rem,2.6vw,2.6rem);margin-bottom:1.4rem;
   box-shadow:0 26px 70px -34px rgba(229,182,103,.24),0 22px 56px -36px rgba(2,8,17,.9);
+}
+.course__tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  margin:0 calc(clamp(1.5rem,2.6vw,2.6rem) * -1);
+  border-bottom:1px solid rgba(229,182,103,.24);
+}
+.course__tab{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:.25rem;
+  min-height:58px;
+  padding:.95rem .65rem;
+  background:rgba(3,13,26,.48);
+  border:0;
+  color:var(--ink-faint);
+  cursor:pointer;
+  text-align:center;
+  transition:background-color .22s ease,color .22s ease;
+}
+.course__tab + .course__tab{border-left:1px solid rgba(229,182,103,.18)}
+.course__tab:hover{background:rgba(229,182,103,.08);color:var(--sand)}
+.course__tab:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+.course__tab.is-on{background:transparent;color:var(--sand)}
+.course__tab.is-on::after{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:0;
+  height:2px;
+  background:var(--gold);
+}
+.course__tab-name{
+  font-family:var(--label);
+  font-size:clamp(.78rem,1.2vw,.96rem);
+  font-weight:600;
+  letter-spacing:.06em;
+  line-height:1.2;
+  white-space:nowrap;
+}
+.course__tab.is-on .course__tab-name{color:var(--gold)}
+.course__tab-sub{
+  font-family:var(--label);
+  font-size:.64rem;
+  letter-spacing:.08em;
+  opacity:.78;
+  line-height:1.2;
 }
 .course--lead .course__step{color:var(--gold)}
 .course--lead .course__ttl{color:var(--gold)}
@@ -1577,6 +1626,7 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
   /* was 1.6rem — tighter than every other section's gutter (--pad: 1.7rem),
      so the gold border read as crowding the copy instead of framing it */
   .course--lead{padding:0 2rem}
+  .course__tabs{margin:0 -2rem}
   .course--card{padding:0 2rem}
   .course__inner{padding-bottom:2.6rem}
   .course__hook{margin-bottom:2rem}

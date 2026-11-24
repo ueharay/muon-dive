@@ -10,17 +10,17 @@ import { PRICING, quote, groupDiscount } from './price.js';
 
 const COURSES = [
   { id: 'ow',  level: 'LEVEL 1',
-               ja: { seg: 'オープンウォーター', step: 'はじめての人へ', name: 'オープンウォーターコース',
+               ja: { seg: 'オープンウォーター', tabSub: 'はじめての方', step: 'はじめての人へ', name: 'オープンウォーターコース',
                      why: 'はじめて潜る人が取る、世界共通のライセンス',
                      spec: [['日程', '1泊2日'], ['深さ', '18mまで'], ['年齢', '10歳以上']] },
-               en: { seg: 'Open Water', step: 'START HERE', name: 'Open Water Course',
+               en: { seg: 'Open Water', tabSub: 'Start here', step: 'START HERE', name: 'Open Water Course',
                      why: 'The licence divers everywhere start with',
                      spec: [['Length', '2 days'], ['Depth', 'to 18m'], ['Age', '10+']] } },
   { id: 'aow', level: 'LEVEL 2',
-               ja: { seg: 'アドバンス', step: 'つぎの一歩', name: 'アドバンス・オープンウォーター',
+               ja: { seg: 'アドバンス', tabSub: '経験者向け', step: 'つぎの一歩', name: 'アドバンスコース',
                      why: '沈没船も、30mの地形も',
                      spec: [['日程', '1泊2日'], ['深さ', '30mまで'], ['年齢', '12歳以上'], ['前提', 'オープンウォーター']] },
-               en: { seg: 'Advanced', step: 'NEXT STEP', name: 'Advanced Open Water',
+               en: { seg: 'Advanced', tabSub: 'Next step', step: 'NEXT STEP', name: 'Advanced Course',
                      why: 'Wrecks, and the shape of the reef at 30m',
                      spec: [['Length', '2 days'], ['Depth', 'to 30m'], ['Age', '12+'], ['Needs', 'Open Water']] } },
 ];
@@ -180,6 +180,39 @@ function render(root) {
       });
     });
   };
+
+  const tabsBox = document.getElementById('simCourseTabs');
+  if (tabsBox) {
+    tabsBox.setAttribute('aria-label', currentLang === 'en' ? 'Select course' : 'コース選択');
+    const nodes = COURSES.map((item, idx) => {
+      const copy = item[currentLang];
+      const on = state.course === item.id;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'course__tab' + (on ? ' is-on' : '');
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', String(on));
+      btn.tabIndex = on ? 0 : -1;
+      btn.innerHTML =
+        `<span class="course__tab-name">${copy.seg}</span>` +
+        `<span class="course__tab-sub">${copy.tabSub}</span>`;
+      btn.addEventListener('click', () => {
+        if (state.course === item.id) return;
+        state.course = item.id;
+        render(root);
+      });
+      btn.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        const nextIdx = (idx + (e.key === 'ArrowRight' ? 1 : -1) + COURSES.length) % COURSES.length;
+        state.course = COURSES[nextIdx].id;
+        render(root);
+        tabsBox.querySelectorAll('[role="tab"]')[nextIdx]?.focus();
+      });
+      return btn;
+    });
+    tabsBox.replaceChildren(...nodes);
+  }
 
   fill('#simCourse', COURSES.map((item) => {
     const copy = item[currentLang];
