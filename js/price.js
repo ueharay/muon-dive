@@ -83,7 +83,7 @@ export const PRICING = {
      different amounts (₱1,875 on Open Water, ₱1,775 on Advanced) — untidy the
      moment the amount is what's printed. A flat peso figure is the same
      promise on both. */
-  groupDiscountByDivers: { 1: 0, 2: 2000, 3: 6000, 4: 8000 },
+  groupDiscountByDivers: { 1: 0, 2: 1000, 3: 2000, 4: 3000 },
 
   /* On the resort's statement every time. The Saturday itinerary leaves Manila
      before dawn and reaches the room long before check-in opens, so this is not

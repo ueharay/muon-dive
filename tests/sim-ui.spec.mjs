@@ -63,7 +63,7 @@ test('the discount is visible before you click, and adds up on the card', async 
   // one and the same discount, with nothing on screen to tell them apart.
   const offs = subs.slice(1).map(money);
   expect(offs, 'the discount is the whole party\'s, stated in pesos')
-    .toEqual([2000 * 2, 6000 * 3, 8000 * 4]);
+    .toEqual([1000 * 2, 2000 * 3, 3000 * 4]);
   for (const sub of subs.slice(1)) expect(sub, `stated as money off: "${sub}"`).toMatch(/₱[\d,]+\s*OFF/i);
 
 
@@ -143,7 +143,7 @@ test('the breakdown displays tuition calculation', async ({ page }) => {
 
   const amounts = await page.locator('#sim .sim__lines b').allInnerTexts();
   expect(amounts.length).toBeGreaterThanOrEqual(1);
-  expect(money(amounts[0])).toBe(56000); // 2 divers tuition with discount (28000 each)
+  expect(money(amounts[0])).toBe(58000); // 2 divers tuition with discount (29000 each)
 });
 
 test('the simulator speaks English on the English page', async ({ page }) => {

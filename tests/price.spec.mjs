@@ -31,10 +31,10 @@ test('diving alone costs more per head, and says so in the rate, not a mystery l
 
   const rate = (q) => q.lines.find(l => l.key === 'course').unit;
   expect(rate(solo), 'the solo rate carries the whole boat').toBe(42500);
-  expect(rate(pair), 'two divers split it, less the ₱2,000 group discount').toBe(35500);
+  expect(rate(pair), 'two divers split it, less the ₱1,000 group discount').toBe(36500);
 
-  // 35,500 x2 + (5,500 room + 2,750 early check-in)
-  expect(pair.total).toBe(79250);
+  // 36,500 x2 + (5,500 room + 2,750 early check-in)
+  expect(pair.total).toBe(81250);
   expect(pair.perPerson).toBeLessThan(solo.perPerson);
 });
 
@@ -122,10 +122,10 @@ test('the group discount is money, not a percentage', () => {
   // for one promise: 5% of the Open Water rate is ₱1,875 and of Advanced
   // ₱1,775, and the amount is what the page now shows.
   expect(groupDiscount(1), 'a solo diver has nobody to share with').toBe(0);
-  expect(groupDiscount(2)).toBe(2000);
-  expect(groupDiscount(3)).toBe(6000);
-  expect(groupDiscount(4)).toBe(8000);
-  expect(groupDiscount(9), 'past the largest party it goes flat, never further').toBe(8000);
+  expect(groupDiscount(2)).toBe(1000);
+  expect(groupDiscount(3)).toBe(2000);
+  expect(groupDiscount(4)).toBe(3000);
+  expect(groupDiscount(9), 'past the largest party it goes flat, never further').toBe(3000);
 
   // Same money off whichever course is selected.
   const off = (course, divers) => {
@@ -144,8 +144,7 @@ test('recruiting one more friend never costs the group more than the last one di
   // falls away at two and hands the second head a boost the third never gets.
   // A ladder that makes each additional friend dearer than the last is arguing
   // against the thing it was built to encourage, and nothing was watching.
-  const groupPays = (n) => quote({ divers: n, roomId: 'deluxe', rooms: 1, course: 'ow' })
-    .lines.find((l) => l.key === 'course').amount;
+  const groupPays = (n) => quote({ divers: n, roomId: 'deluxe', rooms: 1, course: 'ow' }).tuitionTotal;
 
   let previous = Infinity;
   for (const n of [2, 3, 4]) {
