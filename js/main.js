@@ -73,6 +73,7 @@
       } else {
         // reduced / no-lib: static depth so the grade + meter still read nicely
         setDepthVars(0.28);
+        $$('.lines').forEach((el) => el.classList.add('is-revealed'));
         const dm = $('#depthmeter'); if (dm) dm.classList.remove('is-on');
       }
     } catch (err) {
@@ -149,12 +150,17 @@
   }
 
   function revealHero() {
-    if (!hasGSAP || reduced) return;
+    const heroTitle = $('#hero .hero__title');
+    if (!hasGSAP || reduced) {
+      if (heroTitle) heroTitle.classList.add('is-revealed');
+      return;
+    }
     const tl = gsap.timeline({ delay: .15 });
     // the Japanese headline leads; the English kicker rides in alongside it, so
     // the first thing on screen is never a lone line of English
     tl.fromTo('#hero .hero__title .ch', { yPercent: 120, rotate: 3 },
-        { yPercent: 0, rotate: 0, duration: 1.25, ease: 'expo.out', stagger: { each: .026, from: 'start' } })
+        { yPercent: 0, rotate: 0, duration: 1.25, ease: 'expo.out', stagger: { each: .026, from: 'start' },
+          onComplete: () => { if (heroTitle) heroTitle.classList.add('is-revealed'); } })
       .to('#hero .kicker', { opacity: 1, y: 0, duration: .9, ease: 'power3.out' }, '-=1.05')
       .to('#hero .hero__lead', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, '-=.8')
       .to('#hero .hero__actions', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, '-=.8')
@@ -297,6 +303,7 @@
     setLangAttrs(lang);
     I18N.headings.forEach((o) => {
       splitOne(o.el);
+      o.el.classList.add('is-revealed');
       if (hasGSAP && !reduced) gsap.set(o.el.querySelectorAll('.ch'), { yPercent: 0, rotate: 0, opacity: 1, clearProps: 'transform' });
     });
     try { localStorage.setItem('zen-lang', lang); } catch (e) {}
@@ -322,7 +329,8 @@
       ST.create({
         trigger: el, start: 'top 82%', once: true,
         onEnter: () => gsap.to(chars,
-          { yPercent: 0, rotate: 0, duration: dur, ease: 'expo.out', stagger: { each: .024, from: 'start' } }),
+          { yPercent: 0, rotate: 0, duration: dur, ease: 'expo.out', stagger: { each: .024, from: 'start' },
+            onComplete: () => el.classList.add('is-revealed') }),
       });
     });
 

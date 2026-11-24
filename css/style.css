@@ -360,6 +360,7 @@ p,li,dd,dt,em,b,figcaption,summary,
 /* line-reveal scaffold (JS wraps into .line > .line-inner) */
 .lines{overflow:visible}
 .lines .line{display:block;overflow:hidden;padding-bottom:.04em}
+.lines.is-revealed .line{overflow:visible}
 .lines .line-inner{display:block}
 /* initial hidden state is owned by GSAP (js/main.js) — a CSS % transform here
    would be read back as pixels and fight the yPercent tween. */
@@ -410,6 +411,7 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .hero__title{font-family:var(--mincho);font-weight:600;color:var(--sand);
   font-size:clamp(1.72rem,5.2vw,4.8rem);line-height:1.32;letter-spacing:.015em;
   margin:1.2rem 0 2rem;text-shadow:0 6px 40px rgba(3,15,30,.85),0 2px 12px rgba(3,15,30,.7)}
+#hero .hero__title .glow{color:inherit;font-style:normal;text-shadow:inherit}
 .hero__lead{max-width:34em;font-family:var(--mincho);font-weight:500;color:var(--sand);
   font-size:clamp(.88rem,1.45vw,1.18rem);line-height:1.95;letter-spacing:.04em;
   padding-left:clamp(.85rem,1.6vw,1.25rem);border-left:2px solid var(--cyan);
@@ -1599,6 +1601,7 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
   *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   html.js [data-reveal]{opacity:1}
   html.js .lines .line-inner,html.js .lines .ch{transform:none!important}
+  .lines .line{overflow:visible}
   html.js [data-clip] img,html.js [data-clip] video{transform:none;clip-path:none}
   .grain,.hero__scroll i::after{display:none}
   /* immersive menu: appear/disappear instantly, links present with no stagger */
@@ -1680,20 +1683,16 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
   }
   #hero .kicker::before{width:22px;flex:none;box-shadow:0 1px 6px rgba(3,20,30,.75)}
   .hero__title{
-    font-size:clamp(1.74rem,7.5vw,2.45rem);
-    letter-spacing:0;
-    line-height:1.28;
-    margin:1rem 0 1.5rem;
-    text-shadow:0 4px 18px rgba(3,20,30,.92),0 2px 6px rgba(3,20,30,.9),0 0 2px rgba(3,20,30,.85);
-  }
-  .hero__title .glow{
-    color:#8FF2EC;
-    text-shadow:0 4px 18px rgba(3,20,30,.95),0 2px 6px rgba(3,20,30,.92),0 0 2px rgba(3,20,30,.88);
+    font-size:clamp(2.12rem,9.2vw,2.65rem);
+    letter-spacing:.01em;
+    line-height:1.26;
+    margin:.9rem 0 1.45rem;
+    text-shadow:0 3px 16px rgba(3,20,30,.72),0 1px 4px rgba(3,20,30,.78);
   }
   .hero__lead{
     font-size:clamp(.94rem,3.8vw,1.05rem);
     line-height:1.85;
-    text-shadow:0 3px 14px rgba(3,20,30,.96),0 1px 4px rgba(3,20,30,.95),0 0 2px rgba(3,20,30,.9);
+    text-shadow:0 2px 12px rgba(3,20,30,.82),0 1px 3px rgba(3,20,30,.85);
   }
   .hero__actions .btn--ghost{
     background:transparent;
