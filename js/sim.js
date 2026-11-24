@@ -10,10 +10,10 @@ import { PRICING, quote, groupDiscount } from './price.js';
 
 const COURSES = [
   { id: 'ow',  level: 'LEVEL 1',
-               ja: { seg: 'オープンウォーター', step: 'はじめての人へ', name: 'オープンウォーター・ダイバー',
+               ja: { seg: 'オープンウォーター', step: 'はじめての人へ', name: 'オープンウォーターコース',
                      why: 'はじめて潜る人が取る、世界共通のライセンス',
                      spec: [['日程', '1泊2日'], ['深さ', '18mまで'], ['年齢', '10歳以上']] },
-               en: { seg: 'Open Water', step: 'START HERE', name: 'Open Water Diver',
+               en: { seg: 'Open Water', step: 'START HERE', name: 'Open Water Course',
                      why: 'The licence divers everywhere start with',
                      spec: [['Length', '2 days'], ['Depth', 'to 18m'], ['Age', '10+']] } },
   { id: 'aow', level: 'LEVEL 2',
