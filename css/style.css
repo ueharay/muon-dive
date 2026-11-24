@@ -787,6 +787,33 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
   padding-top:1.1rem;
   border-top:1px solid var(--line);
 }
+.sim__incl{
+  margin-bottom:1.05rem;
+  padding-bottom:.95rem;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  gap:.35rem;
+}
+.sim__incl-label{
+  font-family:var(--label);
+  font-size:.72rem;
+  letter-spacing:.12em;
+  color:var(--gold);
+  font-weight:500;
+}
+.sim__incl-body{
+  font-family:var(--label);
+  font-size:.78rem;
+  line-height:1.65;
+  letter-spacing:.02em;
+  color:var(--sand);
+}
+.sim__incl-body::before{
+  content:"✓ ";
+  color:var(--cyan);
+  font-weight:600;
+}
 .sim__excl{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:.5rem 1.6rem}
 @media (max-width:900px){
   .sim__excl{grid-template-columns:repeat(2, minmax(0, 1fr))}
@@ -1235,7 +1262,8 @@ html[data-lang="en"] .hero__lead{max-width:52ch}
    TRUST
    ================================================================ */
 .trust{padding:clamp(4rem,8vh,7rem) 0}
-.trust .h-md{max-width:none;margin-bottom:clamp(3rem,6vw,5rem)}
+.trust .h-md{max-width:none;margin-bottom:1.5rem}
+.trust__lead{max-width:38em;color:var(--ink-dim);font-family:var(--mincho);line-height:2.05;margin-bottom:clamp(2.2rem,4.5vw,3.6rem)}
 /* the claim ("a Japanese PADI instructor") and its proof (the two of them in
    kit, under the PADI flag) sit side by side — copy alone was asking to be
    taken on faith */

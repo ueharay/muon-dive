@@ -47,6 +47,8 @@ const L = {
     unitEach: (q, u) => `${q} × ${money(u)}`,
     summary: (d) => `${d}名 講習費用`,
     perBar: (d, n) => d === 1 ? '1名' : `1人 ${money(n)}`,
+    inclTitle: '講習費用に含まれるもの',
+    inclText: 'PADI eラーニング教材・2日間の実技講習・ライセンス申請料すべて込み',
     exclTitle: '講習費用に含まれないもの（2日間の現地実費目安・リゾート直接精算）',
     excl: [
       'マニラ⇄アニラオの往復送迎（1人 ₱1,000〜4,000前後／参加人数で割ります）',
@@ -78,6 +80,8 @@ const L = {
     unitEach: (q, u) => `${q} × ${money(u)}`,
     summary: (d) => `${d} diver${d > 1 ? 's' : ''} · tuition`,
     perBar: (d, n) => d === 1 ? '1 diver' : `${money(n)} each`,
+    inclTitle: 'Included in course tuition',
+    inclText: 'PADI eLearning materials, 2 days of practical training, and certification processing fees',
     exclTitle: 'Not included in tuition (2-day on-site cost guide, paid at resort)',
     excl: [
       'Manila ⇄ Anilao round-trip transfers (approx. ₱1,000–4,000/person, split by number of participants)',
@@ -218,6 +222,11 @@ function render(root) {
       li.innerHTML = `<span>${l.label}</span>${unitHtml}<b>${l.amount}</b>`;
       return li;
     }));
+  }
+
+  const incl = root.querySelector('.sim__incl');
+  if (incl) {
+    incl.innerHTML = `<span class="sim__incl-label">${t.inclTitle}</span><span class="sim__incl-body">${t.inclText}</span>`;
   }
 
   const excl = root.querySelector('.sim__excl');
