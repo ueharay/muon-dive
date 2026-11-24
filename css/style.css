@@ -16,8 +16,8 @@
   --gold:#EABF74;      /* warm accent — CTA                  */
 
   --ink:var(--sand);
-  --ink-dim:rgba(241,234,220,.85);
-  --ink-faint:rgba(241,234,220,.55);
+  --ink-dim:rgba(241,234,220,.88);
+  --ink-faint:rgba(241,234,220,.72);
   --line:rgba(210,240,235,.2);
 
   /* --- type --- */
@@ -239,7 +239,7 @@ html.has-cursor,html.has-cursor *{cursor:none!important}
 .nav__word{font-family:var(--label);font-weight:500;font-size:.78rem;
   letter-spacing:.34em;margin-right:-.34em;color:var(--sand);line-height:1;white-space:nowrap}
 .nav__city{display:flex;justify-content:space-between;font-family:var(--label);
-  font-weight:500;font-size:.56rem;color:var(--ink-faint);line-height:1}
+  font-weight:500;font-size:.56rem;color:rgba(241,234,220,.55);line-height:1}
 .nav__city i,.foot__city i{font-style:normal}
 .preloader__maru{display:block;width:clamp(3.8rem,9vw,5.2rem);height:auto;margin:0 auto;
   color:var(--sand)}
@@ -272,7 +272,7 @@ html.has-cursor,html.has-cursor *{cursor:none!important}
    the quiet ink colour. Cyan and a larger size made it read as a second brand
    rather than a location line. */
 .foot__city{display:flex;justify-content:space-between;font-family:var(--label);
-  font-weight:500;font-size:.73rem;color:var(--ink-faint);line-height:1}
+  font-weight:500;font-size:.73rem;color:rgba(241,234,220,.55);line-height:1}
 .foot__tag{grid-column:1 / -1;grid-row:2}
 .nav__links{display:flex;gap:clamp(1rem,2.4vw,2.4rem)}
 .nav__links a{
@@ -806,7 +806,7 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 }
 .sim__incl-body{
   font-family:var(--label);
-  font-size:.78rem;
+  font-size:.82rem;
   line-height:1.65;
   letter-spacing:.02em;
   color:var(--sand);
@@ -825,7 +825,7 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
   .sim__excl{grid-template-columns:1fr;gap:.4rem}
 }
 .sim__excl li{position:relative;padding-left:1.1rem;font-family:var(--label);
-  font-size:.73rem;line-height:1.55;letter-spacing:.02em;color:var(--ink-faint)}
+  font-size:.81rem;line-height:1.6;letter-spacing:.02em;color:var(--ink-faint)}
 .sim__excl li::before{content:"•";position:absolute;left:0;top:-.05rem;color:var(--cyan);
   font-size:.9rem;opacity:.8}
 .sim__excl .sim__incltitle{grid-column:1/-1;padding-left:0!important;margin-bottom:.45rem;
