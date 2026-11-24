@@ -52,7 +52,7 @@ const L = {
     exclTitle: '講習費用に含まれないもの（2日間の現地実費目安・リゾート直接精算）',
     excl: [
       'マニラ⇄アニラオの往復送迎（1人 ₱1,000〜4,000前後／参加人数で割ります）',
-      '食事代（2日間で ₱2,000〜3,000前後）',
+      '食事代（2日間で ₱1,000〜2,000前後）',
       '器材一式のレンタルとタンク（2日間で ₱5,000前後）',
       'ボート・燃料・ダイブパス（2日間で ₱2,000〜3,000）',
       '宿泊（1泊2日 1室 ₱6,000〜8,000前後／手配サポートあり）',
@@ -85,7 +85,7 @@ const L = {
     exclTitle: 'Not included in tuition (2-day on-site cost guide, paid at resort)',
     excl: [
       'Manila ⇄ Anilao round-trip transfers (approx. ₱1,000–4,000/person, split by number of participants)',
-      'Meals (approx. ₱2,000–3,000 for 2 days)',
+      'Meals (approx. ₱1,000–2,000 for 2 days)',
       'Full gear rental & tanks (approx. ₱5,000 for 2 days)',
       'Boat, fuel and dive pass (approx. ₱2,000–3,000 for 2 days)',
       'Lodging (1 night / 2 days, approx. ₱6,000–8,000 per room, booking support provided)',
