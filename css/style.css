@@ -1676,12 +1676,22 @@ html[data-lang="en"] .imm-link{font-family:var(--display);font-weight:500;letter
 
   #hero .kicker{font-size:.75rem;letter-spacing:.16em;gap:.6rem;margin-bottom:1.1rem}
   #hero .kicker::before{width:22px;flex:none}
-  .hero__title{font-size:clamp(1.58rem,6.7vw,2.2rem);margin:1rem 0 1.6rem}
-  .hero__lead{line-height:1.85}
+  .hero__title{font-size:clamp(1.58rem,6.7vw,2.2rem);margin:1rem 0 1.6rem;
+    text-shadow:0 3px 22px rgba(6,36,48,.82),0 1px 6px rgba(6,36,48,.75)}
+  .hero__title .glow{color:#7CE8E2;text-shadow:0 2px 18px rgba(4,28,40,.9),0 1px 5px rgba(4,28,40,.85)}
+  .hero__lead{line-height:1.85;
+    text-shadow:0 2px 16px rgba(6,36,48,.9),0 1px 4px rgba(6,36,48,.85)}
+  .hero__actions .btn--ghost{
+    background:rgba(8,46,62,.38);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    border-color:rgba(241,234,220,.45);
+  }
+  .hero__media video,.hero__media img{filter:brightness(1.06) saturate(1.12)}
   .hero__media::after{
     background:
-      linear-gradient(90deg,rgba(4,24,34,.84) 0%,rgba(4,24,34,.64) 55%,rgba(4,24,34,.42) 100%),
-      linear-gradient(180deg,rgba(4,24,34,.62) 0%,rgba(4,24,34,.22) 38%,rgba(7,42,56,.82) 100%);
+      linear-gradient(180deg,rgba(10,58,74,.34) 0%,rgba(10,58,74,.08) 24%,rgba(10,58,74,.30) 52%,rgba(14,74,94,.58) 100%),
+      radial-gradient(ellipse 95% 48% at 38% 48%,rgba(8,48,64,.32) 0%,transparent 75%);
   }
 
   /* portrait crops ~74% of a 16:9 frame away horizontally. The montage's subject
