@@ -758,7 +758,8 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 .sim__lines b{grid-row:1;grid-column:2;font-weight:500;color:var(--sand);white-space:nowrap}
 
 .sim__cta{width:100%;justify-content:center;margin-top:clamp(1.1rem,1.8vw,1.5rem);
-  border-radius:3px;font-weight:600;letter-spacing:.1em;padding:.92rem 1.6rem;
+  border-radius:3px;font-weight:600;letter-spacing:.08em;padding:.92rem 1.2rem;
+  white-space:nowrap;
   background:var(--gold);color:#071720;border:1px solid rgba(255,255,255,.2);
   box-shadow:0 8px 24px -6px rgba(229,182,103,.35);transition:all .35s cubic-bezier(.2,.8,.2,1)}
 .sim__cta:hover{background:#edd099;box-shadow:0 12px 30px -4px rgba(229,182,103,.5);transform:translateY(-1px)}
@@ -894,10 +895,11 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:.88rem 1.4rem;
-    font-size:.88rem;
+    padding:.88rem .9rem;
+    font-size:clamp(.76rem,3.6vw,.88rem);
     font-weight:600;
-    letter-spacing:.12em;
+    letter-spacing:.06em;
+    white-space:nowrap;
     border-radius:3px;
     background:var(--gold);
     border:1px solid rgba(255,255,255,.2);
@@ -922,7 +924,7 @@ html.js [data-clip] img,html.js [data-clip] video{transform:scale(1.24);clip-pat
 @media (max-width:380px){
   .sim__card{padding:1rem .95rem}
   .sim__total{font-size:1.65rem}
-  .sim__cta{padding:.8rem 1.2rem;font-size:.84rem}
+  .sim__cta{padding:.8rem .75rem;font-size:clamp(.72rem,3.5vw,.82rem)}
 }
 @media (max-width:560px){
   .sim__rooms{grid-template-columns:1fr;gap:.5rem}
